@@ -20,7 +20,11 @@ export default function WorldMap() {
     <div>
       <TopBar worldColor="var(--cyan)" showBack />
       <div className="world-map-title">{t(language, 'worldMapTitle')}</div>
-      <div className="world-map-grid">
+      <div className="world-map-grid magical-world-map">
+        <svg className="world-map-paths" viewBox="0 0 900 520" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M150 145 C270 85 330 85 450 145 S630 205 750 145 M150 145 C205 300 260 350 360 390 M750 145 C690 300 650 350 540 390" />
+          <path className="world-map-path-glow" d="M150 145 C270 85 330 85 450 145 S630 205 750 145 M150 145 C205 300 260 350 360 390 M750 145 C690 300 650 350 540 390" />
+        </svg>
         {WORLD_ORDER.map((key) => {
           const w = WORLDS[key];
           const style = { ...LAYOUT[key], '--nc': w.color };
@@ -33,10 +37,12 @@ export default function WorldMap() {
               >
                 <div className="world-ring">
                   {w.icon}
+                  <span className="portal-spark" aria-hidden="true">✦</span>
                   {worldsCompleted[key] && <span style={{ position: 'absolute', marginTop: -46, marginLeft: 38, fontSize: 18 }}>✓</span>}
                 </div>
                 <div className="w-name">{w.name}</div>
                 <div className="w-desc">{w.focus}</div>
+                <div className="w-preview">5 magical rounds</div>
               </button>
             </div>
           );

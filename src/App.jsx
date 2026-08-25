@@ -35,8 +35,9 @@ export default function App() {
   }
 
   return (
-    <div className={`lumora-app ${calmMode ? 'calm' : ''}`}>
+    <div className={`lumora-app screen-${screen} ${calmMode ? 'calm' : ''}`}>
       <div className="starfield" />
+      <div className="world-atmosphere" aria-hidden="true"><i /><i /><i /></div>
       <SettingsPanel />
       {content}
     </div>

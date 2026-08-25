@@ -1,22 +1,55 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
+import MagicMirror from './MagicMirror';
+import MagicCursor from './MagicCursor';
 
-export default function HandCursorLayer({ videoRef, pixel, cameraStatus, color }) {
+/**
+ * HandCursorLayer — Integrates the MagicMirror camera view and the
+ * MagicCursor energy trail into the game's play area.
+ *
+ * Shows the child's camera feed in a beautiful mirror/portal,
+ * and renders the cyan magic cursor that follows their fingertip.
+ */
+export default function HandCursorLayer({
+  videoRef,
+  pixel,
+  cameraStatus,
+  handDetected,
+  pinching = false,
+  interacting = false,
+  color = '#4fd8ff',
+  bursts = [],
+  showMirror = true,
+  showCursor = true,
+}) {
+  const [mirrorExpanded, setMirrorExpanded] = useState(false);
+
+  const toggleMirror = useCallback(() => {
+    setMirrorExpanded((prev) => !prev);
+  }, []);
+
   return (
     <>
-      <video ref={videoRef} className="camera-video" autoPlay muted playsInline />
-      <div className="tag-pill">
-        {cameraStatus === 'ready' && pixel
-          ? '✋ Hand detected — you are connected'
-          : cameraStatus === 'loading'
-          ? 'Starting camera…'
-          : cameraStatus === 'denied'
-          ? 'Camera unavailable — using mouse/touch instead'
-          : cameraStatus === 'error'
-          ? 'Camera error — using mouse/touch instead'
-          : '🖱 Move your mouse or finger to play'}
-      </div>
-      {pixel && (
-        <div className="hand-cursor" style={{ left: pixel.x, top: pixel.y, '--world-color': color }} />
+      {/* Magic Mirror — camera portal */}
+      {showMirror && (
+        <MagicMirror
+          videoRef={videoRef}
+          cameraStatus={cameraStatus}
+          handDetected={handDetected}
+          expanded={mirrorExpanded}
+          onToggle={toggleMirror}
+          color={color}
+        />
+      )}
+
+      {/* Magic Cursor — cyan energy trail */}
+      {showCursor && (
+        <MagicCursor
+          pixel={pixel}
+          pinching={pinching}
+          interacting={interacting}
+          color={color}
+          bursts={bursts}
+        />
       )}
     </>
   );

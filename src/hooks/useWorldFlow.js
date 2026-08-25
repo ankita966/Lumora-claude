@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameStore } from '../store/useGameStore';
 
 /**
@@ -14,16 +14,30 @@ export function useWorldFlow({ worldKey, skill, totalRounds = 5, xpPerRound = 15
   const [message, setMessage] = useState(null);
   const [completed, setCompleted] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
+  const transitionLockRef = useRef(false);
+  const transitionTimerRef = useRef(null);
 
   const logActivity = useGameStore((s) => s.logActivity);
   const addXp = useGameStore((s) => s.addXp);
   const completeWorld = useGameStore((s) => s.completeWorld);
 
+  const clearTransitionTimer = useCallback(() => {
+    if (transitionTimerRef.current) {
+      clearTimeout(transitionTimerRef.current);
+      transitionTimerRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => clearTransitionTimer, [clearTransitionTimer]);
+
   const registerAttempt = useCallback(() => setAttempts((a) => a + 1), []);
 
   const completeRound = useCallback(
     (accuracy = 1, customMsg) => {
-      if (transitioning) return;
+      // State updates are asynchronous. This ref prevents duplicate completion
+      // callbacks in the same render/frame from scheduling multiple advances.
+      if (transitionLockRef.current || completed) return;
+      transitionLockRef.current = true;
       setTransitioning(true);
       const timeMs = Math.max(400, Date.now() - startTime);
       logActivity({ world: worldKey, round: roundIndex + 1, skill, accuracy, attempts, timeMs });
@@ -34,28 +48,35 @@ export function useWorldFlow({ worldKey, skill, totalRounds = 5, xpPerRound = 15
       if (isLast) {
         completeWorld(worldKey);
         addXp(worldBonus);
-        setTimeout(() => setCompleted(true), 1000);
+        transitionTimerRef.current = setTimeout(() => {
+          transitionTimerRef.current = null;
+          setCompleted(true);
+        }, 1000);
       } else {
-        setTimeout(() => {
+        transitionTimerRef.current = setTimeout(() => {
+          transitionTimerRef.current = null;
           setRoundIndex((r) => r + 1);
           setAttempts(1);
           setStartTime(Date.now());
           setMessage(null);
           setTransitioning(false);
+          transitionLockRef.current = false;
         }, 1300);
       }
     },
-    [transitioning, startTime, worldKey, skill, roundIndex, attempts, totalRounds, xpPerRound, worldBonus, logActivity, addXp, completeWorld]
+    [completed, startTime, worldKey, skill, roundIndex, attempts, totalRounds, xpPerRound, worldBonus, logActivity, addXp, completeWorld]
   );
 
   const restart = useCallback(() => {
+    clearTransitionTimer();
+    transitionLockRef.current = false;
     setRoundIndex(0);
     setAttempts(1);
     setStartTime(Date.now());
     setMessage(null);
     setCompleted(false);
     setTransitioning(false);
-  }, []);
+  }, [clearTransitionTimer]);
 
   return {
     roundIndex,

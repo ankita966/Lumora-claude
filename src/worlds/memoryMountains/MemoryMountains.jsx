@@ -1,12 +1,15 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import TopBar from '../../components/TopBar';
 import RoundHeader from '../../components/RoundHeader';
 import Mascot from '../../components/Mascot';
 import WorldCompleteOverlay from '../../components/WorldCompleteOverlay';
+import HandCursorLayer from '../../components/HandCursorLayer';
 import { useWorldFlow } from '../../hooks/useWorldFlow';
+import { useCursor } from '../../hooks/useCursor';
 import { WORLDS } from '../../data/worlds';
 
 const COLOR = WORLDS.memoryMountains.color;
+const CURSOR_COLOR = '#4fd8ff';
 const ICON_POOL = ['💎', '🔑', '🍎', '🦋', '🌙', '👑', '⚡', '☁️', '🎭', '⭐', '🍇', '🔔'];
 
 function shuffled(arr) {
@@ -24,6 +27,8 @@ function pickIcons(n, exclude = []) {
 
 export default function MemoryMountains() {
   const flow = useWorldFlow({ worldKey: 'memoryMountains', skill: 'memory', xpPerRound: 160, worldBonus: 200 });
+  const playAreaRef = useRef(null);
+  const cursor = useCursor(playAreaRef, !flow.completed);
   const roundConfigs = [
     { title: 'ROUND 1 — REMEMBER OBJECTS', comp: RememberObjects, skill: 'memory' },
     { title: 'ROUND 2 — WHAT\u2019S MISSING?', comp: WhatsMissing, skill: 'memory' },
@@ -41,7 +46,18 @@ export default function MemoryMountains() {
         {!flow.completed && (
           <>
             <RoundHeader title={current.title} color={COLOR} subtitle={RoundComp.subtitle} />
-            <div className="play-area" style={{ '--world-color': COLOR }}>
+            <div className="play-area" ref={playAreaRef} style={{ '--world-color': COLOR }}>
+              <HandCursorLayer
+                videoRef={cursor.videoRef}
+                pixel={cursor.pixel}
+                cameraStatus={cursor.cameraStatus}
+                handDetected={cursor.handDetected}
+                pinching={cursor.pinching}
+                interacting={cursor.pinching}
+                color={CURSOR_COLOR}
+                showMirror
+                showCursor
+              />
               <RoundComp key={flow.roundIndex} onSolved={(acc, msg) => flow.completeRound(acc, msg)} onWrong={flow.registerAttempt} />
             </div>
           </>

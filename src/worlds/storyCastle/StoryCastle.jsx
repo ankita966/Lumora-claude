@@ -1,219 +1,133 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import TopBar from '../../components/TopBar';
 import RoundHeader from '../../components/RoundHeader';
 import Mascot from '../../components/Mascot';
 import WorldCompleteOverlay from '../../components/WorldCompleteOverlay';
+import HandCursorLayer from '../../components/HandCursorLayer';
 import { useWorldFlow } from '../../hooks/useWorldFlow';
-import { useSpeechRecognition, isSpeechRecognitionSupported, speak } from '../../hooks/useSpeechRecognition';
+import { useCursor } from '../../hooks/useCursor';
+import { useSpeechRecognition, isSpeechRecognitionSupported, speak, wordOverlapScore } from '../../hooks/useSpeechRecognition';
 import { WORLDS } from '../../data/worlds';
 
 const COLOR = WORLDS.storyCastle.color;
+const MAGIC = '#4fd8ff';
+const rounds = [
+  { title: '✨ MAGIC WORDS', subtitle: 'Find the magical word!' },
+  { title: '🧩 MISSING WORD', subtitle: 'Build the story with the right word.' },
+  { title: '🎤 READ ALOUD', subtitle: 'Read the little story to Phono.' },
+  { title: '📖 STORY PATH', subtitle: 'Choose what Luna should do next.' },
+  { title: '👑 STORY QUESTION', subtitle: 'Show what you remember from Luna’s story.' },
+];
 
 export default function StoryCastle() {
-  const flow = useWorldFlow({ worldKey: 'storyCastle', skill: 'reading', xpPerRound: 160, worldBonus: 200 });
-
-  const roundConfigs = [
-    { title: 'ROUND 1 — WORD WARM-UP', comp: () => <ReadAloud text="castle" prompt="Read this magic word aloud:" isWord /> },
-    { title: 'ROUND 2 — READ THE SENTENCE', comp: () => <ReadAloud text="The brave fox jumped over the wall." prompt="Read this sentence aloud:" /> },
-    { title: 'ROUND 3 — SHORT PASSAGE', comp: () => <ReadAloud text="Maya found a glowing key in the old tower. She opened the door and saw a hidden garden." prompt="Read this short story aloud:" /> },
-    { title: 'ROUND 4 — COMPREHENSION', comp: Comprehension },
-    { title: 'ROUND 5 — FLUENCY CHALLENGE', comp: () => <ReadAloud text="Every child learns differently, and every story can be read in a new way." prompt="Read as smoothly as you can:" timed /> },
-  ];
-  const current = roundConfigs[flow.roundIndex];
-  const RoundComp = current.comp;
-
-  return (
-    <div>
-      <TopBar worldColor={COLOR} roundCount={flow.totalRounds} currentRound={flow.roundNumber} />
-      <div className="game-shell">
-        {!flow.completed && (
-          <>
-            <RoundHeader title={current.title} color={COLOR} />
-            <div className="play-area" style={{ '--world-color': COLOR }}>
-              <RoundContext.Provider value={{ onSolved: (acc, msg) => flow.completeRound(acc, msg), onWrong: flow.registerAttempt }}>
-                <RoundComp key={flow.roundIndex} />
-              </RoundContext.Provider>
-            </div>
-          </>
-        )}
-        {flow.completed && (
-          <WorldCompleteOverlay
-            title="🏰 STORY CASTLE MASTER!"
-            subtitle="You completed all 5 rounds of Reading & Comprehension Quests!"
-            color={COLOR}
-            onRestart={flow.restart}
-          />
-        )}
+  const flow = useWorldFlow({ worldKey: 'storyCastle', skill: 'reading', xpPerRound: 160, worldBonus: 250 });
+  const areaRef = useRef(null); const cursor = useCursor(areaRef, true);
+  const [intro, setIntro] = useState(true);
+  const round = rounds[flow.roundIndex];
+  useEffect(() => { const timer = setTimeout(() => setIntro(false), 900); return () => clearTimeout(timer); }, [flow.roundIndex]);
+  const finish = (accuracy, message) => flow.completeRound(accuracy, message);
+  return <div>
+    <TopBar worldColor={COLOR} roundCount={5} currentRound={flow.completed ? 5 : flow.roundNumber} />
+    <div className="game-shell">
+      {!flow.completed && <RoundHeader title={round.title} subtitle={round.subtitle} color={COLOR} />}
+      <div className="play-area story-castle-area" ref={areaRef} style={{ '--world-color': COLOR }}>
+        <CastleAtmosphere />
+        <HandCursorLayer videoRef={cursor.videoRef} pixel={cursor.pixel} cameraStatus={cursor.cameraStatus} handDetected={cursor.handDetected} pinching={cursor.pinching} interacting={cursor.pinching} color={MAGIC} showMirror showCursor />
+        {!flow.completed && !intro && <StoryRound key={flow.roundIndex} index={flow.roundIndex} cursor={cursor} onSolved={finish} onWrong={flow.registerAttempt} />}
+        {intro && !flow.completed && <div className="story-intro"><span>🏰</span><strong>{flow.roundIndex === 0 ? 'Your story awaits…' : `Round ${flow.roundNumber}`}</strong></div>}
+        {flow.transitioning && <div className="round-transition-overlay"><span className="round-transition-text">✨ The castle portal is opening…</span></div>}
+        {flow.completed && <WorldCompleteOverlay title="✨ STORY MASTERED ✨" subtitle="🏆 CASTLE COMPLETE — Reading, voice, and comprehension magic unlocked!" bonusXp={250} color={COLOR} results={[{ label: 'Reading Quest', value: 'Complete' }, { label: 'Voice Quest', value: 'Complete' }, { label: 'Comprehension', value: 'Complete' }]} onRestart={flow.restart} />}
       </div>
-      <Mascot color={COLOR} icon="🦉" message={flow.message} />
     </div>
-  );
+    <Mascot color={COLOR} icon="🦉" message={flow.message || 'Your magical story is ready!'} />
+  </div>;
 }
 
-const RoundContext = React.createContext({ onSolved: () => {}, onWrong: () => {} });
+function StoryRound({ index, cursor, onSolved, onWrong }) {
+  if (index === 0) return <MagicWords cursor={cursor} onSolved={onSolved} onWrong={onWrong} />;
+  if (index === 1) return <MissingWord cursor={cursor} onSolved={onSolved} onWrong={onWrong} />;
+  if (index === 2) return <ReadAloud onSolved={onSolved} />;
+  if (index === 3) return <StoryPath cursor={cursor} onSolved={onSolved} />;
+  return <StoryQuestion cursor={cursor} onSolved={onSolved} onWrong={onWrong} />;
+}
 
-/* ---------------- Shared Read-Aloud mechanic ---------------- */
-function ReadAloud({ text, prompt, isWord = false, timed = false }) {
-  const { onSolved, onWrong } = React.useContext(RoundContext);
-  const words = useMemo(() => text.split(/\s+/), [text]);
-  const speech = useSpeechRecognition({ lang: 'en-US' });
+function MagicWords({ cursor, onSolved, onWrong }) {
+  const choices = [{ label: 'FROG', x: 30, y: 38 }, { label: 'DOG', x: 53, y: 66 }, { label: 'SUN', x: 72, y: 38 }];
+  return <ChoiceStage prompt="✨ Find FROG! ✨" choices={choices} correct="FROG" cursor={cursor} onCorrect={() => onSolved(1, '✨ Perfect! You found FROG!')} onWrong={onWrong} />;
+}
+function MissingWord({ cursor, onSolved, onWrong }) {
+  const choices = [{ label: 'IN', x: 28, y: 63 }, { label: 'ON', x: 49, y: 72 }, { label: 'UNDER', x: 70, y: 60 }, { label: 'BLUE', x: 78, y: 35 }];
+  return <ChoiceStage prompt={<>The cat is <span className="story-blank">___</span> the box.</>} choices={choices} correct="IN" cursor={cursor} onCorrect={() => onSolved(1, '✨ The story is complete!')} onWrong={onWrong} />;
+}
+function StoryQuestion({ cursor, onSolved, onWrong }) {
+  const choices = [{ label: 'To find magic', x: 28, y: 58 }, { label: 'To go home', x: 51, y: 72 }, { label: 'To hide', x: 74, y: 58 }];
+  return <ChoiceStage prompt="Why did Luna open the glowing door?" choices={choices} correct="To find magic" cursor={cursor} onCorrect={() => onSolved(1, '👑 Brilliant story magic!')} onWrong={onWrong} />;
+}
+
+function ChoiceStage({ prompt, choices, correct, cursor, onCorrect, onWrong }) {
+  const [feedback, setFeedback] = useState(''); const doneRef = useRef(false);
+  const choose = (choice) => {
+    if (doneRef.current) return;
+    if (choice === correct) { doneRef.current = true; setFeedback('✨ Wonderful!'); setTimeout(onCorrect, 550); }
+    else { setFeedback('Try another glowing word ✨'); onWrong(); }
+  };
+  useDwellChoice(cursor, choices, choose, doneRef);
+  return <div className="story-choice-stage">
+    <div className="story-prompt">{prompt}</div><div className="story-choice-hint">Tap a word, or hold your fingertip over it.</div>
+    {choices.map((choice, i) => <button key={choice.label} className="story-word-orb" style={{ left: `${choice.x}%`, top: `${choice.y}%`, '--delay': `${i * 120}ms` }} onClick={() => choose(choice.label)}>{choice.label}</button>)}
+    {feedback && <div className="story-feedback">{feedback}</div>}
+  </div>;
+}
+
+function ReadAloud({ onSolved }) {
+  const speech = useSpeechRecognition({ lang: 'en-US' }); const [finished, setFinished] = useState(false); const [started, setStarted] = useState(false); const [phase, setPhase] = useState('ready'); const [feedback, setFeedback] = useState(''); const completedRef = useRef(false);
+  const sentence = 'The little fox runs to the moon.';
   const supported = isSpeechRecognitionSupported();
-  const [heardWords, setHeardWords] = useState(new Set());
-  const [finished, setFinished] = useState(false);
-  const [startedAt, setStartedAt] = useState(null);
-
+  const startReading = async () => {
+    setStarted(true); setFinished(false); setFeedback(''); setPhase('listening');
+    await speech.start();
+  };
+  const toggle = () => {
+    if (speech.listening) { speech.stop(); setPhase('processing'); }
+    else startReading();
+  };
+  useEffect(() => { if (speech.listening) setPhase('listening'); }, [speech.listening]);
   useEffect(() => {
-    if (!speech.transcript && !speech.interim) return;
-    const combined = (speech.transcript + ' ' + speech.interim).toLowerCase().replace(/[^a-z0-9\s]/g, '');
-    const heardSet = new Set(combined.split(/\s+/).filter(Boolean));
-    const nextHeard = new Set(heardWords);
-    words.forEach((w) => {
-      const clean = w.toLowerCase().replace(/[^a-z0-9]/g, '');
-      if (heardSet.has(clean)) nextHeard.add(clean);
-    });
-    setHeardWords(nextHeard);
-  }, [speech.transcript, speech.interim]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  function evaluate() {
-    const cleanWords = words.map((w) => w.toLowerCase().replace(/[^a-z0-9]/g, ''));
-    const matched = cleanWords.filter((w) => heardWords.has(w)).length;
-    const accuracy = Math.max(0.15, matched / cleanWords.length);
-    const timeMs = startedAt ? Date.now() - startedAt : 4000;
-    setFinished(true);
-    if (accuracy >= 0.6) onSolved(accuracy, isWord ? 'Lovely reading! 📖' : `Great fluency — ${Math.round(accuracy * 100)}% of words heard!`);
-    else {
-      onWrong();
-      onSolved(accuracy, `You read ${matched} of ${cleanWords.length} words — nice try, want to hear it again?`);
-    }
-  }
-
-  function toggleMic() {
-    if (speech.listening) {
-      speech.stop();
-      evaluate();
-    } else {
-      setStartedAt(Date.now());
-      setHeardWords(new Set());
-      setFinished(false);
-      speech.start();
-    }
-  }
-
-  return (
-    <div style={{ textAlign: 'center', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <p style={{ color: 'var(--text-mid)', marginBottom: 14 }}>{prompt}</p>
-      <div className="passage-card">
-        {words.map((w, i) => {
-          const clean = w.toLowerCase().replace(/[^a-z0-9]/g, '');
-          const cls = heardWords.has(clean) ? 'heard' : '';
-          return (
-            <span key={i} className={`word-span ${cls}`}>
-              {w}{' '}
-            </span>
-          );
-        })}
-      </div>
-
-      {supported ? (
-        <>
-          <button className={`mic-button ${speech.listening ? 'listening' : ''}`} onClick={toggleMic} disabled={finished}>
-            🎤
-          </button>
-          <p style={{ color: 'var(--text-mid)', fontSize: 13, marginTop: 12 }}>
-            {speech.listening
-              ? 'Listening — read the ' + (isWord ? 'word' : 'text') + ' out loud, then tap the mic to finish.'
-              : speech.permission === 'denied'
-              ? 'Microphone permission was denied. Please allow mic access and try again.'
-              : finished
-              ? 'Nice work! Moving on…'
-              : 'Tap the mic to start reading aloud.'}
-          </p>
-          {speech.error && <p style={{ color: '#ff9a9a', fontSize: 12 }}>{speech.error}</p>}
-        </>
-      ) : (
-        <FallbackTapReading words={words} onDone={(accuracy) => {
-          if (accuracy >= 0.6) onSolved(accuracy, 'Nice reading! 📖');
-          else { onWrong(); onSolved(accuracy, 'Good effort — keep practicing!'); }
-        }} />
-      )}
-
-      {timed && speech.listening && <p style={{ color: 'var(--text-low)', fontSize: 11, marginTop: 6 }}>⏱ Reading in progress…</p>}
-
-      <button className="btn-pill btn-ghost" style={{ marginTop: 14, borderColor: COLOR }} onClick={() => speak(text)}>
-        🔊 Hear it read aloud
-      </button>
-    </div>
-  );
+    if (!speech.error) return;
+    setStarted(false); setPhase('retry');
+  }, [speech.error]);
+  useEffect(() => {
+    if (!supported || !started || speech.listening || !speech.transcript || completedRef.current) return;
+    const score = wordOverlapScore(sentence, speech.transcript);
+    if (score >= .67) { completedRef.current = true; setFinished(true); setPhase('success'); setFeedback('✅ HEARD — ✨ Great reading!'); setTimeout(() => onSolved(score, '✨ Great reading!'), 650); }
+    else { setStarted(false); setPhase('retry'); setFeedback('Almost there — try reading the whole sentence once more.'); }
+  }, [supported, started, speech.listening, speech.transcript, sentence, onSolved]);
+  const status = phase === 'listening' ? 'Phono is listening to your real voice…' : phase === 'processing' ? '✨ Processing what Phono heard…' : feedback || (supported ? '🟢 READY — Tap to read aloud.' : 'You can still listen to the sentence below.');
+  return <div className="story-read-stage"><div className="story-prompt">“{sentence}”</div>{supported ? <button className={`story-mic ${speech.listening ? 'listening' : ''}`} onClick={toggle} disabled={finished}>{speech.listening ? '🔴 LISTENING…' : phase === 'processing' ? '✨ PROCESSING…' : phase === 'retry' ? '🎤 TRY AGAIN' : '🎤 START READING'}</button> : <div className="story-voice-unavailable">Voice reading isn’t supported in this browser. Try Chrome to use Phono’s microphone check.</div>}<p>{status}</p>{speech.interim && <div className="story-heard">Hearing: “{speech.interim}”</div>}{speech.transcript && <div className="story-heard">You said: “{speech.transcript}”</div>}{speech.error && <div className="story-voice-unavailable">{speech.error}</div>}<button className="story-listen-btn" onClick={() => speak(sentence)}>🔊 Hear the story</button></div>;
 }
 
-// Used only when the browser has no SpeechRecognition support at all —
-// lets the child tap each word as they read it instead of pretending to
-// detect speech that was never actually heard.
-function FallbackTapReading({ words, onDone }) {
-  const [tapped, setTapped] = useState(new Set());
-  return (
-    <div>
-      <p style={{ color: 'var(--text-mid)', fontSize: 13, marginBottom: 10 }}>
-        Speech recognition isn't supported in this browser. Read aloud and tap each word as you say it:
-      </p>
-      <div className="passage-card">
-        {words.map((w, i) => (
-          <button
-            key={i}
-            className="word-span"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: tapped.has(i) ? 'var(--green)' : 'var(--text-hi)' }}
-            onClick={() => setTapped((prev) => new Set(prev).add(i))}
-          >
-            {w}{' '}
-          </button>
-        ))}
-      </div>
-      <button
-        className="btn-pill btn-primary"
-        onClick={() => onDone(tapped.size / words.length)}
-      >
-        I finished reading ✓
-      </button>
-    </div>
-  );
+function StoryPath({ cursor, onSolved }) {
+  const scenes = [
+    { text: 'Luna entered the enchanted forest. A tiny glowing door appeared beneath an old oak tree.', action: '🌟 Open the glowing door' },
+    { text: 'Behind the door, Luna found a moon-map and a friendly fox. The map pointed toward the castle.', action: '🗺 Follow the moon-map' },
+    { text: 'At the castle, Luna shared the moon-map with her friends. Together, they made the stars shine brighter.', action: '🏰 Finish the story' },
+  ];
+  const [scene, setScene] = useState(0); const choices = [{ label: scenes[scene].action, x: 50, y: 68 }];
+  const advance = () => { if (scene + 1 >= scenes.length) setTimeout(() => onSolved(1, '📖 You played the whole story!'), 400); else setScene((n) => n + 1); };
+  useDwellChoice(cursor, choices, advance, useRef(false));
+  return <div className="story-path-stage"><div className="story-scene-count">Story scene {scene + 1} of {scenes.length}</div><div className="story-scroll">{scenes[scene].text}</div><button className="story-portal-choice" onClick={advance}>{scenes[scene].action} ✨</button><button className="story-listen-btn" onClick={() => speak(scenes[scene].text)}>🔊 Read with Phono</button></div>;
 }
 
-/* ---------------- Round 4: Comprehension ---------------- */
-function Comprehension() {
-  const { onSolved, onWrong } = React.useContext(RoundContext);
-  const passage = 'Maya found a glowing key in the old tower. She opened the door and saw a hidden garden.';
-  const question = 'What did Maya find in the tower?';
-  const choices = ['A glowing key', 'A sleeping dragon', 'A pile of books', 'A broken window'];
-  const answer = 'A glowing key';
-  const [answered, setAnswered] = useState(false);
-
-  function choose(c) {
-    if (answered) return;
-    setAnswered(true);
-    if (c === answer) onSolved(1, 'Great comprehension! You understood the story 🌟');
-    else {
-      onWrong();
-      setTimeout(() => setAnswered(false), 500);
-      onSolved(0.5, 'Let\u2019s re-read the story and try again.');
-    }
-  }
-
-  return (
-    <div style={{ textAlign: 'center' }}>
-      <div className="passage-card">{passage}</div>
-      <p style={{ fontWeight: 700, marginBottom: 16 }}>{question}</p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: 320, margin: '0 auto' }}>
-        {choices.map((c) => (
-          <button
-            key={c}
-            className="btn-pill btn-secondary"
-            style={{ textAlign: 'left' }}
-            onClick={() => choose(c)}
-          >
-            {c}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
+function useDwellChoice(cursor, choices, choose, doneRef) {
+  const dwellRef = useRef({ label: null, started: 0 });
+  useEffect(() => {
+    if (!cursor.usingHand || !cursor.pixel || doneRef.current) { dwellRef.current = { label: null, started: 0 }; return; }
+    const point = { x: cursor.pixel.nx * 100, y: cursor.pixel.ny * 100 };
+    const target = choices.find((choice) => Math.hypot(point.x - choice.x, point.y - choice.y) < 9);
+    if (!target) { dwellRef.current = { label: null, started: 0 }; return; }
+    if (dwellRef.current.label !== target.label) dwellRef.current = { label: target.label, started: Date.now() };
+    else if (Date.now() - dwellRef.current.started > 650) { dwellRef.current.started = Number.MAX_SAFE_INTEGER; choose(target.label); }
+  }, [cursor.pixel, cursor.usingHand, choices, choose, doneRef]);
 }
+
+function CastleAtmosphere() { return <div className="castle-atmosphere" aria-hidden="true"><span>✦</span><span>📖</span><span>✧</span><span>🕯️</span><span>✦</span></div>; }

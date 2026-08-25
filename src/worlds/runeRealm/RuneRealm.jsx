@@ -7,155 +7,104 @@ import HandCursorLayer from '../../components/HandCursorLayer';
 import { useWorldFlow } from '../../hooks/useWorldFlow';
 import { useCursor } from '../../hooks/useCursor';
 import { WORLDS } from '../../data/worlds';
-import { RUNE_ROUNDS } from './shapes';
+import { getRuneDots, RUNE_ROUNDS } from './shapes';
 
 const COLOR = WORLDS.runeRealm.color;
-const HIT_RADIUS = 9; // in 0-100 normalized units
-const GOAL_COVERAGE = 0.75;
+const BRUSH_COLOR = '#4fd8ff';
+const DOT_HIT_RADIUS = 7.5;
 
 export default function RuneRealm() {
   const flow = useWorldFlow({ worldKey: 'runeRealm', skill: 'motor', xpPerRound: 170, worldBonus: 220 });
   const containerRef = useRef(null);
-  const cursor = useCursor(containerRef, !flow.completed);
+  // It intentionally remains active during the final celebration too.
+  const cursor = useCursor(containerRef, true);
   const [mouseDown, setMouseDown] = useState(false);
+  const round = RUNE_ROUNDS[flow.roundIndex];
+  const isDrawing = cursor.usingHand ? Boolean(cursor.pixel) : mouseDown;
 
   useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return undefined;
-    const down = () => setMouseDown(true);
-    const up = () => setMouseDown(false);
-    el.addEventListener('pointerdown', down);
-    window.addEventListener('pointerup', up);
-    return () => {
-      el.removeEventListener('pointerdown', down);
-      window.removeEventListener('pointerup', up);
-    };
+    const area = containerRef.current; if (!area) return undefined;
+    const start = (event) => { if (!event.target.closest('button')) setMouseDown(true); };
+    const end = () => setMouseDown(false);
+    area.addEventListener('pointerdown', start); window.addEventListener('pointerup', end);
+    return () => { area.removeEventListener('pointerdown', start); window.removeEventListener('pointerup', end); };
   }, []);
 
-  const round = RUNE_ROUNDS[flow.roundIndex];
-  const isDrawing = cursor.usingHand ? cursor.pinching : mouseDown;
-
-  return (
-    <div>
-      <TopBar worldColor={COLOR} roundCount={flow.totalRounds} currentRound={flow.roundNumber} />
-      <div className="game-shell">
-        {!flow.completed && (
-          <>
-            <RoundHeader title={round.title} subtitle={round.instruction} color={COLOR} />
-            <div className="play-area" ref={containerRef} style={{ '--world-color': COLOR }}>
-              <HandCursorLayer videoRef={cursor.videoRef} pixel={cursor.pixel} cameraStatus={cursor.cameraStatus} color={COLOR} />
-              <TraceCanvas
-                key={flow.roundIndex}
-                round={round}
-                cursor={cursor}
-                isDrawing={isDrawing}
-                attempts={flow.attempts}
-                onRetry={flow.registerAttempt}
-                onSolved={(acc, msg) => flow.completeRound(acc, msg)}
-              />
-            </div>
-          </>
-        )}
-        {flow.completed && (
-          <WorldCompleteOverlay
-            title="✍️ RUNE REALM MASTER!"
-            subtitle="You completed all 5 rounds of Tracing & Rune Magic Quests!"
-            color={COLOR}
-            onRestart={flow.restart}
-          />
-        )}
+  return <div>
+    <TopBar worldColor={COLOR} roundCount={flow.totalRounds} currentRound={flow.completed ? 5 : flow.roundNumber} />
+    <div className="game-shell">
+      {!flow.completed && <RoundHeader title={round.title} subtitle={round.instruction} color={COLOR} />}
+      <div className="play-area rune-realm-area" ref={containerRef} style={{ '--world-color': COLOR }}>
+        <HandCursorLayer videoRef={cursor.videoRef} pixel={cursor.pixel} cameraStatus={cursor.cameraStatus} handDetected={cursor.handDetected} pinching={cursor.pinching} interacting={isDrawing} color={BRUSH_COLOR} showMirror showCursor />
+        {!flow.completed && <TraceCanvas key={round.id} round={round} cursor={cursor} isDrawing={isDrawing} onSolved={flow.completeRound} />}
+        {flow.transitioning && <div className="round-transition-overlay"><span className="round-transition-text">✨ The next rune is awakening…</span></div>}
+        {flow.completed && <WorldCompleteOverlay title="🌌✨ RUNE REALM COMPLETE ✨🌌" subtitle="You mastered all five magical runes!" bonusXp={220} color={COLOR} results={[{ label: 'Runes completed', value: '✓ ✓ ✓ ✓ ✓' }, { label: 'XP earned', value: '+1070 XP' }]} onRestart={flow.restart} />}
       </div>
-      <Mascot color={COLOR} icon="🦋" message={flow.message} />
     </div>
-  );
+    <Mascot color={COLOR} icon="🦋" message={flow.message} />
+  </div>;
 }
 
-function TraceCanvas({ round, cursor, isDrawing, attempts, onRetry, onSolved }) {
-  const targetPoints = useMemo(() => round.getPoints(), [round]);
-  const [drawn, setDrawn] = useState([]);
-  const [touched, setTouched] = useState(() => new Array(targetPoints.length).fill(false));
-  const [startTime] = useState(() => Date.now());
-  const [solved, setSolved] = useState(false);
+function TraceCanvas({ round, cursor, isDrawing, onSolved }) {
+  const dots = useMemo(() => getRuneDots(round.target), [round.target]);
+  const [completedDots, setCompletedDots] = useState(0);
+  const [celebrating, setCelebrating] = useState(false);
   const lastPointRef = useRef(null);
-
-  const coverage = touched.filter(Boolean).length / touched.length;
-  const accuracyPct = Math.round(coverage * 100);
-
-  useEffect(() => {
-    if (!isDrawing || !cursor.pixel || solved) {
-      lastPointRef.current = null;
-      return;
-    }
-    const nx = cursor.pixel.nx * 100;
-    const ny = cursor.pixel.ny * 100;
-    const last = lastPointRef.current;
-    if (last && Math.hypot(nx - last.x, ny - last.y) < 0.6) return; // avoid over-dense points
-    lastPointRef.current = { x: nx, y: ny };
-
-    setDrawn((prev) => [...prev.slice(-400), { x: nx, y: ny }]);
-    setTouched((prev) => {
-      let changed = false;
-      const next = prev.slice();
-      targetPoints.forEach((tp, i) => {
-        if (next[i]) return;
-        if (Math.hypot(tp.x - nx, tp.y - ny) < HIT_RADIUS) {
-          next[i] = true;
-          changed = true;
-        }
-      });
-      return changed ? next : prev;
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cursor.pixel, isDrawing, solved]);
+  const advancingRef = useRef(false);
+  const sparkleTimerRef = useRef(null);
+  const [sparkleDot, setSparkleDot] = useState(null);
 
   useEffect(() => {
-    if (solved) return;
-    if (coverage >= GOAL_COVERAGE) {
-      setSolved(true);
-      const timeMs = Date.now() - startTime;
-      const accuracy = Math.min(1, coverage);
-      const seconds = Math.round(timeMs / 1000);
-      onSolved(accuracy, `Rune complete in ${seconds}s — ${Math.round(accuracy * 100)}% accuracy! ✨`);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [coverage, solved]);
+    if (!isDrawing || !cursor.pixel || celebrating) { lastPointRef.current = null; return; }
+    const next = { x: cursor.pixel.nx * 100, y: cursor.pixel.ny * 100 }; const previous = lastPointRef.current;
+    lastPointRef.current = next;
+    // Only the next required dot is tested. Crossing a future dot is ignored,
+    // so the child cannot skip ahead or complete from approximate coverage.
+    const currentDot = dots[completedDots];
+    if (!currentDot || !segmentTouchesDot(previous ?? next, next, currentDot, DOT_HIT_RADIUS)) return;
+    setCompletedDots((count) => count + 1);
+    setSparkleDot(completedDots);
+    clearTimeout(sparkleTimerRef.current);
+    sparkleTimerRef.current = setTimeout(() => setSparkleDot(null), 260);
+  }, [cursor.pixel, isDrawing, celebrating, completedDots, dots]);
 
-  function clearTrace() {
-    onRetry();
-    setDrawn([]);
-    setTouched(new Array(targetPoints.length).fill(false));
-    lastPointRef.current = null;
-  }
+  useEffect(() => () => clearTimeout(sparkleTimerRef.current), []);
 
-  const pathD = (pts, closed) => {
-    if (pts.length === 0) return '';
-    let d = `M ${pts[0].x} ${pts[0].y} `;
-    for (let i = 1; i < pts.length; i++) d += `L ${pts[i].x} ${pts[i].y} `;
-    if (closed) d += 'Z';
-    return d;
-  };
+  useEffect(() => {
+    // The final dot is the sole completion gate. There is deliberately no
+    // coverage, accuracy, drawing-length, or timeout completion path.
+    if (advancingRef.current || completedDots !== dots.length) return;
+    advancingRef.current = true; setCelebrating(true);
+    const timer = setTimeout(() => onSolved(1, round.success), 800);
+    return () => clearTimeout(timer);
+  }, [completedDots, dots.length, round, onSolved]);
 
-  return (
-    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
-        <path d={pathD(targetPoints, round.closed)} className="trace-target" />
-        {drawn.length > 1 && <path d={pathD(drawn, false)} className="trace-path" style={{ '--world-color': COLOR }} />}
-        {targetPoints.map(
-          (tp, i) =>
-            touched[i] && <circle key={i} cx={tp.x} cy={tp.y} r={1.4} fill={COLOR} opacity={0.85} />
-        )}
-      </svg>
+  const progress = Math.round((completedDots / dots.length) * 100);
+  const guidance = completedDots === 0 ? '👆 Touch the bright starting dot' : completedDots + 1 === dots.length ? '✨ One more magical dot!' : '✨ Find the next bright dot!';
+  return <div className="rune-drawing-stage">
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="rune-drawing-svg">
+      {dots.map((dot, index) => {
+        const complete = index < completedDots;
+        const current = index === completedDots;
+        return <g key={index}>
+          <circle cx={dot.x} cy={dot.y} r={current ? '5.8' : complete ? '4.3' : '3.2'} fill={current ? 'rgba(79,216,255,.18)' : 'transparent'} />
+          <circle cx={dot.x} cy={dot.y} r={current ? '2.8' : complete ? '2.1' : '1.45'} fill={complete || current ? '#4fd8ff' : 'rgba(232,248,255,.42)'} style={{ filter: `drop-shadow(0 0 ${current ? 13 : complete ? 8 : 4}px ${current || complete ? '#4fd8ff' : 'rgba(180,150,255,.7)'})` }} />
+          {current && <circle cx={dot.x} cy={dot.y} r="5" fill="none" stroke="#ff9cdb" strokeWidth=".8" opacity=".9" />}
+          {sparkleDot === index && <text x={dot.x} y={dot.y - 4} textAnchor="middle" fill="#fff3a8" fontSize="7">✦</text>}
+        </g>;
+      })}
+    </svg>
+    <Sparkles active={celebrating}/>
+    <div className="rune-trace-hud"><strong>✨ DOTS: {completedDots} / {dots.length}</strong><span>TRACE PROGRESS {progress}%</span><div className="progress-track"><div className="progress-fill" style={{ width: `${progress}%`, '--world-color': BRUSH_COLOR }}/></div></div>
+    <div className="rune-trace-tip">{guidance} · {cursor.usingHand ? 'move your index fingertip' : 'hold and drag'}.</div>
+    {celebrating && <><div className="rune-ripple"/><div className="rune-success">{round.success}</div></>}
+  </div>;
+}
 
-      <div style={{ position: 'absolute', top: 14, right: 16, textAlign: 'right' }}>
-        <div style={{ fontSize: 12, color: 'var(--text-mid)' }}>Accuracy: <b style={{ color: COLOR }}>{accuracyPct}%</b> · Goal: {Math.round(GOAL_COVERAGE * 100)}%</div>
-        <div style={{ fontSize: 11, color: 'var(--text-low)' }}>Attempts: {attempts}</div>
-      </div>
-
-      <div style={{ position: 'absolute', bottom: 14, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 10 }}>
-        <button className="btn-pill btn-ghost" style={{ borderColor: COLOR, fontSize: 12, padding: '8px 18px' }} onClick={clearTrace}>
-          ↻ Clear trace
-        </button>
-      </div>
-    </div>
-  );
+function Sparkles({ active }) { return active ? <div className="rune-sparkles" aria-hidden="true">✦ ✧ ✦ ✧ ✦ ✧ ✦</div> : null; }
+function segmentTouchesDot(start, end, dot, radius) {
+  const dx = end.x - start.x; const dy = end.y - start.y;
+  const lengthSquared = dx * dx + dy * dy;
+  const t = lengthSquared ? Math.max(0, Math.min(1, ((dot.x - start.x) * dx + (dot.y - start.y) * dy) / lengthSquared)) : 0;
+  return Math.hypot(dot.x - (start.x + dx * t), dot.y - (start.y + dy * t)) <= radius;
 }
