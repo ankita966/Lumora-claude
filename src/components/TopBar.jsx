@@ -1,16 +1,27 @@
 import React from 'react';
 import { useGameStore } from '../store/useGameStore';
 import { t } from '../data/i18n';
+import { useAuth } from '../auth/AuthProvider';
 
 export default function TopBar({ worldColor, roundCount, currentRound, showBack = true }) {
-  const { xp, screen, setScreen, language } = useGameStore();
+  const { xp, screen, setScreen, goHome, setAuthPortal, language } = useGameStore();
+  const { configured, user, signOut } = useAuth();
+  const isStudentWorld = ['soundForest', 'visionValley', 'storyCastle', 'runeRealm', 'memoryMountains'].includes(screen);
+  const leavePortal = async () => {
+    try {
+      await signOut();
+    } finally {
+      setAuthPortal(null);
+      goHome();
+    }
+  };
 
   return (
     <div className="topbar">
       <div className="topbar-left">
         {showBack && (
-          <button className="map-btn" onClick={() => setScreen(screen === 'map' ? 'landing' : 'map')}>
-            {screen === 'map' ? `⌂ ${t(language, 'home')}` : `🗺 ${t(language, 'map')}`}
+          <button className="map-btn" onClick={() => (isStudentWorld ? setScreen('map') : goHome())}>
+            {isStudentWorld ? `🗺 ${t(language, 'map')}` : `⌂ ${t(language, 'home')}`}
           </button>
         )}
         {roundCount ? (
@@ -28,6 +39,7 @@ export default function TopBar({ worldColor, roundCount, currentRound, showBack 
         ) : null}
       </div>
       <div className="xp-pill">⭐ {xp.toLocaleString()} XP</div>
+      {configured && user && <button className="map-btn" onClick={leavePortal}>Sign out</button>}
     </div>
   );
 }

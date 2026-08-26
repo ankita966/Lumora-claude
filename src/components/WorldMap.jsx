@@ -4,6 +4,7 @@ import { WORLDS, WORLD_ORDER } from '../data/worlds';
 import { t } from '../data/i18n';
 import Mascot from './Mascot';
 import TopBar from './TopBar';
+import { useAuth } from '../auth/AuthProvider';
 
 const LAYOUT = {
   soundForest: { gridColumn: 1, gridRow: 1 },
@@ -15,6 +16,7 @@ const LAYOUT = {
 
 export default function WorldMap() {
   const { setScreen, language, worldsCompleted } = useGameStore();
+  const { displayName } = useAuth();
 
   return (
     <div>
@@ -49,7 +51,7 @@ export default function WorldMap() {
         })}
       </div>
       <p className="world-map-hint">{t(language, 'selectWorldHint')}</p>
-      <Mascot color="var(--purple)" icon="🤖" message="Pick a world, brave learner! ✨" />
+      <Mascot color="var(--purple)" icon="🤖" message={`Hey ${displayName}! Pick a world for your next adventure ✨`} />
     </div>
   );
 }

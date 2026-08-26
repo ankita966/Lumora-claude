@@ -5,9 +5,12 @@ import { t } from '../data/i18n';
 import Mascot from './Mascot';
 import HandCursorLayer from './HandCursorLayer';
 import { useCursor } from '../hooks/useCursor';
+import { useAuth } from '../auth/AuthProvider';
+import { authorizedPortal } from '../auth/roleRouting';
 
 export default function Landing() {
-  const { setScreen, setUserMode, userMode, language, handConnected, xp, worldsCompleted, sessionsCompleted } = useGameStore();
+  const { setScreen, setAuthMode, setAuthPortal, setUserMode, userMode, language, handConnected, xp, worldsCompleted, sessionsCompleted } = useGameStore();
+  const { configured, user, roles, displayName, signOut } = useAuth();
   const landingRef = useRef(null);
   const transitionRef = useRef(null);
   const cursor = useCursor(landingRef, true);
@@ -20,8 +23,19 @@ export default function Landing() {
   const enterWorld = useCallback(() => {
     if (entering) return;
     setEntering(true);
-    transitionRef.current = window.setTimeout(() => setScreen('map'), 280);
-  }, [entering, setScreen]);
+    const destination = configured && user ? authorizedPortal(roles)?.destination : null;
+    transitionRef.current = window.setTimeout(() => setScreen(configured && !user ? 'portalChoice' : destination || 'map'), 280);
+  }, [configured, entering, roles, setScreen, user]);
+  const login = () => {
+    setAuthPortal(null);
+    setAuthMode('login');
+    setScreen('auth');
+  };
+  const createAccount = () => {
+    setAuthPortal(null);
+    setAuthMode('signup');
+    setScreen('portalChoice');
+  };
 
   return (
     <div className={`landing ${entering ? 'landing-entering' : ''}`} ref={landingRef}>
@@ -38,7 +52,7 @@ export default function Landing() {
       />
       <div className="landing-badge">✦ {t(language, 'tagline')} ✦</div>
       <h1>{t(language, 'title')}</h1>
-      <h2>{t(language, 'subtitle1')}</h2>
+      <h2>{user ? `Welcome back, ${displayName}! ✨` : t(language, 'subtitle1')}</h2>
       <p className="sub">{t(language, 'subtitle2')}</p>
 
       <div className="children-hero">
@@ -64,21 +78,23 @@ export default function Landing() {
       <div className="landing-quote">{t(language, 'quote')}</div>
 
       <div className="cta-row">
-        <button className="btn-pill btn-primary landing-portal-button" onClick={enterWorld}>
-          {t(language, 'enterWorld')} →
-        </button>
-        <button className="btn-pill btn-secondary" onClick={enterWorld}>
-          {t(language, 'exploreWorlds')} 🗺
-        </button>
+        {configured && !user ? <>
+          <button className="btn-pill btn-primary landing-portal-button" onClick={login}>Login →</button>
+          <button className="btn-pill btn-secondary" onClick={createAccount}>Create Account</button>
+        </> : <>
+          <button className="btn-pill btn-primary landing-portal-button" onClick={enterWorld}>{t(language, 'enterWorld')} →</button>
+          <button className="btn-pill btn-secondary" onClick={enterWorld}>{t(language, 'exploreWorlds')} 🗺</button>
+        </>}
       </div>
 
       <div className="mode-row">
         {[
-          ['child', t(language, 'childMode'), '🎮'],
-          ['parent', t(language, 'parentPortal'), '👪'],
-          ['teacher', t(language, 'teacherClass'), '🏫'],
-          ['specialist', t(language, 'specialistLab'), '🔬'],
-        ].map(([key, label, icon]) => (
+          ['child', 'student', t(language, 'childMode'), '🎮'],
+          ['parent', 'parent', t(language, 'parentPortal'), '👪'],
+          ['teacher', 'teacher', t(language, 'teacherClass'), '🏫'],
+          ['school_admin', 'school_admin', 'School Admin Portal', '🏛️'],
+          ['specialist', 'specialist', t(language, 'specialistLab'), '🔬'],
+        ].filter(([, role]) => !configured || (user && roles.includes(role))).map(([key, , label, icon]) => (
           <button
             key={key}
             className={`mode-chip ${userMode === key ? 'active' : ''}`}
@@ -88,11 +104,12 @@ export default function Landing() {
           </button>
         ))}
       </div>
+      {configured && user && <button className="btn-pill btn-ghost" style={{ marginTop: 14 }} onClick={signOut}>Sign out</button>}
 
       <Mascot
         color="var(--cyan)"
         icon="🤖"
-        message={handConnected ? 'Hand detected! You are connected 👋' : 'Show your hand to the camera to connect! 👋'}
+        message={handConnected ? `Hey ${displayName}! You are connected 👋` : user ? `Hey ${displayName}! Ready for some magic? ✨` : 'Show your hand to the camera to connect! 👋'}
       />
     </div>
   );

@@ -44,6 +44,33 @@ npm run build
 npm run preview
 ```
 
+## Supabase Phase 1 setup
+
+Authentication and cloud progress are optional at runtime: without the two
+environment variables below, Lumora continues to use its existing local
+Zustand and `lumora-save-v1` localStorage flow. To enable Supabase locally,
+copy `.env.example` to `.env` and add the project's public URL and anon key:
+
+```bash
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
+
+Apply [202608250001_auth_roles_progress.sql](supabase/migrations/202608250001_auth_roles_progress.sql)
+and [202608260001_backfill_profiles_and_admin_users.sql](supabase/migrations/202608260001_backfill_profiles_and_admin_users.sql)
+using either `supabase db push` (after linking
+the project) or the Supabase Dashboard's SQL Editor. The migration is local
+only; this repository does not apply it automatically. In Supabase Auth,
+enable Email/Password sign-in and configure the site's local/production URL
+and redirect URL as appropriate for your environments.
+
+Apply [202608290001_single_role_mvp.sql](supabase/migrations/202608290001_single_role_mvp.sql)
+as well. It preserves a single, database-backed role per account. First-time
+users choose that one role during signup; the Auth trigger creates the profile
+and role server-side. Returning users log in with email and password only, and
+Lumora routes them from the saved role. The browser never receives service
+credentials or a `user_roles` write policy.
+
 ## Project structure
 
 ```

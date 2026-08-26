@@ -1,0 +1,11 @@
+project_id = "lumora-world"
+
+[auth]
+enabled = true
+
+[auth.email]
+enable_signup = true
+# MVP accounts receive a session from signUp immediately. No confirmation
+# email or verification-link screen is part of the product flow.
+enable_confirmations = false
+double_confirm_changes = true

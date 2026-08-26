@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import TopBar from '../components/TopBar';
 import Mascot from '../components/Mascot';
 import SkillBars from './SkillBars';
-import { useGameStore } from '../store/useGameStore';
-import { skillLabel } from '../adaptive/engine';
-import { WORLDS } from '../data/worlds';
+import { computeProfile, recommendNextActivity, skillLabel } from '../adaptive/engine';
+import { useAuth } from '../auth/AuthProvider';
+import { loadLinkedStudents } from '../services/linkedStudents';
 
 function formatTime(ms) {
   const totalMin = Math.round(ms / 60000);
@@ -37,9 +37,29 @@ function ProgressSpark({ log }) {
 }
 
 export default function ParentDashboard() {
-  const { sessionsCompleted, totalTimeMs, activityLog, worldsCompleted, getProfile, getRecommendation } = useGameStore();
-  const profile = getProfile();
-  const recommendation = getRecommendation();
+  const { displayName, user } = useAuth();
+  const [students, setStudents] = useState([]);
+  const [selectedId, setSelectedId] = useState(null);
+  const [status, setStatus] = useState('loading');
+
+  useEffect(() => {
+    let active = true;
+    if (!user) return undefined;
+    setStatus('loading');
+    loadLinkedStudents(user.id, 'parent')
+      .then((linkedStudents) => {
+        if (!active) return;
+        setStudents(linkedStudents);
+        setSelectedId((current) => linkedStudents.some((student) => student.id === current) ? current : linkedStudents[0]?.id ?? null);
+        setStatus('ready');
+      })
+      .catch(() => { if (active) setStatus('error'); });
+    return () => { active = false; };
+  }, [user]);
+
+  const selected = students.find((student) => student.id === selectedId) ?? null;
+  const profile = useMemo(() => computeProfile(selected?.activityLog ?? []), [selected]);
+  const recommendation = useMemo(() => recommendNextActivity(profile), [profile]);
   const scored = Object.entries(profile).filter(([, v]) => v !== null).sort((a, b) => b[1] - a[1]);
   const strengths = scored.slice(0, 2);
   const needsPractice = scored.slice(-2).reverse();
@@ -48,26 +68,31 @@ export default function ParentDashboard() {
     <div>
       <TopBar worldColor="var(--cyan)" showBack />
       <div style={{ textAlign: 'center', margin: '10px 0 30px' }}>
-        <h2 style={{ color: 'var(--text-hi)', fontWeight: 800 }}>👪 Parent Dashboard</h2>
+        <h2 style={{ color: 'var(--text-hi)', fontWeight: 800 }}>👪 {selected ? `${selected.displayName}'s Progress` : `${displayName}'s Parent Portal`}</h2>
         <p style={{ color: 'var(--text-mid)', fontSize: 13 }}>A gentle look at how your child is practicing — not a diagnosis, just progress.</p>
       </div>
+
+      {status === 'loading' && <div className="panel-card" style={{ maxWidth: 620, margin: '0 auto 24px', textAlign: 'center' }}>Loading linked child progress…</div>}
+      {status === 'error' && <div className="panel-card" style={{ maxWidth: 620, margin: '0 auto 24px', textAlign: 'center' }}>Unable to load linked child progress. Please try again.</div>}
+      {status === 'ready' && !students.length && <div className="panel-card" style={{ maxWidth: 620, margin: '0 auto 24px', textAlign: 'center' }}>No child is linked to this parent account yet.</div>}
+      {students.length > 1 && <div className="mode-row" style={{ marginBottom: 22 }}>{students.map((student) => <button key={student.id} className={`mode-chip ${student.id === selectedId ? 'active' : ''}`} onClick={() => setSelectedId(student.id)}>{student.displayName}</button>)}</div>}
 
       <div className="dash-grid" style={{ marginBottom: 24 }}>
         <div className="panel-card">
           <div className="dash-label">Sessions completed</div>
-          <div className="dash-stat">{sessionsCompleted}</div>
+          <div className="dash-stat">{selected?.sessionsCompleted ?? '—'}</div>
         </div>
         <div className="panel-card">
           <div className="dash-label">Time spent learning</div>
-          <div className="dash-stat">{formatTime(totalTimeMs)}</div>
+          <div className="dash-stat">{selected ? formatTime(selected.totalTimeMs) : '—'}</div>
         </div>
         <div className="panel-card">
           <div className="dash-label">Worlds completed</div>
-          <div className="dash-stat">{Object.keys(worldsCompleted).length}/5</div>
+          <div className="dash-stat">{selected ? `${Object.keys(selected.worldsCompleted).length}/5` : '—'}</div>
         </div>
         <div className="panel-card">
           <div className="dash-label">Total attempts logged</div>
-          <div className="dash-stat">{activityLog.length}</div>
+          <div className="dash-stat">{selected?.activityLog.length ?? '—'}</div>
         </div>
       </div>
 
@@ -100,18 +125,18 @@ export default function ParentDashboard() {
       <div className="dash-grid" style={{ marginTop: 18 }}>
         <div className="panel-card" style={{ gridColumn: '1 / -1' }}>
           <h3 style={{ marginTop: 0, fontSize: 15 }}>🎯 Recommended Next Activity</h3>
-          <p style={{ fontSize: 14, color: 'var(--text-hi)' }}>{recommendation.message}</p>
+          <p style={{ fontSize: 14, color: 'var(--text-hi)' }}>{selected ? recommendation.message : 'Link a child account to see a recommendation.'}</p>
         </div>
       </div>
 
       <div className="dash-grid" style={{ marginTop: 18, marginBottom: 60 }}>
         <div className="panel-card" style={{ gridColumn: '1 / -1' }}>
           <h3 style={{ marginTop: 0, fontSize: 15 }}>📈 Progress Over Time</h3>
-          <ProgressSpark log={activityLog} />
+          <ProgressSpark log={selected?.activityLog ?? []} />
         </div>
       </div>
 
-      <Mascot color="var(--cyan)" icon="🤖" message="Here's how learning is going lately!" />
+      <Mascot color="var(--cyan)" icon="🤖" message={selected ? `${selected.displayName}'s learning journey is shining.` : `Welcome, ${displayName}!`} />
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameStore } from '../store/useGameStore';
+import { useAuth } from '../auth/AuthProvider';
+import { startGameSession, syncRoundAttempt } from '../services/progress';
 
 /**
  * Drives the "5 smooth rounds" loop used by every world: tracks the current
@@ -8,6 +10,7 @@ import { useGameStore } from '../store/useGameStore';
  * overlay after the last one) — never leaving a blank screen.
  */
 export function useWorldFlow({ worldKey, skill, totalRounds = 5, xpPerRound = 150, worldBonus = 200 }) {
+  const { configured, user, roles } = useAuth();
   const [roundIndex, setRoundIndex] = useState(0);
   const [attempts, setAttempts] = useState(1);
   const [startTime, setStartTime] = useState(() => Date.now());
@@ -16,6 +19,7 @@ export function useWorldFlow({ worldKey, skill, totalRounds = 5, xpPerRound = 15
   const [transitioning, setTransitioning] = useState(false);
   const transitionLockRef = useRef(false);
   const transitionTimerRef = useRef(null);
+  const sessionIdRef = useRef(null);
 
   const logActivity = useGameStore((s) => s.logActivity);
   const addXp = useGameStore((s) => s.addXp);
@@ -30,6 +34,15 @@ export function useWorldFlow({ worldKey, skill, totalRounds = 5, xpPerRound = 15
 
   useEffect(() => clearTransitionTimer, [clearTransitionTimer]);
 
+  useEffect(() => {
+    sessionIdRef.current = null;
+    if (!configured || !user || !roles.includes('student')) return undefined;
+    let active = true;
+    // Session creation is asynchronous and deliberately does not gate a round.
+    startGameSession(user.id, worldKey).then((id) => { if (active) sessionIdRef.current = id; }).catch(() => {});
+    return () => { active = false; };
+  }, [configured, user, roles, worldKey]);
+
   const registerAttempt = useCallback(() => setAttempts((a) => a + 1), []);
 
   const completeRound = useCallback(
@@ -43,7 +56,6 @@ export function useWorldFlow({ worldKey, skill, totalRounds = 5, xpPerRound = 15
       logActivity({ world: worldKey, round: roundIndex + 1, skill, accuracy, attempts, timeMs });
       addXp(xpPerRound);
       setMessage(customMsg || 'Great job! ✨');
-
       const isLast = roundIndex + 1 >= totalRounds;
       if (isLast) {
         completeWorld(worldKey);
@@ -63,8 +75,27 @@ export function useWorldFlow({ worldKey, skill, totalRounds = 5, xpPerRound = 15
           transitionLockRef.current = false;
         }, 1300);
       }
+      if (configured && user && roles.includes('student')) {
+        const snapshot = useGameStore.getState();
+        void syncRoundAttempt(user.id, {
+          session_id: sessionIdRef.current,
+          world_key: worldKey,
+          round_number: roundIndex + 1,
+          skill,
+          accuracy,
+          attempts,
+          time_ms: timeMs,
+          xp_earned: xpPerRound + (isLast ? worldBonus : 0),
+          completion_status: 'completed',
+          world_completed: isLast,
+        }, {
+          xp: snapshot.xp,
+          sessionsCompleted: snapshot.sessionsCompleted,
+          totalTimeMs: snapshot.totalTimeMs,
+        }).catch(() => {});
+      }
     },
-    [completed, startTime, worldKey, skill, roundIndex, attempts, totalRounds, xpPerRound, worldBonus, logActivity, addXp, completeWorld]
+    [configured, user, roles, completed, startTime, worldKey, skill, roundIndex, attempts, totalRounds, xpPerRound, worldBonus, logActivity, addXp, completeWorld]
   );
 
   const restart = useCallback(() => {
