@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
-import { clearDemoSession, createDemoAccount, getDemoSession, signInDemoAccount } from './demoAuth';
+import { clearDemoSession, createDemoAccount, signInDemoAccount } from './demoAuth';
 
 const AuthContext = createContext(null);
 
@@ -38,7 +38,9 @@ async function loadIdentity(user, onProfileLoaded = () => {}) {
 
 export function AuthProvider({ children }) {
   const [state, setState] = useState({ loading: isSupabaseConfigured, roleLoading: false, session: null, profile: null, roles: [], identityStatus: 'unauthenticated', error: null });
-  const [demoAccount, setDemoAccount] = useState(() => getDemoSession());
+  // Demo accounts may be used only after an explicit fallback signup/login.
+  // A stale browser record must never bypass the production login screen.
+  const [demoAccount, setDemoAccount] = useState(null);
   const requestIdRef = useRef(0);
 
   const loadSessionIdentity = async (session, isCurrent = () => true) => {

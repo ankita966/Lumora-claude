@@ -24,7 +24,7 @@ export default function Landing() {
     if (entering) return;
     setEntering(true);
     const destination = configured && user ? authorizedPortal(roles)?.destination : null;
-    transitionRef.current = window.setTimeout(() => setScreen(configured && !user ? 'portalChoice' : destination || 'map'), 280);
+    transitionRef.current = window.setTimeout(() => setScreen(user ? destination || 'landing' : 'auth'), 280);
   }, [configured, entering, roles, setScreen, user]);
   const login = () => {
     setAuthPortal(null);
@@ -78,7 +78,7 @@ export default function Landing() {
       <div className="landing-quote">{t(language, 'quote')}</div>
 
       <div className="cta-row">
-        {configured && !user ? <>
+        {!user ? <>
           <button className="btn-pill btn-primary landing-portal-button" onClick={login}>Login →</button>
           <button className="btn-pill btn-secondary" onClick={createAccount}>Create Account</button>
         </> : <>
@@ -94,7 +94,7 @@ export default function Landing() {
           ['teacher', 'teacher', t(language, 'teacherClass'), '🏫'],
           ['school_admin', 'school_admin', 'School Admin Portal', '🏛️'],
           ['specialist', 'specialist', t(language, 'specialistLab'), '🔬'],
-        ].filter(([, role]) => !configured || (user && roles.includes(role))).map(([key, , label, icon]) => (
+        ].filter(([, role]) => user && roles.includes(role)).map(([key, , label, icon]) => (
           <button
             key={key}
             className={`mode-chip ${userMode === key ? 'active' : ''}`}
@@ -104,7 +104,7 @@ export default function Landing() {
           </button>
         ))}
       </div>
-      {configured && user && <button className="btn-pill btn-ghost" style={{ marginTop: 14 }} onClick={signOut}>Sign out</button>}
+      {user && <button className="btn-pill btn-ghost" style={{ marginTop: 14 }} onClick={signOut}>Sign out</button>}
 
       <Mascot
         color="var(--cyan)"
