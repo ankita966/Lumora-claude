@@ -32,7 +32,19 @@ export default function StoryCastle() {
       {!flow.completed && <RoundHeader title={round.title} subtitle={round.subtitle} color={COLOR} />}
       <div className="play-area story-castle-area" ref={areaRef} style={{ '--world-color': COLOR }}>
         <CastleAtmosphere />
-        <HandCursorLayer videoRef={cursor.videoRef} pixel={cursor.pixel} cameraStatus={cursor.cameraStatus} handDetected={cursor.handDetected} pinching={cursor.pinching} interacting={cursor.pinching} color={MAGIC} showMirror showCursor />
+        <HandCursorLayer
+          videoRef={cursor.videoRef}
+          pixel={cursor.pixel}
+          cameraStatus={cursor.cameraStatus}
+          handDetected={cursor.handDetected}
+          gesture={cursor.gesture}
+          gestureLabel={cursor.gestureLabel}
+          pinching={cursor.pinching}
+          interacting={cursor.pinching}
+          color={MAGIC}
+          showMirror
+          showCursor
+        />
         {!flow.completed && !intro && <StoryRound key={flow.roundIndex} index={flow.roundIndex} cursor={cursor} onSolved={finish} onWrong={flow.registerAttempt} />}
         {intro && !flow.completed && <div className="story-intro"><span>🏰</span><strong>{flow.roundIndex === 0 ? 'Your story awaits…' : `Round ${flow.roundNumber}`}</strong></div>}
         {flow.transitioning && <div className="round-transition-overlay"><span className="round-transition-text">✨ The castle portal is opening…</span></div>}

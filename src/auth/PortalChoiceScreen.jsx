@@ -31,7 +31,7 @@ export default function PortalChoiceScreen() {
             </button>
           ))}
         </div>
-        <button type="button" className="btn-pill btn-ghost" onClick={() => setScreen('landing')}>← Back to Home</button>
+        <button type="button" className="retro-signout-btn" onClick={() => setScreen('landing')}>[ ← Back to Home ]</button>
       </section>
     </main>
   );

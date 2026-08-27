@@ -26,10 +26,15 @@ function persist(state) {
         totalTimeMs: state.totalTimeMs,
         calmMode: state.calmMode,
         language: state.language,
+        cameraGrid: state.cameraGrid,
+        cameraSensitivity: state.cameraSensitivity,
+        soundFxEnabled: state.soundFxEnabled,
+        soundFxVolume: state.soundFxVolume,
+        sensoryProfile: state.sensoryProfile,
       })
     );
   } catch {
-    /* localStorage unavailable — continue without persistence */
+    /* localStorage unavailable */
   }
 }
 
@@ -38,19 +43,28 @@ const saved = loadSave();
 export const useGameStore = create((set, get) => ({
   screen: 'landing', // landing | map | <worldKey> | parent | specialist
   activeWorld: null,
-  homeRequested: false, // distinguishes an intentional Home visit from app bootstrap
-  authPortal: null, // requested database role for the shared Supabase login form
-  authMode: 'login', // login for returning users; signup only follows portal selection
-  userMode: 'child', // child | parent | teacher | specialist — landing mode chips
+  homeRequested: false,
+  authPortal: null,
+  authMode: 'login',
+  userMode: 'child',
 
   xp: saved?.xp ?? 15200,
   calmMode: saved?.calmMode ?? false,
   language: saved?.language ?? 'en',
 
+  // Pro Camera Controls
+  cameraGrid: saved?.cameraGrid ?? 'none', // 'none' | 'thirds' | 'crosshair' | 'box'
+  cameraSensitivity: saved?.cameraSensitivity ?? 0.35, // 0.15 - 0.75
+
+  // Sensory & Audio Studio Settings
+  soundFxEnabled: saved?.soundFxEnabled ?? true,
+  soundFxVolume: saved?.soundFxVolume ?? 0.7,
+  sensoryProfile: saved?.sensoryProfile ?? 'vibrant', // 'vibrant' | 'gentle' | 'focus' | 'contrast'
+
   handConnected: false,
 
-  activityLog: saved?.activityLog ?? [], // { world, round, skill, accuracy, attempts, timeMs, ts }
-  worldsCompleted: saved?.worldsCompleted ?? {}, // { [worldKey]: true }
+  activityLog: saved?.activityLog ?? [],
+  worldsCompleted: saved?.worldsCompleted ?? {},
   sessionsCompleted: saved?.sessionsCompleted ?? 3,
   totalTimeMs: saved?.totalTimeMs ?? 1000 * 60 * 42,
   sessionStartedAt: Date.now(),
@@ -71,13 +85,47 @@ export const useGameStore = create((set, get) => ({
 
   setHandConnected: (v) => set({ handConnected: v }),
 
+  // Camera & Sensory actions
+  setCameraGrid: (cameraGrid) => set((s) => {
+    const next = { cameraGrid };
+    persist({ ...s, ...next });
+    return next;
+  }),
+  setCameraSensitivity: (cameraSensitivity) => set((s) => {
+    const next = { cameraSensitivity };
+    persist({ ...s, ...next });
+    return next;
+  }),
+  setSoundFxEnabled: (soundFxEnabled) => set((s) => {
+    const next = { soundFxEnabled };
+    persist({ ...s, ...next });
+    return next;
+  }),
+  setSoundFxVolume: (soundFxVolume) => set((s) => {
+    const next = { soundFxVolume };
+    persist({ ...s, ...next });
+    return next;
+  }),
+  setSensoryProfile: (sensoryProfile) => set((s) => {
+    const calm = sensoryProfile === 'gentle';
+    const next = { sensoryProfile, calmMode: calm };
+    persist({ ...s, ...next });
+    return next;
+  }),
+
   addXp: (amount) => set((s) => {
     const next = { xp: s.xp + amount };
     persist({ ...s, ...next });
     return next;
   }),
 
-  toggleCalm: () => set((s) => ({ calmMode: !s.calmMode })),
+  toggleCalm: () => set((s) => {
+    const nextCalm = !s.calmMode;
+    const next = { calmMode: nextCalm, sensoryProfile: nextCalm ? 'gentle' : 'vibrant' };
+    persist({ ...s, ...next });
+    return next;
+  }),
+
   setLanguage: (language) => set({ language }),
 
   logActivity: ({ world, round, skill, accuracy, attempts, timeMs }) => {

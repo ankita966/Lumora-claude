@@ -129,20 +129,20 @@ export default function AuthScreen() {
           <div className="auth-mismatch" role="alert">
             <strong>{mismatch.kind === 'profile_missing' ? 'Your account is being set up.' : mismatch.kind === 'role_mismatch' ? `This account is registered as ${mismatch.label}.` : "This account doesn't have access to this portal."}</strong>
             <p>{mismatch.kind === 'profile_missing' ? 'Please try again in a moment.' : mismatch.kind === 'role_mismatch' ? `We’ll take you to the ${mismatch.label} portal.` : 'Please sign in again.'}</p>
-            {mismatch.kind === 'role_mismatch' && <button className="btn-pill btn-primary" onClick={openAuthorizedPortal}>Continue to {mismatch.label} Portal</button>}
-            {mismatch.kind === 'role_mismatch' && <button className="btn-pill btn-secondary" onClick={leaveAccount}>Back to Login</button>}
-            {mismatch.kind !== 'role_mismatch' && <button className="btn-pill btn-ghost" onClick={leaveAccount}>Back to Login</button>}
+            {mismatch.kind === 'role_mismatch' && <button className="pixel-btn-start" onClick={openAuthorizedPortal}>Continue to {mismatch.label} Portal</button>}
+            {mismatch.kind === 'role_mismatch' && <button className="pixel-btn-secondary" onClick={leaveAccount}>Back to Login</button>}
+            {mismatch.kind !== 'role_mismatch' && <button className="pixel-btn-secondary" onClick={leaveAccount}>Back to Login</button>}
           </div>
         ) : <form onSubmit={submit} noValidate>
           {signup && <label>Display name<input required type="text" autoComplete="name" placeholder="Explorer name" value={displayName} onChange={(event) => setDisplayName(event.target.value)} /></label>}
           <label>Email<input required type="email" autoComplete="email" placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} /></label>
           <label>Password<input required minLength={PASSWORD_MIN_LENGTH} type="password" autoComplete={signup ? 'new-password' : 'current-password'} placeholder={`At least ${PASSWORD_MIN_LENGTH} characters`} value={password} onChange={(event) => setPassword(event.target.value)} /></label>
           {signup && <label>Confirm password<input required minLength={PASSWORD_MIN_LENGTH} type="password" autoComplete="new-password" placeholder="Re-enter your password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} /></label>}
-          <button className="btn-pill btn-primary" disabled={busy}>{busy ? 'Please wait…' : signup ? 'Create account' : 'Login'}</button>
-          {signup && <button type="button" className="btn-pill btn-secondary" disabled={busy} onClick={() => { setAuthPortal(null); switchMode('login'); }}>I already have an account</button>}
-          {!signup && <button type="button" className="btn-pill btn-secondary" disabled={busy} onClick={chooseRole}>Create Account</button>}
-          {signup && <button type="button" className="btn-pill btn-ghost" onClick={chooseRole}>Choose Another Role</button>}
-          <button type="button" className="btn-pill btn-ghost" onClick={() => setScreen('landing')}>← Back to Home</button>
+          <button className="pixel-btn-start" disabled={busy}>{busy ? 'Please wait…' : signup ? 'Create account' : '▶ Login'}</button>
+          {signup && <button type="button" className="pixel-btn-secondary" disabled={busy} onClick={() => { setAuthPortal(null); switchMode('login'); }}>I already have an account</button>}
+          {!signup && <button type="button" className="pixel-btn-secondary" disabled={busy} onClick={chooseRole}>Create Account</button>}
+          {signup && <button type="button" className="pixel-btn-secondary" onClick={chooseRole}>Choose Another Role</button>}
+          <button type="button" className="retro-signout-btn" onClick={() => setScreen('landing')}>[ ← Back to Home ]</button>
           {roleLoading && user && <p className="auth-message">{identityStatus === 'profile_loading' ? 'Setting up your profile…' : 'Checking your Lumora access…'}</p>}
           {message && <p className={`auth-message ${messageType === 'error' ? 'auth-error' : ''}`} role="status">{message}</p>}
           {identityError && <p className="auth-message auth-error" role="alert">Unable to load your profile. Please try again.</p>}

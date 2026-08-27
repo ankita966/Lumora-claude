@@ -4,16 +4,15 @@ import MagicCursor from './MagicCursor';
 
 /**
  * HandCursorLayer — Integrates the MagicMirror camera view and the
- * MagicCursor energy trail into the game's play area.
- *
- * Shows the child's camera feed in a beautiful mirror/portal,
- * and renders the cyan magic cursor that follows their fingertip.
+ * MagicCursor energy trail into the game's play area with multi-gesture feedback.
  */
 export default function HandCursorLayer({
   videoRef,
   pixel,
   cameraStatus,
   handDetected,
+  gesture = 'none',
+  gestureLabel = '',
   pinching = false,
   interacting = false,
   color = '#4fd8ff',
@@ -29,12 +28,14 @@ export default function HandCursorLayer({
 
   return (
     <>
-      {/* Magic Mirror — camera portal */}
+      {/* Magic Mirror — camera portal with gesture feedback */}
       {showMirror && (
         <MagicMirror
           videoRef={videoRef}
           cameraStatus={cameraStatus}
           handDetected={handDetected}
+          gesture={gesture}
+          gestureLabel={gestureLabel}
           expanded={mirrorExpanded}
           onToggle={toggleMirror}
           color={color}
@@ -45,7 +46,8 @@ export default function HandCursorLayer({
       {showCursor && (
         <MagicCursor
           pixel={pixel}
-          pinching={pinching}
+          gesture={gesture}
+          pinching={pinching || gesture === 'pinch'}
           interacting={interacting}
           color={color}
           bursts={bursts}
