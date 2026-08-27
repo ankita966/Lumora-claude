@@ -850,14 +850,19 @@ button {
   place-items: center;
   cursor: pointer;
   z-index: 65;
-  box-shadow: 0 4px 0 0 #000;
-  transition: transform var(--motion-snap), background var(--motion-snap);
+  box-shadow: var(--shadow-card);
+  transition: transform var(--dur-fast) var(--ease-snap), background var(--dur-fast) var(--ease-snap), box-shadow var(--dur-fast) var(--ease-snap);
 }
 .settings-fab:hover {
   background: var(--magenta);
   color: #090B14;
   border-color: #090B14;
-  transform: scale(1.08);
+  transform: translate(-1px, -2px);
+  box-shadow: var(--shadow-float);
+}
+.settings-fab:active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--shadow-press);
 }
 .settings-fab.active {
   background: var(--cyan);
@@ -969,18 +974,19 @@ button {
   color: var(--text-silver);
   cursor: pointer;
   text-align: left;
-  box-shadow: 0 2px 0 0 #000;
-  transition: all var(--motion-snap);
+  box-shadow: var(--shadow-press);
+  transition: border-color var(--dur-fast) var(--ease-snap), color var(--dur-fast) var(--ease-snap), background var(--dur-fast) var(--ease-snap), transform var(--dur-fast) var(--ease-snap), box-shadow var(--dur-fast) var(--ease-snap);
 }
 .studio-pill-btn:hover {
   border-color: var(--cyan);
   color: #E2E8F0;
+  transform: translate(-1px, -1px);
 }
 .studio-pill-btn.active {
   background: var(--magenta);
   border-color: #090B14;
-  color: #090B14;
-  box-shadow: 0 3px 0 0 #000;
+  color: #FFFFFF;
+  box-shadow: var(--shadow-chip);
 }
 .studio-pill-btn strong {
   font-family: var(--font-pixel-heading);
@@ -1117,15 +1123,18 @@ button {
   height: 90px;
   border: 3px solid var(--realm-color);
   background: #090B14;
-  box-shadow:
-    0 4px 0 0 #090B14,
-    4px 0 0 0 #090B14,
-    -4px 0 0 0 #090B14,
-    0 -4px 0 0 #090B14,
-    0 8px 0 0 rgba(0,0,0,0.5);
+  box-shadow: var(--shadow-chip);
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: box-shadow var(--dur-base) var(--ease-snap), transform var(--dur-fast) var(--ease-snap);
+}
+/* Mastered realms float — earned depth, not default depth */
+.retro-node-button.mastered .retro-core-sphere {
+  box-shadow: var(--shadow-float);
+}
+.retro-node-button:hover .retro-core-sphere {
+  box-shadow: var(--shadow-card);
 }
 .retro-node-button.center-orb .retro-core-sphere {
   width: 104px;
@@ -1207,14 +1216,19 @@ button {
   background: #090B14;
   color: #E2E8F0;
   cursor: pointer;
-  box-shadow: 0 2px 0 0 #000;
-  transition: all var(--motion-snap);
+  box-shadow: var(--shadow-press);
+  transition: transform var(--dur-fast) var(--ease-snap), box-shadow var(--dur-fast) var(--ease-snap), background var(--dur-fast) var(--ease-snap), color var(--dur-fast) var(--ease-snap), border-color var(--dur-fast) var(--ease-snap);
 }
 .tactile-nav-btn:hover {
-  transform: translateY(-2px);
+  transform: translate(-1px, -2px);
   background: var(--cyan);
   color: #090B14;
   border-color: #090B14;
+  box-shadow: var(--shadow-chip);
+}
+.tactile-nav-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 0 0 0 0 #000;
 }
 .topbar-right {
   display: flex;
@@ -1231,12 +1245,17 @@ button {
   display: grid;
   place-items: center;
   cursor: pointer;
-  box-shadow: 0 2px 0 0 #000;
-  transition: transform var(--motion-snap);
+  box-shadow: var(--shadow-press);
+  transition: transform var(--dur-fast) var(--ease-snap), border-color var(--dur-fast) var(--ease-snap), box-shadow var(--dur-fast) var(--ease-snap);
 }
 .audio-quick-toggle:hover {
-  transform: scale(1.08);
+  transform: translate(-1px, -1px);
   border-color: var(--cyan);
+  box-shadow: var(--shadow-chip);
+}
+.audio-quick-toggle:active {
+  transform: translate(1px, 1px);
+  box-shadow: 0 0 0 0 #000;
 }
 .audio-quick-toggle.muted {
   opacity: 0.5;
@@ -1249,6 +1268,14 @@ button {
   font-family: var(--font-pixel-display);
   font-size: 10px;
   color: var(--amber);
+}
+.tactile-xp::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--magenta);
+  border: 1.5px solid #000;
+  flex-shrink: 0;
 }
 .signout-btn {
   background: #1A121F !important;
