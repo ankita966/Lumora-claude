@@ -502,6 +502,7 @@ button {
   clip-path: polygon(33% 0%, 66% 0%, 66% 33%, 100% 33%, 100% 66%, 66% 66%, 66% 100%, 33% 100%, 33% 66%, 0% 66%, 0% 33%, 33% 33%);
   opacity: 0.85;
   pointer-events: none;
+  animation: ref-star-twinkle 4s ease-in-out infinite;
 }
 .ref-star-diamond {
   position: absolute;
@@ -511,6 +512,7 @@ button {
   clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
   opacity: 0.75;
   pointer-events: none;
+  animation: ref-star-twinkle 4s ease-in-out infinite;
 }
 .ref-star-dot {
   position: absolute;
@@ -520,13 +522,17 @@ button {
   opacity: 0.65;
   pointer-events: none;
 }
-.star-loc-1 { top: 40px; left: 4%; width: 14px; height: 14px; }
-.star-loc-2 { bottom: 120px; right: 18%; width: 16px; height: 16px; }
-.star-loc-3 { top: 120px; left: 14%; width: 12px; height: 12px; }
-.star-loc-4 { top: 220px; right: 8%; width: 12px; height: 12px; }
+.star-loc-1 { top: 40px; left: 4%; width: 14px; height: 14px; animation-delay: -0.6s; }
+.star-loc-2 { bottom: 120px; right: 18%; width: 16px; height: 16px; animation-delay: -2.4s; }
+.star-loc-3 { top: 120px; left: 14%; width: 12px; height: 12px; animation-delay: -1.3s; }
+.star-loc-4 { top: 220px; right: 8%; width: 12px; height: 12px; animation-delay: -3.1s; }
 .star-loc-5 { top: 30px; right: 12%; }
 .star-loc-6 { bottom: 180px; left: 24%; }
 .star-loc-7 { bottom: 80px; right: 6%; }
+@keyframes ref-star-twinkle {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.82); }
+}
 
 /* Content Layout (Left Column with Large Heading & Editorial Story) */
 .ref-content-layout {
@@ -551,7 +557,7 @@ button {
   gap: 20px;
 }
 
-/* Giant Stacked 2-Line Pixel Heading (Exact match to "КТО ОНИ ТАКИЕ?") */
+/* Giant Stacked 2-Line Pixel Heading — editorial asymmetry + hero-matching depth */
 .ref-giant-stacked-heading {
   margin: 0 0 16px;
   font-family: var(--font-pixel-display-xl);
@@ -562,8 +568,13 @@ button {
   display: flex;
   flex-direction: column;
   letter-spacing: 0.04em;
-  text-shadow: 0 4px 0 #000000;
+  text-shadow:
+    0.05em 0.05em 0 var(--magenta),
+    0 6px 0 rgba(0, 0, 0, 0.92);
   text-transform: uppercase;
+}
+.ref-giant-stacked-heading span:nth-child(2) {
+  margin-left: 0.6em;
 }
 
 /* Editorial 2-Column Text Layout */
@@ -586,14 +597,14 @@ button {
 .ref-lead-paragraph {
   font-size: 19px;
   font-weight: 700;
-  line-height: 1.45;
+  line-height: 1.5;
   color: #E2E8F0;
   margin: 0;
 }
 .ref-body-paragraph {
-  font-size: 13.5px;
-  color: #94A3B8;
-  line-height: 1.6;
+  font-size: 15px;
+  color: #A8B7CC;
+  line-height: 1.65;
   margin: 0;
 }
 
@@ -604,7 +615,7 @@ button {
   padding: 3px 8px;
   font-weight: 700;
   display: inline-block;
-  box-shadow: 2px 2px 0 0 #000000;
+  box-shadow: var(--shadow-chip);
   margin: 0 2px;
 }
 .ref-pink-tag {
@@ -612,9 +623,9 @@ button {
   color: #FFFFFF;
   padding: 1px 6px;
   font-weight: 700;
-  font-size: 11.5px;
+  font-size: 12px;
   display: inline-block;
-  box-shadow: 1px 1px 0 0 #000000;
+  box-shadow: var(--shadow-press);
 }
 
 .ref-sub-col {
@@ -624,9 +635,9 @@ button {
 }
 .ref-sub-col p {
   margin: 0;
-  font-size: 12.5px;
+  font-size: 15px;
   color: #CBD5E1;
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 /* Quick Hero Selector Chips */
@@ -645,21 +656,25 @@ button {
   border: 2px solid #334155;
   color: #E2E8F0;
   font-family: var(--font-pixel-heading);
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 3px 0 0 #000000;
-  transition: all 0.15s;
+  box-shadow: var(--shadow-chip);
+  transition: transform var(--dur-fast) var(--ease-snap), border-color var(--dur-fast) var(--ease-snap), background var(--dur-fast) var(--ease-snap);
 }
 .ref-hero-chip:hover {
   border-color: #38B6FF;
-  transform: translateY(-2px);
+  transform: translate(-1px, -2px);
+}
+.ref-hero-chip:active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--shadow-press);
 }
 .ref-hero-chip.active {
   background: #FF2E93;
   border-color: #000000;
-  color: #000000;
-  box-shadow: 0 4px 0 0 #000000;
+  color: #FFFFFF;
+  box-shadow: var(--shadow-chip);
 }
 .ref-chip-icon {
   font-size: 16px;
@@ -677,30 +692,40 @@ button {
   background: #38B6FF;
   color: #000000;
   font-family: var(--font-pixel-heading);
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 800;
   border: 2px solid #000000;
-  box-shadow: 0 3px 0 0 #000000;
+  box-shadow: var(--shadow-chip);
   cursor: pointer;
-  transition: transform 0.15s;
+  transition: transform var(--dur-fast) var(--ease-snap), box-shadow var(--dur-fast) var(--ease-snap), background var(--dur-fast) var(--ease-snap);
 }
 .ref-action-btn-primary:hover {
-  transform: translateY(-2px);
-  background: #48B8D0;
+  transform: translate(-1px, -2px);
+  box-shadow: var(--shadow-card);
+}
+.ref-action-btn-primary:active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--shadow-press);
 }
 .ref-action-btn-secondary {
   padding: 10px 18px;
   background: #111526;
   color: #CBD5E1;
   font-family: var(--font-pixel-heading);
-  font-size: 11px;
+  font-size: 11.5px;
   border: 2px solid #334155;
-  box-shadow: 0 3px 0 0 #000000;
+  box-shadow: var(--shadow-chip);
   cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-snap), box-shadow var(--dur-fast) var(--ease-snap), color var(--dur-fast) var(--ease-snap), border-color var(--dur-fast) var(--ease-snap);
 }
 .ref-action-btn-secondary:hover {
   color: #FFFFFF;
   border-color: #E2E8F0;
+  transform: translate(-1px, -2px);
+}
+.ref-action-btn-secondary:active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--shadow-press);
 }
 
 /* 16-Bit Earth Globe (Bottom-Left Corner Placement matching reference) */
@@ -718,6 +743,17 @@ button {
   width: 100%;
   height: 100%;
   display: block;
+}
+/* Slow continental drift — only for motion-tolerant users */
+@media (prefers-reduced-motion: no-preference) {
+  .ref-earth-globe-svg g[clip-path] {
+    animation: ref-globe-drift 60s linear infinite;
+    transform-origin: 100px 100px;
+  }
+}
+@keyframes ref-globe-drift {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 

@@ -314,7 +314,7 @@ export default function Landing() {
 
           {/* Bottom Left 16-Bit Earth Globe (Exact placement and style from reference) */}
           <div className="ref-earth-globe-wrapper">
-            <svg viewBox="0 0 200 200" className="ref-earth-globe-svg" shapeRendering="crispEdges">
+            <svg viewBox="0 0 200 200" className="ref-earth-globe-svg" shapeRendering="crispEdges" role="img" aria-label="Pixel-art Earth globe with cyan continents">
               <defs>
                 <clipPath id="refGlobeClip">
                   <circle cx="100" cy="100" r="92" />
