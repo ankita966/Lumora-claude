@@ -42,6 +42,33 @@
   --pixel-shadow-md: 0 4px 0 0 #090B14, 4px 0 0 0 #090B14, -4px 0 0 0 #090B14, 0 -4px 0 0 #090B14;
   --pixel-shadow-drop: 0 5px 0 0 #090B14, 5px 0 0 0 #090B14, -5px 0 0 0 #090B14, 0 -5px 0 0 #090B14, 0 8px 0 0 rgba(0,0,0,0.5);
 
+  /* ——— Premium polish tokens (Session 9) ——— */
+  /* Stepped pixel depth: hard offset + 0 blur — the arcade signature */
+  --shadow-chip: 3px 3px 0 0 #000000;
+  --shadow-card: 5px 5px 0 0 #000000;
+  --shadow-float: 7px 7px 0 0 #000000, 14px 14px 0 0 rgba(9, 11, 20, 0.22);
+  --shadow-press: 1px 1px 0 0 #000000;
+  --shadow-inset: inset 2px 2px 0 0 rgba(9, 11, 20, 0.35);
+
+  /* Chamfer radii — pixel world, no bubbles */
+  --chamfer: 6px;
+  --chamfer-lg: 10px;
+
+  /* Strict 8px spacing grid */
+  --sp-1: 8px;
+  --sp-2: 16px;
+  --sp-3: 24px;
+  --sp-4: 32px;
+  --sp-6: 48px;
+  --sp-8: 64px;
+  --sp-12: 96px;
+
+  /* Focus + motion */
+  --focus-ring: 3px solid var(--magenta);
+  --ease-snap: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 140ms;
+  --dur-base: 300ms;
+
   --motion-snap: 120ms steps(3);
   --motion-smooth: 320ms cubic-bezier(0.16, 1, 0.3, 1);
 
@@ -1973,4 +2000,31 @@ button {
 }
 .sensory-contrast .cosmic-orb-button .orb-core-sphere {
   border-width: 3.5px !important;
+}
+
+/* =========================================================================
+   SESSION 9 — ACCESSIBILITY LAYER
+   Reduced-motion guard + keyboard focus (premium baseline)
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 3px;
+}
+
+/* Keyboard users on dark space sections need a brighter ring */
+.ref-bottom-space-section :focus-visible,
+.auth-screen :focus-visible,
+.screen-map :focus-visible {
+  outline-color: var(--magenta-light);
 }
