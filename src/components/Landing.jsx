@@ -127,6 +127,20 @@ export default function Landing() {
           </svg>
         </div>
 
+        {/* Distant pixel mountains — anchor the pale horizon band */}
+        <div className="ref-far-mountains" aria-hidden="true">
+          <svg viewBox="0 0 1200 72" preserveAspectRatio="none" shapeRendering="crispEdges">
+            <path
+              d="M 0 72 V 44 H 60 V 32 H 140 V 48 H 220 V 26 H 320 V 44 H 420 V 20 H 540 V 40 H 640 V 30 H 740 V 46 H 860 V 24 H 980 V 42 H 1090 V 34 H 1200 V 72 Z"
+              fill="#A5DCF9"
+            />
+            <path
+              d="M 0 72 V 56 H 90 V 46 H 200 V 60 H 340 V 44 H 470 V 58 H 620 V 48 H 760 V 62 H 900 V 46 H 1040 V 56 H 1200 V 72 Z"
+              fill="#C8EBFD"
+            />
+          </svg>
+        </div>
+
         {/* Giant Pixel Headline with Amber Tagline Box (Exact Reference Alignment) */}
         <div className="ref-giant-title-container">
           <h1 className="ref-title-pixel-text">

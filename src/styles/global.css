@@ -420,17 +420,20 @@ button {
   letter-spacing: 0.05em;
 }
 
-/* Scattered Sky Pixel Cubes — disciplined: 8px-grid sizes, staggered drift */
+/* Scattered Sky Pixel Cubes — disciplined: 8px-grid sizes, staggered drift.
+   Softened: smaller + 0.55 opacity so they read as intentional confetti,
+   not stray pixels (QA round 1 verdict). */
 .ref-pixel-block {
   position: absolute;
   pointer-events: none;
   z-index: 4;
+  opacity: 0.55;
   animation: ref-cube-drift 9s ease-in-out infinite alternate;
 }
-.p-pink-1 { width: 16px; height: 16px; background: #FF2E93; border: 2px solid #000; top: 120px; right: 10%; animation-delay: -1s; }
-.p-pink-2 { width: 14px; height: 14px; background: #FF2E93; border: 2px solid #000; bottom: 45px; left: 16%; animation-delay: -3.4s; }
-.p-pink-3 { width: 18px; height: 18px; background: #FF2E93; border: 2px solid #000; bottom: 65px; right: 24%; animation-delay: -5.2s; }
-.p-black-1 { width: 18px; height: 18px; background: #000000; top: 140px; left: 8%; animation-delay: -2.1s; }
+.p-pink-1 { width: 10px; height: 10px; background: #FF2E93; border: 2px solid #000; top: 120px; right: 10%; animation-delay: -1s; }
+.p-pink-2 { width: 8px; height: 8px; background: #FF2E93; border: 2px solid #000; bottom: 45px; left: 16%; animation-delay: -3.4s; }
+.p-pink-3 { width: 12px; height: 12px; background: #FF2E93; border: 2px solid #000; bottom: 65px; right: 24%; animation-delay: -5.2s; }
+.p-black-1 { width: 12px; height: 12px; background: #000000; top: 140px; left: 8%; animation-delay: -2.1s; }
 .p-black-2 { width: 14px; height: 14px; background: #000000; top: 180px; right: 3%; animation-delay: -6.3s; }
 .p-black-3 { width: 14px; height: 14px; background: #000000; bottom: 35px; left: 4%; animation-delay: -4.4s; }
 @keyframes ref-cube-drift {
@@ -2128,7 +2131,7 @@ button {
   inset: 0;
   pointer-events: none;
   z-index: 60;
-  opacity: 0.05;
+  opacity: 0.065;
   mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 160px 160px;
@@ -2196,8 +2199,24 @@ button {
   to   { transform: translateX(calc(100vw + 80px)); }
 }
 
+/* --- Distant pixel mountain range anchoring the pale horizon band --- */
+.ref-far-mountains {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 72px;
+  pointer-events: none;
+  opacity: 0.9;
+}
+.ref-far-mountains svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
 /* --- Sky content sits above decorative layers --- */
-.ref-top-sky-section > *:not(.ref-dither-strip):not(.ref-pixel-sun):not(.ref-cloud) {
+.ref-top-sky-section > *:not(.ref-dither-strip):not(.ref-pixel-sun):not(.ref-cloud):not(.ref-far-mountains) {
   position: relative;
   z-index: 2;
 }
