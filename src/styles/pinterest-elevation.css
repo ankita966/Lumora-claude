@@ -218,3 +218,48 @@
   transform: translate(-2px, -3px);
   box-shadow: 6px 6px 0 #000;
 }
+
+/* --- CAMERA OFFER: docked pixel panel, no circular neon portal --- */
+.magic-mirror.compact {
+  right: 24px;
+  bottom: 24px;
+  width: 248px;
+  height: 176px;
+}
+.magic-mirror .mirror-portal {
+  border-radius: 0;
+  border: 3px solid #000;
+  border-top-color: #38B6FF;
+  border-left-color: #38B6FF;
+  box-shadow: 5px 5px 0 #000;
+  animation: none;
+  background: #0A0C1A;
+}
+.magic-mirror .mirror-status,
+.magic-mirror .mirror-video {
+  border-radius: 0;
+}
+.magic-mirror .mirror-offer {
+  padding: 16px;
+  gap: 8px;
+  background: #0A0C1A;
+  color: #F5EFE0;
+}
+.magic-mirror .mirror-offer-title {
+  font-family: var(--font-pixel-heading);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: #F5EFE0;
+}
+.magic-mirror .mirror-offer-sub {
+  max-width: 190px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #CBD5E1;
+  text-align: center;
+}
+/* The camera is OFF: do not render the legacy animated glow canvas beneath copy. */
+.mirror-offer ~ .mirror-glow-canvas { display: none; }
+@media (max-width: 768px) {
+  .magic-mirror.compact { right: 12px; bottom: 12px; width: 216px; height: 158px; }
+}
