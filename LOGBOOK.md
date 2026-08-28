@@ -108,3 +108,12 @@ This logbook records all architectural decisions, security audits, database migr
 #### 5. Verification
 * `npm run build`: success after every change; 16 commits this session chain (`f353a7c` → `ac8e2ab`).
 * Live vision QA: hero 9/10, camera offer verified, realms strip "premium pixel-UI", zero console errors. Globe integer-scale attempt (400px) reverted — occluded editorial copy; 320px composition is canonical.
+
+---
+
+### [2026-08-28] — Pixel-UI Containment & Cursor Cleanup
+* **Status:** ✅ Complete & visual-QA verified
+* Replaced the legacy soft neon cursor trail with an exact-point hard-edged pixel wand: no laser paths, particle exhaust, blur, or cursor lag across the landing canvas.
+* Converted the inactive camera offer from a circular glowing portal to a docked hard-edged pixel panel; its legacy glow canvas is suppressed while the camera is off.
+* Visual QA verified: no cyan trail crosses `WHO ARE THEY?`; globe, editorial window, and camera panel are spatially separated with no clipping or occlusion.
+* `npm run build`: success.
