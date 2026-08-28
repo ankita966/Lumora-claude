@@ -79,6 +79,54 @@ export default function Landing() {
           TOP SECTION: PHOTOREALISTIC BLUE SKY + CUMULUS CLOUDS
           ========================================================================= */}
       <section className="ref-top-sky-section">
+        {/* CRAFTED PIXEL SKY — dither band edges (no photo, no smooth gradient) */}
+        <div className="ref-dither-strip d1" />
+        <div className="ref-dither-strip d2" />
+        <div className="ref-dither-strip d3" />
+        <div className="ref-dither-strip d4" />
+        <div className="ref-dither-strip d5" />
+
+        {/* Pixel sun with stepped glow — top-right counterweight */}
+        <div className="ref-pixel-sun" aria-hidden="true">
+          <svg viewBox="0 0 16 16" shapeRendering="crispEdges">
+            <rect className="ref-sun-glow-2" x="3" y="3" width="10" height="10" fill="#FFE9B8" />
+            <rect className="ref-sun-glow-1" x="4" y="4" width="8" height="8" fill="#FFE9B8" />
+            <rect x="5" y="5" width="6" height="6" fill="#FFE9B8" />
+            <rect x="7" y="1" width="2" height="2" fill="#FFE9B8" />
+            <rect x="7" y="13" width="2" height="2" fill="#FFE9B8" />
+            <rect x="1" y="7" width="2" height="2" fill="#FFE9B8" />
+            <rect x="13" y="7" width="2" height="2" fill="#FFE9B8" />
+          </svg>
+        </div>
+
+        {/* Sprite clouds — back parallax layer (slower, smaller, softer) */}
+        <div className="ref-cloud back c1" style={{ top: '18%' }} aria-hidden="true">
+          <svg viewBox="0 0 32 16" shapeRendering="crispEdges">
+            <path d="M2 16 V8 H8 V4 H12 V2 H20 V4 H24 V8 H30 V16 Z" fill="#FFFFFF" />
+            <rect x="2" y="14" width="28" height="2" fill="#C8EBFD" />
+          </svg>
+        </div>
+        <div className="ref-cloud back c3" style={{ top: '46%' }} aria-hidden="true">
+          <svg viewBox="0 0 32 16" shapeRendering="crispEdges">
+            <path d="M2 16 V8 H8 V4 H12 V2 H20 V4 H24 V8 H30 V16 Z" fill="#FFFFFF" />
+            <rect x="2" y="14" width="28" height="2" fill="#C8EBFD" />
+          </svg>
+        </div>
+
+        {/* Sprite clouds — front parallax layer (faster, bigger) */}
+        <div className="ref-cloud front" style={{ top: '7%' }} aria-hidden="true">
+          <svg viewBox="0 0 32 16" shapeRendering="crispEdges">
+            <path d="M2 16 V8 H8 V4 H12 V2 H20 V4 H24 V8 H30 V16 Z" fill="#FFFFFF" />
+            <rect x="2" y="14" width="28" height="2" fill="#C8EBFD" />
+          </svg>
+        </div>
+        <div className="ref-cloud front c2" style={{ top: '58%' }} aria-hidden="true">
+          <svg viewBox="0 0 32 16" shapeRendering="crispEdges">
+            <path d="M2 16 V8 H8 V4 H12 V2 H20 V4 H24 V8 H30 V16 Z" fill="#FFFFFF" />
+            <rect x="2" y="14" width="28" height="2" fill="#C8EBFD" />
+          </svg>
+        </div>
+
         {/* Giant Pixel Headline with Amber Tagline Box (Exact Reference Alignment) */}
         <div className="ref-giant-title-container">
           <h1 className="ref-title-pixel-text">

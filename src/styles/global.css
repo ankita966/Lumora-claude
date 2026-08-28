@@ -292,8 +292,17 @@ button {
   position: relative;
   width: 100%;
   min-height: 520px;
-  background: url('/sky_clouds.jpg') no-repeat center top;
-  background-size: cover;
+  /* CRAFTED PIXEL SKY — 6 hard banded steps (no smooth gradient, no photo).
+     Retro-console gradient: deep top → pale horizon, brand #38B6FF family. */
+  background: linear-gradient(
+    180deg,
+    #0D5EB5 0%    14%,
+    #1C82D8 14%   30%,
+    #38A7EF 30%   46%,
+    #5FC1F7 46%   62%,
+    #8FD7FB 62%   78%,
+    #C8EBFD 78%   100%
+  );
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -329,12 +338,12 @@ button {
   display: block;
 }
 
-/* Embedded Amber Subtitle Tagline Box (Exact match to reference) */
+/* Embedded Amber Subtitle Tagline Box — sits below the wordmark in flow,
+   slight kiss overlap with the pink extrusion (reference layering, legible) */
 .ref-amber-badge-box {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: static;
+  margin: -14px auto 0;
+  transform: none;
   background: var(--amber-soft);
   border: 2px solid #000000;
   color: #000000;
@@ -394,17 +403,18 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  /* drop-shadow follows the chamfered silhouette — box-shadow would be clipped away */
-  filter: drop-shadow(0 6px 0 rgba(0, 0, 0, 0.45));
+  /* drop-shadow follows the chamfered silhouette — box-shadow would be clipped away.
+     SOLID black: translucent rgba washes out against the bright sky. */
+  filter: drop-shadow(0 8px 0 #000000);
   transition: transform var(--dur-fast) var(--ease-snap), filter var(--dur-fast) var(--ease-snap);
 }
 .ref-press-start-btn:hover {
   transform: translateY(-3px);
-  filter: drop-shadow(0 9px 0 rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 11px 0 #000000);
 }
 .ref-press-start-btn:active {
-  transform: translateY(3px);
-  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.45));
+  transform: translateY(4px);
+  filter: drop-shadow(0 1px 0 #000000);
 }
 .ref-btn-text {
   letter-spacing: 0.05em;
@@ -2102,4 +2112,114 @@ button {
 .auth-screen :focus-visible,
 .screen-map :focus-visible {
   outline-color: var(--magenta-light);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SESSION 10 — CRAFTED PIXEL SKY (replaces stock photo)
+   Banded gradient lives on .ref-top-sky-section. This layer adds: dither
+   strips at each band boundary, drifting sprite clouds (2 parallax layers),
+   pixel sun with stepped glow, and film grain (anti-slop rule 15).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* --- Film grain over the whole landing canvas (kills digital flatness) --- */
+.ref-tamagotchi-canvas::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0.05;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+/* --- Dither strip: 2px checkerboard bridging each gradient band edge --- */
+.ref-dither-strip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background-image:
+    repeating-conic-gradient(#0D5EB5 0% 25%, transparent 0% 50%);
+  background-size: 4px 4px;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.ref-dither-strip.d1 { top: calc(14% - 3px); }
+.ref-dither-strip.d2 { top: calc(30% - 3px); }
+.ref-dither-strip.d3 { top: calc(46% - 3px); }
+.ref-dither-strip.d4 { top: calc(62% - 3px); }
+.ref-dither-strip.d5 { top: calc(78% - 3px); }
+
+/* --- Pixel sun: stepped circle + chunky rays, top-right counterweight --- */
+.ref-pixel-sun {
+  position: absolute;
+  top: 8%;
+  right: 12%;
+  width: 64px;
+  height: 64px;
+  pointer-events: none;
+}
+.ref-pixel-sun svg {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+/* Stepped halo: 3 concentric hard rings, no blur */
+.ref-sun-glow-1 { animation: ref-sun-pulse 4s steps(2, end) infinite; }
+.ref-sun-glow-2 { animation: ref-sun-pulse 4s steps(2, end) infinite reverse; }
+@keyframes ref-sun-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.6; }
+}
+
+/* --- Sprite clouds: blocky pixel clouds, 2 parallax depths --- */
+.ref-cloud {
+  position: absolute;
+  pointer-events: none;
+  image-rendering: pixelated;
+}
+.ref-cloud svg { width: 100%; height: 100%; display: block; }
+.ref-cloud.back  { width: 140px; opacity: 0.85; animation: ref-cloud-drift-back 46s linear infinite; }
+.ref-cloud.front { width: 210px; opacity: 1;    animation: ref-cloud-drift-front 34s linear infinite; }
+.ref-cloud.front.c2 { animation-duration: 40s; animation-delay: -18s; }
+.ref-cloud.back.c1  { animation-delay: -30s; }
+.ref-cloud.back.c3  { animation-delay: -8s; }
+
+@keyframes ref-cloud-drift-back {
+  from { transform: translateX(-160px); }
+  to   { transform: translateX(calc(100vw + 40px)); }
+}
+@keyframes ref-cloud-drift-front {
+  from { transform: translateX(-240px); }
+  to   { transform: translateX(calc(100vw + 80px)); }
+}
+
+/* --- Sky content sits above decorative layers --- */
+.ref-top-sky-section > *:not(.ref-dither-strip):not(.ref-pixel-sun):not(.ref-cloud) {
+  position: relative;
+  z-index: 2;
+}
+
+/* --- Wordmark chromatic hover: pink/cyan 2px split (premium sprite glitch) --- */
+.ref-title-pixel-text {
+  transition: filter 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.ref-giant-title-container:hover .ref-title-pixel-text {
+  filter:
+    drop-shadow(2px 0 0 #FF2E93)
+    drop-shadow(-2px 0 0 #38B6FF);
+}
+
+/* All decorative sky motion collapses under reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .ref-cloud.back,
+  .ref-cloud.front,
+  .ref-sun-glow-1,
+  .ref-sun-glow-2 {
+    animation: none !important;
+  }
+  .ref-cloud.front { transform: translateX(15vw); }
+  .ref-cloud.back  { transform: translateX(60vw); }
 }
