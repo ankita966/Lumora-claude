@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { useGameStore } from '../store/useGameStore';
+import PixelIcon from './PixelIcon';
 
 /**
  * MagicMirror — Camera portal with live multi-gesture badges and Pro HUD Grids.
@@ -18,6 +19,8 @@ export default function MagicMirror({
   expanded,
   onToggle,
   color = '#4fd8ff',
+  cameraActive = true,
+  onEnableCamera,
 }) {
   const canvasRef = useRef(null);
   const cameraGrid = useGameStore((s) => s.cameraGrid);
@@ -178,13 +181,30 @@ export default function MagicMirror({
       style={{ '--mirror-color': color }}
     >
       <div className="mirror-portal">
-        <video
-          ref={videoRef}
-          className="mirror-video"
-          autoPlay
-          muted
-          playsInline
-        />
+        {/* Video element only mounts when the camera is actually active —
+            prevents the "Unable to play media" ghost (C3) */}
+        {cameraActive && (
+          <video
+            ref={videoRef}
+            className="mirror-video"
+            autoPlay
+            muted
+            playsInline
+          />
+        )}
+
+        {!cameraActive && (
+          <div className="mirror-status mirror-offer">
+            <PixelIcon name="visionValley" size={26} />
+            <span className="mirror-offer-title">Air-gesture play</span>
+            <span className="mirror-offer-sub">
+              Control the cursor with your hand — camera stays OFF until you say so.
+            </span>
+            <button className="mirror-enable-btn" onClick={onEnableCamera}>
+              ▶ Turn on camera
+            </button>
+          </div>
+        )}
 
         <canvas
           ref={canvasRef}
@@ -209,9 +229,9 @@ export default function MagicMirror({
           </div>
         )}
 
-        {!isReady && !isDenied && cameraStatus !== 'loading' && (
+        {cameraActive && !isReady && !isDenied && cameraStatus !== 'loading' && (
           <div className="mirror-status">
-            <span style={{ fontSize: 28 }}>✨</span>
+            <PixelIcon name="visionValley" size={26} />
             <span>Move mouse to play</span>
           </div>
         )}
@@ -222,8 +242,8 @@ export default function MagicMirror({
             {handDetected
               ? gestureLabel
                 ? `${gestureLabel}`
-                : '✨ Hand detected!'
-              : '✋ Show your hand'}
+                : 'Hand detected!'
+              : 'Show your hand'}
           </div>
         )}
       </div>
@@ -233,7 +253,7 @@ export default function MagicMirror({
         onClick={onToggle}
         style={{ '--mirror-color': color }}
       >
-        {isExpanded ? '✨ Shrink Mirror' : '✨ Expand Mirror'}
+        {isExpanded ? '▲ Shrink Mirror' : '▼ Expand Mirror'}
       </button>
     </div>
   );

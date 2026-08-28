@@ -54,8 +54,16 @@ export default function SettingsPanel() {
         aria-label="Studio Settings & Camera Calibration"
         title="Pro Camera & Sensory Studio"
       >
-        ⚙️
-      </button>
+      <svg viewBox="0 0 12 12" width="18" height="18" shapeRendering="crispEdges" aria-hidden="true">
+        {/* Pixel gear — replaces fuzzy ⚙️ emoji (off-palette, OS-dependent) */}
+        <path
+          fill="#E2E8F0"
+          d="M5 1h2v2H5zM5 9h2v2H5zM1 5h2v2H1zM9 5h2v2H9zM2.2 2.2h2v2h-2zM7.8 2.2h2v2h-2zM2.2 7.8h2v2h-2zM7.8 7.8h2v2h-2z"
+        />
+        <path fill="#090B14" d="M4 4h4v4H4z" />
+        <path fill="#E2E8F0" d="M5 5h2v2H5z" />
+      </svg>
+    </button>
 
       {open && (
         <div className="pro-studio-panel">

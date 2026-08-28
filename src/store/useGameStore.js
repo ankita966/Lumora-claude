@@ -28,6 +28,7 @@ function persist(state) {
         language: state.language,
         cameraGrid: state.cameraGrid,
         cameraSensitivity: state.cameraSensitivity,
+        cameraOptIn: state.cameraOptIn,
         soundFxEnabled: state.soundFxEnabled,
         soundFxVolume: state.soundFxVolume,
         sensoryProfile: state.sensoryProfile,
@@ -54,6 +55,7 @@ export const useGameStore = create((set, get) => ({
 
   // Pro Camera Controls
   cameraGrid: saved?.cameraGrid ?? 'none', // 'none' | 'thirds' | 'crosshair' | 'box'
+  cameraOptIn: saved?.cameraOptIn ?? false, // camera NEVER starts without explicit user gesture (C3)
   cameraSensitivity: saved?.cameraSensitivity ?? 0.35, // 0.15 - 0.75
 
   // Sensory & Audio Studio Settings
@@ -88,6 +90,11 @@ export const useGameStore = create((set, get) => ({
   // Camera & Sensory actions
   setCameraGrid: (cameraGrid) => set((s) => {
     const next = { cameraGrid };
+    persist({ ...s, ...next });
+    return next;
+  }),
+  setCameraOptIn: (cameraOptIn) => set((s) => {
+    const next = { cameraOptIn };
     persist({ ...s, ...next });
     return next;
   }),

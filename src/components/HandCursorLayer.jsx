@@ -19,6 +19,8 @@ export default function HandCursorLayer({
   bursts = [],
   showMirror = true,
   showCursor = true,
+  cameraActive = true,
+  onEnableCamera,
 }) {
   const [mirrorExpanded, setMirrorExpanded] = useState(false);
 
@@ -39,6 +41,8 @@ export default function HandCursorLayer({
           expanded={mirrorExpanded}
           onToggle={toggleMirror}
           color={color}
+          cameraActive={cameraActive}
+          onEnableCamera={onEnableCamera}
         />
       )}
 

@@ -366,13 +366,15 @@ button {
   height: 72px;
   margin: 20px auto 14px;
   cursor: pointer;
-  animation: ref-pet-bob 4.5s ease-in-out infinite;
+  /* Frame-stepped idle (2 frames @ ~1.5fps) — sprites never smooth-tween */
+  animation: ref-pet-bob 1.3s steps(2, jump-none) infinite;
   filter: drop-shadow(0 8px 0 rgba(0,0,0,0.25));
   z-index: 6;
   transition: transform var(--dur-fast) var(--ease-snap);
 }
 .ref-center-pet-wrapper:hover {
   transform: scale(1.12) translateY(-4px);
+  animation: none;
 }
 .ref-pet-svg {
   width: 100%;
@@ -380,8 +382,8 @@ button {
   display: block;
 }
 @keyframes ref-pet-bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-9px); }
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-9px); }
 }
 
 /* Stepped Chamfered Black Button "[ ▶ Press start ]" */
@@ -587,7 +589,7 @@ button {
   text-transform: uppercase;
 }
 .ref-giant-stacked-heading span:nth-child(2) {
-  margin-left: 0.6em;
+  margin-left: 1.4em;
 }
 
 /* Editorial 2-Column Text Layout */
@@ -2242,4 +2244,128 @@ button {
   }
   .ref-cloud.front { transform: translateX(15vw); }
   .ref-cloud.back  { transform: translateX(60vw); }
+}
+
+
+/* ==========================================================================
+   SESSION 10 c2 — REALMS STRIP, NAV TOAST, MIRROR OFFER (agent findings)
+   ========================================================================== */
+
+/* --- 5 Realms strip: honest nav target under the pink menu (C2) --- */
+.ref-realms-strip {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  max-width: 1200px;
+  margin: 0 auto 34px;
+  padding: 0 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.ref-realm-card {
+  background: #111526;
+  border: 2px solid #334155;
+  border-top: 4px solid var(--realm-color, #38B6FF);
+  padding: 14px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: var(--shadow-chip);
+}
+.ref-realm-icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  background: #090B14;
+  border: 2px solid var(--realm-color, #38B6FF);
+}
+.ref-realm-name {
+  font-family: var(--font-pixel-heading);
+  font-size: 11px;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: 0.04em;
+}
+.ref-realm-focus {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #A8B7CC;
+}
+@media (max-width: 900px) {
+  .ref-realms-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 520px) {
+  .ref-realms-strip {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Nav toast: honest answer for post-auth destinations (C2) --- */
+.ref-nav-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #090B14;
+  border: 2px solid #FF2E93;
+  box-shadow: 4px 4px 0 0 #000000;
+  color: #E2E8F0;
+  font-family: var(--font-pixel-heading);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  padding: 12px 18px;
+  animation: ref-toast-in 180ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+@keyframes ref-toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* --- MagicMirror camera-off offer panel (C3) --- */
+.mirror-offer {
+  gap: 6px;
+  text-align: center;
+  max-width: 220px;
+}
+.mirror-offer-title {
+  font-family: var(--font-pixel-heading);
+  font-size: 11px;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: 0.04em;
+}
+.mirror-offer-sub {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #A8B7CC;
+}
+.mirror-enable-btn {
+  margin-top: 6px;
+  padding: 9px 16px;
+  background: #FF2E93;
+  color: #FFFFFF;
+  border: 2px solid #000000;
+  box-shadow: 3px 3px 0 0 #000000;
+  font-family: var(--font-pixel-heading);
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 120ms ease-out, box-shadow 120ms ease-out;
+}
+.mirror-enable-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 0 #000000;
+}
+.mirror-enable-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 0 #000000;
 }

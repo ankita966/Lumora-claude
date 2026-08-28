@@ -3,6 +3,7 @@ import { useGameStore } from '../store/useGameStore';
 import { AVATARS, WORLDS, WORLD_ORDER } from '../data/worlds';
 import { t } from '../data/i18n';
 import HandCursorLayer from './HandCursorLayer';
+import PixelIcon from './PixelIcon';
 import { useCursor } from '../hooks/useCursor';
 import { useAuth } from '../auth/AuthProvider';
 import { authorizedPortal } from '../auth/roleRouting';
@@ -17,17 +18,38 @@ export default function Landing() {
     handConnected,
     xp,
     worldsCompleted,
+    cameraOptIn,
+    setCameraOptIn,
   } = useGameStore();
 
   const { configured, user, roles, displayName, signOut } = useAuth();
   const landingRef = useRef(null);
   const transitionRef = useRef(null);
-  const cursor = useCursor(landingRef, true);
+  const cursor = useCursor(landingRef, true, { useCamera: cameraOptIn });
   const [entering, setEntering] = useState(false);
   const [activeTab, setActiveTab] = useState('heroes');
   const [selectedHero, setSelectedHero] = useState('Kai');
+  const [navToast, setNavToast] = useState(null);
 
   useEffect(() => () => window.clearTimeout(transitionRef.current), []);
+
+  const scrollToSection = useCallback((id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
+
+  const handleNavTab = useCallback((tab) => {
+    playClick(0.35);
+    setActiveTab(tab);
+    if (tab === 'heroes') scrollToSection('who-are-they');
+    else if (tab === 'realms') scrollToSection('realms');
+    else setNavToast(`${tab === 'vision' ? 'Vision Lab' : 'Quest Log'} unlocks inside the world — press start!`);
+  }, [scrollToSection]);
+
+  useEffect(() => {
+    if (!navToast) return undefined;
+    const id = window.setTimeout(() => setNavToast(null), 2600);
+    return () => window.clearTimeout(id);
+  }, [navToast]);
 
   const enterWorld = useCallback(
     (worldKey = null) => {
@@ -73,6 +95,12 @@ export default function Landing() {
         color="#38B6FF"
         showMirror
         showCursor
+        cameraActive={cameraOptIn}
+        onEnableCamera={() => {
+          playClick(0.5);
+          playChime(1.2, 0.5);
+          setCameraOptIn(true);
+        }}
       />
 
       {/* =========================================================================
@@ -245,13 +273,7 @@ export default function Landing() {
           )}
         </div>
 
-        {/* Scattered Pixel Blocks along Sky (Pink & Black pixels from reference) */}
-        <div className="ref-pixel-block p-pink-1" />
-        <div className="ref-pixel-block p-pink-2" />
-        <div className="ref-pixel-block p-pink-3" />
-        <div className="ref-pixel-block p-black-1" />
-        <div className="ref-pixel-block p-black-2" />
-        <div className="ref-pixel-block p-black-3" />
+        {/* Scattered pixel confetti — 8 committed cubes (single set — duplicates removed) */}
       </section>
 
       {/* =========================================================================
@@ -273,47 +295,56 @@ export default function Landing() {
         <nav className="ref-magenta-menu-bar" aria-label="Main Navigation">
           <button
             className={`ref-menu-tab ${activeTab === 'heroes' ? 'active' : ''}`}
-            onClick={() => {
-              playClick(0.35);
-              setActiveTab('heroes');
-            }}
+            onClick={() => handleNavTab('heroes')}
           >
             Who are they
           </button>
           <button
             className={`ref-menu-tab ${activeTab === 'realms' ? 'active' : ''}`}
-            onClick={() => {
-              playClick(0.35);
-              setActiveTab('realms');
-            }}
+            onClick={() => handleNavTab('realms')}
           >
             5 Realms
           </button>
           <button
             className={`ref-menu-tab ${activeTab === 'vision' ? 'active' : ''}`}
-            onClick={() => {
-              playClick(0.35);
-              setActiveTab('vision');
-            }}
+            onClick={() => handleNavTab('vision')}
           >
             Vision Lab
           </button>
           <button
             className={`ref-menu-tab ${activeTab === 'quests' ? 'active' : ''}`}
-            onClick={() => {
-              playClick(0.35);
-              setActiveTab('quests');
-            }}
+            onClick={() => handleNavTab('quests')}
           >
             Quest Log
           </button>
         </nav>
       </div>
 
+      {/* Nav toast — honest response when a destination ships post-auth (C2) */}
+      {navToast && (
+        <div className="ref-nav-toast" role="status">
+          <PixelIcon name="runeRealm" size={14} />
+          {navToast}
+        </div>
+      )}
+
       {/* =========================================================================
           BOTTOM SECTION: OBSIDIAN DEEP SPACE, 16-BIT EARTH & EDITORIAL TYPOGRAPHY
           ========================================================================= */}
-      <main className="ref-bottom-space-section">
+      <main className="ref-bottom-space-section" id="who-are-they">
+        {/* 5 REALMS STRIP — honest nav target: real product content (C2 fix) */}
+        <div className="ref-realms-strip" id="realms">
+          {WORLD_ORDER.map((key) => {
+            const w = WORLDS[key];
+            return (
+              <div key={key} className="ref-realm-card" style={{ '--realm-color': w.color }}>
+                <span className="ref-realm-icon"><PixelIcon name={key} size={22} /></span>
+                <span className="ref-realm-name">{w.name}</span>
+                <span className="ref-realm-focus">{w.focus}</span>
+              </div>
+            );
+          })}
+        </div>
         {/* Pixel Constellation Stars (Exact + and diamond clusters from reference) */}
         <div className="ref-star-plus star-loc-1" />
         <div className="ref-star-plus star-loc-2" />
@@ -328,8 +359,8 @@ export default function Landing() {
           <div className="ref-story-column">
             {/* Giant Stacked 2-Line Pixel Heading (Exact match to reference "КТО ОНИ ТАКИЕ?") */}
             <h2 className="ref-giant-stacked-heading">
-              <span>WHO</span>
-              <span>ARE THEY?</span>
+              <span>WHO ARE</span>
+              <span>THEY?</span>
             </h2>
 
             <div className="ref-editorial-columns">
@@ -342,6 +373,9 @@ export default function Landing() {
                 <p className="ref-body-paragraph">
                   Every child learns through curiosity, spatial play, and adaptive neural feedback.
                 </p>
+                <p className="ref-body-paragraph">
+                  Each hero brings a unique talent: Kai decodes words, Maya reads scrolls, Leo finds rhythm patterns, and Zara traces kinetic runes.
+                </p>
               </div>
 
               {/* Right Column with Paragraphs and Pink Tags */}
@@ -353,9 +387,6 @@ export default function Landing() {
                 <p>
                   From phoneme blending in sound forests to spatial rune tracing, difficulty adapts in real-time.
                   Practice is saved with <span className="ref-pink-tag">zero punitive timers</span> and sensory calm.
-                </p>
-                <p>
-                  Each hero brings a unique talent: Kai decodes words, Maya reads scrolls, Leo finds rhythm patterns, and Zara traces kinetic runes.
                 </p>
               </div>
             </div>
@@ -371,7 +402,7 @@ export default function Landing() {
                     setSelectedHero(a.name);
                   }}
                 >
-                  <span className="ref-chip-icon">{a.icon}</span>
+                  <span className="ref-chip-icon"><PixelIcon name={a.name} size={18} /></span>
                   <span className="ref-chip-name">{a.name}</span>
                 </button>
               ))}
