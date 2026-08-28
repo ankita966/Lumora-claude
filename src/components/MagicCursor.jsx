@@ -74,13 +74,30 @@ export default function MagicCursor({ pixel, pinching = false, interacting = fal
         pinch: isActing,
       });
 
-      // Keep only the current point. A direct cursor must never paint a laser
-      // across the page or lag behind the user's hand/mouse.
-      if (trailRef.current.length > 1) {
-        trailRef.current = trailRef.current.slice(-1);
+      // Keep trail length
+      if (trailRef.current.length > 50) {
+        trailRef.current = trailRef.current.slice(-50);
       }
 
-      // No particle exhaust: this is a crisp pixel wand, not a neon comet.
+      // Add spark particles on movement
+      if (lastPosRef.current) {
+        const dx = cx - lastPosRef.current.x;
+        const dy = cy - lastPosRef.current.y;
+        const speed = Math.hypot(dx, dy);
+        if (speed > 2) {
+          for (let i = 0; i < Math.min(3, Math.floor(speed / 5)); i++) {
+            particlesRef.current.push({
+              x: cx + (Math.random() - 0.5) * 10,
+              y: cy + (Math.random() - 0.5) * 10,
+              vx: (Math.random() - 0.5) * 3,
+              vy: (Math.random() - 0.5) * 3 - 1,
+              life: 1,
+              decay: 0.02 + Math.random() * 0.03,
+              size: 1.5 + Math.random() * 2,
+            });
+          }
+        }
+      }
       lastPosRef.current = { x: cx, y: cy };
 
       // Draw trail — flowing serpent-like path
@@ -177,23 +194,45 @@ export default function MagicCursor({ pixel, pinching = false, interacting = fal
       }
       ctx.restore();
 
-      // Draw a hard-edged pixel wand. Its hot spot is the exact input point.
-      ctx.save();
-      const x = Math.round(cx);
-      const y = Math.round(cy);
-      // black outline, cyan handle, white magic tip — all integer pixels
-      ctx.fillStyle = '#000000';
-      ctx.fillRect(x - 4, y - 10, 8, 20);
-      ctx.fillStyle = color;
-      ctx.fillRect(x - 2, y - 8, 4, 14);
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(x - 2, y - 12, 4, 4);
-      if (isActing) {
-        ctx.fillStyle = '#FF2E93';
-        ctx.fillRect(x - 6, y - 14, 12, 2);
-        ctx.fillRect(x - 6, y + 10, 12, 2);
+      // Draw cursor core
+      if (pixel) {
+        ctx.save();
+
+        // Outer glow pulse
+        const pulse = 1 + 0.15 * Math.sin(frame * 0.08);
+        const coreRadius = isActing ? 14 : 10;
+        const glowRadius = coreRadius * 2.2 * pulse;
+
+        // Soft aura
+        const auraGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowRadius);
+        auraGrad.addColorStop(0, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${isActing ? 0.35 : 0.18})`);
+        auraGrad.addColorStop(0.5, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.06)`);
+        auraGrad.addColorStop(1, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0)`);
+        ctx.fillStyle = auraGrad;
+        ctx.beginPath();
+        ctx.arc(cx, cy, glowRadius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Core dot
+        const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreRadius);
+        coreGrad.addColorStop(0, '#ffffff');
+        coreGrad.addColorStop(0.3, color);
+        coreGrad.addColorStop(1, `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.4)`);
+        ctx.fillStyle = coreGrad;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = isActing ? 24 : 16;
+        ctx.beginPath();
+        ctx.arc(cx, cy, coreRadius * pulse, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Bright inner dot
+        ctx.beginPath();
+        ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+
+        ctx.restore();
       }
-      ctx.restore();
 
       raf = requestAnimationFrame(draw);
     }
