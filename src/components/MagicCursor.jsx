@@ -35,10 +35,6 @@ export default function MagicCursor({ pixel, pinching = false, interacting = fal
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     let raf;
-    // Calm-motion contract: users who ask for reduced motion get a bare wand,
-    // no tracing tail at all.
-    const reduceMotion = window.matchMedia &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     function resize() {
       const rect = canvas.parentElement?.getBoundingClientRect();
@@ -70,42 +66,56 @@ export default function MagicCursor({ pixel, pinching = false, interacting = fal
       const cy = pixel.y;
       const isActing = pinching || interacting;
 
-      // --- Tracing tail: stepped pixel-dot comet, hard-edged, no laser ---
-      // Record a point only when the wand moved >= 3px since the last
-      // recorded point → the tail reads as discrete pixel steps, not a smear.
-      const lastRec = trailRef.current[trailRef.current.length - 1];
-      const movedEnough = !lastRec ||
-        Math.hypot(cx - lastRec.x, cy - lastRec.y) >= 3;
-      if (movedEnough && !reduceMotion) {
-        trailRef.current.push({ x: cx, y: cy, t: frame, pinch: isActing });
-      }
-      if (trailRef.current.length > 10) {
-        trailRef.current = trailRef.current.slice(-10);
+      // Add to trail
+      trailRef.current.push({
+        x: cx,
+        y: cy,
+        t: frame,
+        pinch: isActing,
+      });
+
+      // Keep only the current point. A direct cursor must never paint a laser
+      // across the page or lag behind the user's hand/mouse.
+      if (trailRef.current.length > 1) {
+        trailRef.current = trailRef.current.slice(-1);
       }
 
+      // No particle exhaust: this is a crisp pixel wand, not a neon comet.
       lastPosRef.current = { x: cx, y: cy };
 
-      // Draw the tail as stepped pixel squares (oldest = smallest/faintest)
+      // Draw trail — flowing serpent-like path
       if (trailRef.current.length > 1) {
         ctx.save();
-        for (let i = 0; i < trailRef.current.length - 1; i++) {
-          const p = trailRef.current[i];
-          const age = (frame - p.t);           // frames since recorded
-          if (age > 24) continue;              // fully decayed
-          const k = 1 - age / 24;              // 1 = fresh, 0 = gone
-          const size = Math.max(2, Math.round(8 * k));   // 8px → 2px
-          const alpha = 0.55 * k;
-          const half = size / 2;
-          ctx.fillStyle = p.pinch
-            ? `rgba(255, 46, 147, ${alpha})`   // acting: pink tail
-            : `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`; // idle: cyan
-          // black pixel outline for crispness
-          ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
-          ctx.fillRect(Math.round(p.x - half) - 1, Math.round(p.y - half) - 1, size + 2, size + 2);
-          ctx.fillStyle = p.pinch
-            ? `rgba(255, 46, 147, ${alpha})`
-            : `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
-          ctx.fillRect(Math.round(p.x - half), Math.round(p.y - half), size, size);
+        for (let pass = 0; pass < 3; pass++) {
+          ctx.beginPath();
+          const trail = trailRef.current;
+          const offset = pass * 1.5; // slight offset for layered glow
+
+          for (let i = 0; i < trail.length; i++) {
+            const t = i / trail.length;
+            const wave = Math.sin(t * Math.PI * 3 + frame * 0.08) * (3 - pass) * (1 - t);
+            const px = trail[i].x + wave;
+            const py = trail[i].y + Math.cos(t * Math.PI * 2 + frame * 0.06) * (2 - pass * 0.5);
+
+            if (i === 0) ctx.moveTo(px, py);
+            else {
+              const prev = trail[i - 1];
+              const prevWave = Math.sin(((i - 1) / trail.length) * Math.PI * 3 + frame * 0.08) * (3 - pass) * (1 - (i - 1) / trail.length);
+              const cpx = (prev.x + prevWave + px) / 2;
+              const cpy = (prev.y + Math.cos(((i - 1) / trail.length) * Math.PI * 2 + frame * 0.06) * (2 - pass * 0.5) + py) / 2;
+              ctx.quadraticCurveTo(cpx, cpy, px, py);
+            }
+          }
+
+          const alpha = pass === 0 ? 0.08 : pass === 1 ? 0.15 : 0.35;
+          const width = pass === 0 ? 18 : pass === 1 ? 10 : 4;
+          ctx.strokeStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
+          ctx.lineWidth = width;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.shadowColor = color;
+          ctx.shadowBlur = pass === 2 ? 12 : 6;
+          ctx.stroke();
         }
         ctx.restore();
       }
