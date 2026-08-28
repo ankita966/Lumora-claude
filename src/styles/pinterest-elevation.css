@@ -339,3 +339,72 @@
 @media (max-width: 1399.98px) {
   .ref-gutter-rail { display: none; }
 }
+
+/* --- WORLD BACKDROP: giant low-opacity globe fills the side negative space --- */
+.ref-world-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.ref-world-svg {
+  position: absolute;
+}
+.ref-world-svg--primary {
+  width: 640px;
+  height: 640px;
+  left: -190px;
+  bottom: -170px;
+  opacity: 0.19;
+}
+.ref-world-svg--echo {
+  width: 420px;
+  right: -140px;
+  top: 14%;
+  opacity: 0.13;
+}
+.ref-world-crosshair {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  opacity: 0.3;
+}
+.ref-world-crosshair::before,
+.ref-world-crosshair::after {
+  content: '';
+  position: absolute;
+  background: #38B6FF;
+}
+.ref-world-crosshair::before { left: 50%; top: 0; bottom: 0; width: 2px; margin-left: -1px; }
+.ref-world-crosshair::after  { top: 50%; left: 0; right: 0; height: 2px; margin-top: -1px; }
+.ref-world-crosshair--1 { left: 7%;  top: 22%; }
+.ref-world-crosshair--2 { right: 9%; bottom: 18%; }
+.ref-world-crosshair--3 { left: 16%; top: 58%; opacity: 0.18; }
+@media (max-width: 1200px) {
+  .ref-world-svg--primary { width: 440px; left: -150px; bottom: -130px; }
+  .ref-world-svg--echo { display: none; }
+  .ref-world-crosshair--3 { display: none; }
+}
+@media (max-width: 768px) {
+  .ref-world-svg--primary { width: 320px; left: -120px; bottom: -110px; opacity: 0.10; }
+}
+
+/* --- MY SUGGESTIONS: blueprint crosshair HUD, palette scrollbar, pink selection --- */
+/* 1. Custom scrollbar in palette (default gray clashes with the dark stage) */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #0A0F1E; }
+::-webkit-scrollbar-thumb {
+  background: #1A2233;
+  border: 2px solid #38B6FF;
+  box-shadow: inset 0 0 0 1px #000;
+}
+::-webkit-scrollbar-thumb:hover { background: #25314a; }
+/* 2. Hot-pink text selection (was default browser blue) */
+::selection { background: #FF2E93; color: #FFFFFF; }
+/* 3. Focus rings: cyan bevel instead of browser default */
+.ref-tamagotchi-canvas button:focus-visible,
+.ref-tamagotchi-canvas a:focus-visible {
+  outline: 2px solid #38B6FF;
+  outline-offset: 2px;
+}

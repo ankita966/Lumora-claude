@@ -82,6 +82,37 @@ export default function Landing() {
 
   return (
     <div className={`ref-tamagotchi-canvas ${entering ? 'ref-entering' : ''}`} ref={landingRef}>
+      {/* Giant low-opacity pixel world backdrop — fills side negative space */}
+      <div className="ref-world-backdrop" aria-hidden="true">
+        <svg viewBox="0 0 200 200" className="ref-world-svg ref-world-svg--primary" shapeRendering="crispEdges">
+          <defs>
+            <clipPath id="refWorldClipA"><circle cx="100" cy="100" r="92" /></clipPath>
+          </defs>
+          <circle cx="100" cy="100" r="96" fill="#000000" />
+          <circle cx="100" cy="100" r="92" fill="#1D4ED8" />
+          <g clipPath="url(#refWorldClipA)">
+            <rect x="0" y="0" width="200" height="200" fill="#1D4ED8" />
+            <path d="M 20 50 H 70 V 80 H 40 V 110 H 90 V 150 H 30 Z M 80 30 H 130 V 70 H 100 V 100 H 150 V 140 H 110 Z M 110 100 H 180 V 170 H 130 V 180 H 100 Z M 50 110 H 100 V 180 H 50 Z M 120 20 H 170 V 60 H 140 Z" fill="#38B6FF" />
+            <path d="M 35 65 H 60 V 80 H 35 Z M 90 40 H 120 V 60 H 90 Z M 120 110 H 160 V 140 H 120 Z M 60 120 H 85 V 150 H 60 Z" fill="#48B8D0" />
+            <path d="M 0 70 H 200 M 0 100 H 200 M 0 130 H 200" stroke="#0E234B" strokeWidth="3" strokeDasharray="6 6" />
+          </g>
+        </svg>
+        <svg viewBox="0 0 200 200" className="ref-world-svg ref-world-svg--echo" shapeRendering="crispEdges">
+          <defs>
+            <clipPath id="refWorldClipB"><circle cx="100" cy="100" r="92" /></clipPath>
+          </defs>
+          <circle cx="100" cy="100" r="96" fill="#000000" />
+          <circle cx="100" cy="100" r="92" fill="#1D4ED8" />
+          <g clipPath="url(#refWorldClipB)">
+            <rect x="0" y="0" width="200" height="200" fill="#1D4ED8" />
+            <path d="M 20 50 H 70 V 80 H 40 V 110 H 90 V 150 H 30 Z M 80 30 H 130 V 70 H 100 V 100 H 150 V 140 H 110 Z M 110 100 H 180 V 170 H 130 V 180 H 100 Z M 50 110 H 100 V 180 H 50 Z M 120 20 H 170 V 60 H 140 Z" fill="#38B6FF" />
+            <path d="M 0 70 H 200 M 0 100 H 200 M 0 130 H 200" stroke="#0E234B" strokeWidth="3" strokeDasharray="6 6" />
+          </g>
+        </svg>
+        <span className="ref-world-crosshair ref-world-crosshair--1" />
+        <span className="ref-world-crosshair ref-world-crosshair--2" />
+        <span className="ref-world-crosshair ref-world-crosshair--3" />
+      </div>
       {/* Hand Gesture Air Tracking Overlay */}
       <HandCursorLayer
         videoRef={cursor.videoRef}
