@@ -2201,13 +2201,13 @@ button {
   to   { transform: translateX(calc(100vw + 80px)); }
 }
 
-/* --- Distant pixel mountain range anchoring the horizon (2-tone, jagged) --- */
+/* --- Distant pixel mountain range anchoring the horizon (2-tone, stair-step) --- */
 .ref-far-mountains {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 100px;
+  height: 120px;
   pointer-events: none;
 }
 .ref-far-mountains svg {

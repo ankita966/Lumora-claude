@@ -149,20 +149,20 @@ export default function Landing() {
         <div className="ref-pixel-block p-black-3" />
         <div className="ref-pixel-block p-amber-1" />
 
-        {/* Distant pixel mountains — sharp triangular peaks (diagonals render as
-            pixel stairs under crispEdges), 2-tone depth + chunky outline */}
+        {/* Distant pixel mountains — TRUE stair-step diagonals (8px 45° stairs),
+            sharp triangular peaks, 2-tone depth + chunky outline */}
         <div className="ref-far-mountains" aria-hidden="true">
-          <svg viewBox="0 0 1200 100" preserveAspectRatio="none" shapeRendering="crispEdges">
-            {/* BACK range: lighter, peaks offset to peek between front peaks */}
+          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" shapeRendering="crispEdges">
+            {/* BACK range: lighter blue, mid-height peaks peeking between front peaks */}
             <path
-              d="M 0 100 V 52 L 90 28 L 180 54 L 260 34 L 350 58 L 470 24 L 590 56 L 690 40 L 790 60 L 880 30 L 980 56 L 1080 44 L 1200 58 V 100 Z"
+              d="M 0 120 H 138 V 112 H 146 V 104 H 154 V 96 H 162 V 88 H 170 V 80 H 178 V 72 H 186 V 64 H 194 V 58 H 200 H 208 V 66 H 216 V 74 H 224 V 82 H 232 V 90 H 240 V 98 H 248 V 106 H 256 V 114 H 264 V 120 H 348 V 112 H 356 V 104 H 364 V 96 H 372 V 88 H 380 V 80 H 388 V 72 H 396 V 64 H 404 V 56 H 412 V 50 H 420 H 428 V 58 H 436 V 66 H 444 V 74 H 452 V 82 H 460 V 90 H 468 V 98 H 476 V 106 H 484 V 114 H 492 V 120 H 572 V 112 H 580 V 104 H 588 V 96 H 596 V 88 H 604 V 80 H 612 V 72 H 620 V 64 H 628 V 56 H 640 H 648 V 64 H 656 V 72 H 664 V 80 H 672 V 88 H 680 V 96 H 688 V 104 H 696 V 112 H 704 V 120 H 778 V 112 H 786 V 104 H 794 V 96 H 802 V 88 H 810 V 80 H 818 V 72 H 826 V 64 H 834 V 56 H 842 V 54 H 850 H 858 V 62 H 866 V 70 H 874 V 78 H 882 V 86 H 890 V 94 H 898 V 102 H 906 V 110 H 914 V 118 H 922 V 120 H 996 V 112 H 1004 V 104 H 1012 V 96 H 1020 V 88 H 1028 V 80 H 1036 V 72 H 1044 V 64 H 1052 V 60 H 1060 H 1068 V 68 H 1076 V 76 H 1084 V 84 H 1092 V 92 H 1100 V 100 H 1108 V 108 H 1116 V 116 H 1124 V 120 H 1200 V 120 Z"
               fill="#7AB8E6"
             />
-            {/* FRONT range: deeper blue, taller sharp peaks + chunky outline */}
+            {/* FRONT range: deeper blue, tall sharp peaks, chunky dark outline */}
             <path
-              d="M 0 100 V 72 L 80 46 L 160 74 L 250 38 L 370 70 L 490 28 L 620 68 L 720 50 L 820 72 L 910 34 L 1020 68 L 1120 52 L 1200 70 V 100 Z"
-              fill="#5FA8DE"
-              stroke="#3E8CC9"
+              d="M 0 120 H 20 V 112 H 28 V 104 H 36 V 96 H 44 V 88 H 52 V 80 H 60 V 72 H 68 V 64 H 76 V 56 H 84 V 48 H 90 V 46 H 98 V 54 H 106 V 62 H 114 V 70 H 122 V 78 H 130 V 86 H 138 V 94 H 146 V 102 H 154 V 110 H 162 V 118 H 168 V 120 H 208 V 112 H 216 V 104 H 224 V 96 H 232 V 88 H 240 V 80 H 248 V 72 H 256 V 64 H 264 V 56 H 272 V 48 H 280 V 40 H 288 V 32 H 296 V 26 H 300 H 308 V 34 H 316 V 42 H 324 V 50 H 332 V 58 H 340 V 66 H 348 V 74 H 356 V 82 H 364 V 90 H 372 V 98 H 380 V 106 H 388 V 114 H 396 V 120 H 442 V 112 H 450 V 104 H 458 V 96 H 466 V 88 H 474 V 80 H 482 V 72 H 490 V 64 H 498 V 56 H 506 V 48 H 514 V 40 H 520 H 528 V 48 H 536 V 56 H 544 V 64 H 552 V 72 H 560 V 80 H 568 V 88 H 576 V 96 H 584 V 104 H 592 V 112 H 600 V 120 H 652 V 112 H 660 V 104 H 668 V 96 H 676 V 88 H 684 V 80 H 692 V 72 H 700 V 64 H 708 V 56 H 716 V 48 H 724 V 40 H 732 V 32 H 740 V 24 V 22 H 748 V 30 H 756 V 38 H 764 V 46 H 772 V 54 H 780 V 62 H 788 V 70 H 796 V 78 H 804 V 86 H 812 V 94 H 820 V 102 H 828 V 110 H 836 V 118 H 878 V 112 H 886 V 104 H 894 V 96 H 902 V 88 H 910 V 80 H 918 V 72 H 926 V 64 H 934 V 56 H 942 V 48 H 950 V 44 H 958 V 52 H 966 V 60 H 974 V 68 H 982 V 76 H 990 V 84 H 998 V 92 H 1006 V 100 H 1014 V 108 H 1022 V 116 H 1030 V 120 H 1054 V 112 H 1062 V 104 H 1070 V 96 H 1078 V 88 H 1086 V 80 H 1094 V 72 H 1102 V 64 H 1110 V 56 H 1118 V 48 H 1126 V 40 H 1130 V 34 H 1138 V 42 H 1146 V 50 H 1154 V 58 H 1162 V 66 H 1170 V 74 H 1178 V 82 H 1186 V 90 H 1194 V 98 H 1202 V 106 H 1210 V 114 H 1214 V 120 H 1200 V 120 Z"
+              fill="#4E9FD6"
+              stroke="#2E6FA8"
               strokeWidth="3"
             />
           </svg>
