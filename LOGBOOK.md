@@ -80,3 +80,31 @@ This logbook records all architectural decisions, security audits, database migr
 * **Performance Optimization:** Eliminated 60 FPS React state thrashing in `useHandTracking.js` by decoupling MediaPipe landmark tracking from the React render loop into mutable `useRef` coordinate buffers, 1D Kalman filtering, and throttled state flushes.
 * **Multi-Gesture Recognition State Machine:** `point`, `pinch`, `palm`, `fist`, `peace`, `thumbs_up`.
 * **Zero-Jitter Filtering:** Implemented exponential lerp smoothing and Kalman filtering on normalized coordinates.
+
+
+---
+
+### [2026-08-28] — Session 9–10: Premium Pixel Polish + Critique-Driven Creative Pass
+* **Status:** ✅ Complete & Verified
+* **Author:** Hermes Agent (Session 10 creative mandate: "pinterest-level, premium, no limitations")
+
+#### 1. Design Doctrine (from parallel research agent)
+* Sources: Emil Kowalski's design-engineering skill files (primary), neubrutalism.com guide, Lospec palette discipline.
+* 13-rule pixel-premium checklist encoded in `.hermes/plans/2026-08-28_session10-premium-creative.md`: ≤8-color palette, hard shadows 3-5px zero blur, pressed = translate-into-shadow, UI motion <300ms `cubic-bezier(0.23,1,0.32,1)`, sprites never smooth-tween, integer-only sprite scaling, crafted (never photo) hero sky.
+
+#### 2. Typography & Token Foundation
+* 8 fonts → 3 (Jersey 25 display / Silkscreen UI / Lexend body). Stepped shadow tokens `--shadow-chip/card/float/press`, 8px grid, reduced-motion gating, pink `:focus-visible`.
+
+#### 3. Crafted Pixel Sky (replaced stock photo)
+* 6 hard banded steps + checkerboard dither strips + 2-speed parallax sprite clouds + pixel sun + film grain + chromatic wordmark hover. Mountain range required 6 QA iterations — final version uses programmatically generated adaptive stair-step diagonals (45°, no apex cliffs), 2-tone depth with outline. Vision verdict: 9/10 "shippable premium indie-game quality — Celeste/Stardew Steam-page grade."
+
+#### 4. Critique-Agent Defect Fixes (harsh-critic audit, slop scorecard)
+* **C2 fake nav** → 5-Realms strip (real WORLDS data, colored top borders) + scroll-to-section + honest pixel toast for post-auth destinations.
+* **C3 camera autoplay** → `cameraOptIn` store gate; MagicMirror shows opt-in offer panel ("camera stays OFF until you say so"), video element only mounts when active — kills "Unable to play media" ghost + landing camera prompt.
+* **M2 emoji icons** → `PixelIcon.jsx`: crisp 12×12 rect-based SVG glyphs (5 heroes, 5 realms, settings gear), palette-locked, `crispEdges`.
+* **M4 column imbalance** → hero paragraph moved to lead column; heading rebreak "WHO ARE / THEY?" with 1.4em offset.
+* Duplicate confetti set removed (was rendered twice).
+
+#### 5. Verification
+* `npm run build`: success after every change; 16 commits this session chain (`f353a7c` → `ac8e2ab`).
+* Live vision QA: hero 9/10, camera offer verified, realms strip "premium pixel-UI", zero console errors. Globe integer-scale attempt (400px) reverted — occluded editorial copy; 320px composition is canonical.
