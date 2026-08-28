@@ -1338,6 +1338,21 @@ button {
   overflow: hidden;
 }
 .play-area { box-shadow: var(--shadow-elevated); }
+
+/* Game screens: camera mirror docks to the LEFT viewport corner, outside the
+   game box. position:fixed escapes .play-area overflow clipping. Landing
+   (no .play-area ancestor) keeps its bottom-right dock. Mascot owns the
+   bottom-left 20px, so the mirror floats just above it. */
+.play-area .magic-mirror {
+  position: fixed;
+  left: 14px;
+  bottom: 168px;
+  right: auto;
+}
+.play-area .magic-mirror.expanded {
+  width: min(420px, 50vw);
+  height: min(320px, 40vw);
+}
 .play-area::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(125deg, rgba(255,255,255,.07), transparent 25%, transparent 70%, rgba(255,255,255,.035)); opacity: .7; }
 
 /* Story Castle: one calm, large tracing guide per round. */

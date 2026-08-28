@@ -408,3 +408,43 @@
   outline: 2px solid #38B6FF;
   outline-offset: 2px;
 }
+
+
+/* --- ASCII SCENERY: terminal dioramas dressing game-screen side gutters --- */
+.ascii-scenery {
+  position: fixed;
+  top: 140px;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.85;
+}
+.ascii-scenery--left  { left: 18px; }
+.ascii-scenery--right { right: 18px; text-align: right; }
+.ascii-art {
+  font-family: var(--font-mono, 'Courier New', monospace);
+  font-size: 11px;
+  line-height: 1.15;
+  color: #3A4A6B;
+  margin: 0;
+  text-shadow: 1px 1px 0 #000;
+  white-space: pre;
+}
+.ascii-scenery--right .ascii-art { color: #35507A; }
+.ascii-tw {
+  color: #38B6FF;
+  animation: ascii-twinkle 2.4s steps(2) infinite;
+}
+.ascii-tw:nth-child(2n) { animation-delay: -1.2s; color: #FF2E93; }
+@keyframes ascii-twinkle { 50% { opacity: 0.25; } }
+.ascii-caption {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--font-pixel-heading);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: #2E3D5C;
+}
+@media (max-width: 1280px) { .ascii-scenery { display: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .ascii-tw { animation: none; }
+}
