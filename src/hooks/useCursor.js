@@ -62,14 +62,8 @@ export function useCursor(containerRef, active, { useCamera = true } = {}) {
     if (source) {
       const px = source.x * rect.width;
       const py = source.y * rect.height;
-      const prev = prevPixelRef.current;
-      if (prev) {
-        const sx = prev.x + (px - prev.x) * 0.65;
-        const sy = prev.y + (py - prev.y) * 0.65;
-        prevPixelRef.current = { x: sx, y: sy, nx: sx / rect.width, ny: sy / rect.height };
-      } else {
-        prevPixelRef.current = { x: px, y: py, nx: source.x, ny: source.y };
-      }
+      // Direct 1:1 placement — the wand sprite IS the cursor, no lerp lag.
+      prevPixelRef.current = { x: px, y: py, nx: source.x, ny: source.y };
       setPixel({ ...prevPixelRef.current });
     }
   }, [point, mousePoint, status, handDetected, containerRef]);

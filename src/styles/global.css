@@ -279,6 +279,7 @@ button {
   overflow-x: hidden;
   font-family: var(--font-body);
   color: #E2E8F0;
+  cursor: none; /* Wand sprite IS the cursor — hide OS pointer globally */
 }
 .ref-entering {
   opacity: 0.5;
@@ -2350,22 +2351,28 @@ button {
 }
 .mirror-enable-btn {
   margin-top: 6px;
-  padding: 9px 16px;
+  padding: 10px 18px;
   background: #FF2E93;
   color: #FFFFFF;
-  border: 2px solid #000000;
-  box-shadow: 3px 3px 0 0 #000000;
+  border: 3px solid #0D111B;
+  border-top-color: #F5EFE0;
+  border-left-color: #F5EFE0;
+  border-bottom-color: #000;
+  border-right-color: #000;
+  border-radius: 6px;
+  box-shadow: 5px 5px 0 #000;
   font-family: var(--font-pixel-heading);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 700;
+  letter-spacing: 0.05em;
   cursor: pointer;
   transition: transform 120ms ease-out, box-shadow 120ms ease-out;
 }
 .mirror-enable-btn:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 0 #000000;
+  transform: translate(-2px, -3px);
+  box-shadow: 7px 7px 0 #000;
 }
 .mirror-enable-btn:active {
-  transform: translate(2px, 2px);
-  box-shadow: 0 0 0 0 #000000;
+  transform: translate(3px, 3px);
+  box-shadow: 2px 2px 0 #000;
 }

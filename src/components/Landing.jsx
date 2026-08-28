@@ -368,7 +368,7 @@ export default function Landing() {
               <div className="ref-lead-col">
                 <p className="ref-lead-paragraph">
                   Lumora is an inclusive learning realm for{' '}
-                  <span className="ref-pink-highlight">young explorers</span> with dyslexia, ADHD, dyscalculia, and autism.
+                  <span className="ref-pink-highlight">young explorers</span> — every kid learns differently.
                 </p>
                 <p className="ref-body-paragraph">
                   Every child learns through curiosity, spatial play, and adaptive neural feedback.

@@ -1,0 +1,220 @@
+/* ============================================================
+   PINTEREST ELEVATION — Lumora World Premium Tier Upgrade
+   Vibe: Win95 chrome + chunky bevel buttons + dither sky
+   ============================================================ */
+
+/* --- Global cursor: wand IS the cursor --- */
+.ref-tamagotchi-canvas,
+.ref-tamagotchi-canvas * {
+  cursor: none !important;
+}
+
+/* --- PINTEREST ELEMENT 1: Win95 window-frame chrome on bottom section --- */
+.ref-bottom-space-section {
+  position: relative;
+  border-top: 4px solid #38B6FF;      /* cyan top rail — signature Pinterest pixel UI */
+  padding-top: 0;
+}
+.ref-bottom-space-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: repeating-linear-gradient(
+    90deg,
+    #38B6FF 0px, #38B6FF 8px,
+    #FF2E93 8px, #FF2E93 16px
+  );                                  /* pink+blue dither bar — retro-chrome signal */
+}
+
+/* --- PINTEREST ELEMENT 2: Window-chrome title bar on WHO ARE THEY --- */
+.ref-story-column {
+  position: relative;
+  padding: 28px 28px 20px 28px;
+  background: #0A0C1A;
+  border: 3px solid #0D111B;
+  border-top: 3px solid #38B6FF;       /* cyan title bar stripe */
+  border-left: 3px solid #38B6FF;
+  box-shadow: 6px 6px 0 #000;
+}
+.ref-story-column::before {
+  content: 'LUMORA.EXE — CHARACTERS';
+  display: block;
+  margin: -28px -28px 20px -28px;
+  padding: 6px 14px;
+  background: #38B6FF;
+  color: #000;
+  font-family: var(--font-pixel-heading);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  border-bottom: 3px solid #000;
+}
+
+/* --- PINTEREST ELEMENT 3: Chunky bevel hero chips (Win95 style) --- */
+.ref-heroes-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.ref-hero-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 15px;
+  background: #0A0C1A;
+  /* Chunky 3D bevel: light top-left, dark bottom-right */
+  border: 3px solid #0D111B;
+  border-top-color: #F5EFE0;
+  border-left-color: #F5EFE0;
+  border-bottom-color: #000;
+  border-right-color: #000;
+  border-radius: 6px;
+  color: #F5EFE0;
+  font-family: var(--font-pixel-heading);
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 4px 4px 0 #000;
+  transition: transform var(--dur-fast) var(--ease-snap),
+              box-shadow var(--dur-fast) var(--ease-snap);
+}
+.ref-hero-chip:hover {
+  transform: translate(-2px, -3px);
+  box-shadow: 6px 6px 0 #000;
+}
+.ref-hero-chip:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #000;
+}
+.ref-hero-chip.active {
+  background: #FF2E93;
+  border-color: #000;
+  color: #fff;
+  box-shadow: 4px 4px 0 #000;
+}
+.ref-chip-icon { flex-shrink: 0; }
+
+/* --- PINTEREST ELEMENT 4: Chunky bevel action buttons --- */
+.ref-bottom-auth-bar {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+.ref-action-btn-primary {
+  padding: 11px 22px;
+  background: #FF2E93;
+  color: #000;
+  font-family: var(--font-pixel-heading);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  border: 3px solid #0D111B;
+  border-top-color: #F5EFE0;
+  border-left-color: #F5EFE0;
+  border-bottom-color: #000;
+  border-right-color: #000;
+  border-radius: 6px;
+  box-shadow: 5px 5px 0 #000;
+  transition: transform var(--dur-fast) var(--ease-snap),
+              box-shadow var(--dur-fast) var(--ease-snap);
+}
+.ref-action-btn-primary:hover {
+  transform: translate(-2px, -3px);
+  box-shadow: 7px 7px 0 #000;
+  background: #FF5AA8;
+}
+.ref-action-btn-primary:active {
+  transform: translate(3px, 3px);
+  box-shadow: 2px 2px 0 #000;
+}
+.ref-action-btn-secondary {
+  padding: 11px 22px;
+  background: #0A0C1A;
+  color: #E2E8F0;
+  font-family: var(--font-pixel-heading);
+  font-size: 12px;
+  font-weight: 800;
+  border: 3px solid #0D111B;
+  border-top-color: #F5EFE0;
+  border-left-color: #F5EFE0;
+  border-bottom-color: #000;
+  border-right-color: #000;
+  border-radius: 6px;
+  box-shadow: 5px 5px 0 #000;
+  transition: transform var(--dur-fast) var(--ease-snap),
+              box-shadow var(--dur-fast) var(--ease-snap);
+}
+.ref-action-btn-secondary:hover {
+  transform: translate(-2px, -3px);
+  box-shadow: 7px 7px 0 #000;
+  border-top-color: #38B6FF;
+  border-left-color: #38B6FF;
+  color: #fff;
+}
+.ref-action-btn-secondary:active {
+  transform: translate(3px, 3px);
+  box-shadow: 2px 2px 0 #000;
+}
+
+/* --- PINTEREST ELEMENT 5: Framed earth globe card (not corner blob) --- */
+.ref-earth-globe-wrapper {
+  position: static;       /* un-absolute it — now inside content-layout flex */
+  width: 180px;
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 80px;       /* align with heading baseline */
+  pointer-events: none;
+  filter: none;
+}
+.ref-earth-globe-svg {
+  width: 180px;
+  height: 180px;
+  border: 3px solid #0D111B;
+  border-top-color: #38B6FF;
+  border-left-color: #38B6FF;
+  border-bottom-color: #000;
+  border-right-color: #000;
+  border-radius: 6px;
+  box-shadow: 5px 5px 0 #000;
+}
+@media (max-width: 768px) {
+  .ref-earth-globe-wrapper { display: none; }
+}
+
+/* --- PINTEREST ELEMENT 6: Content layout uses flex so earth sits inline --- */
+.ref-content-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.ref-story-column {
+  flex: 1;
+  min-width: 300px;
+}
+
+/* --- PINTEREST ELEMENT 7: Pixel dither separator above realms --- */
+.ref-realms-strip {
+  margin-bottom: 28px;
+  padding: 14px 0;
+  border-top: 3px solid #FF2E93;
+  border-bottom: 3px solid #000;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent, transparent 6px,
+    rgba(255, 46, 147, 0.05) 6px, rgba(255, 46, 147, 0.05) 12px
+  );  /* subtle diagonal hatch — pixel UI signature */
+}
+.ref-realm-card {
+  border: 2px solid #0D111B;
+  border-top: 4px solid var(--realm-color, #38B6FF);
+  border-radius: 6px;
+  box-shadow: 4px 4px 0 #000;
+  background: #0A0C1A;
+}
+.ref-realm-card:hover {
+  transform: translate(-2px, -3px);
+  box-shadow: 6px 6px 0 #000;
+}
