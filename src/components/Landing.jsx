@@ -353,6 +353,20 @@ export default function Landing() {
         <div className="ref-star-dot star-loc-5" />
         <div className="ref-star-dot star-loc-6" />
         <div className="ref-star-dot star-loc-7" />
+        {/* Wide-screen editorial gutter rails (hidden < 1400px) */}
+        <div className="ref-gutter-rail ref-gutter-rail--left" aria-hidden="true">
+          <span className="ref-gutter-label">LUMORA&nbsp;WORLD<b>&nbsp;/&nbsp;</b>EST&nbsp;2026</span>
+          <span className="ref-gutter-star" style={{ top: '18%' }} />
+          <span className="ref-gutter-star ref-gutter-star--pink" style={{ top: '38%' }} />
+          <span className="ref-gutter-star" style={{ top: '64%' }} />
+          <span className="ref-gutter-star ref-gutter-star--amber" style={{ top: '82%' }} />
+        </div>
+        <div className="ref-gutter-rail ref-gutter-rail--right" aria-hidden="true">
+          <span className="ref-gutter-label">SPATIAL<b>&nbsp;/&nbsp;</b>VOICE<b>&nbsp;/&nbsp;</b>TOUCH</span>
+          <span className="ref-gutter-star" style={{ top: '26%' }} />
+          <span className="ref-gutter-star ref-gutter-star--pink" style={{ top: '52%' }} />
+          <span className="ref-gutter-star" style={{ top: '74%' }} />
+        </div>
 
         <div className="ref-content-layout">
           {/* Left Large Column: Giant Stacked Title + Editorial Story + Tags */}
