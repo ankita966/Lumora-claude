@@ -149,20 +149,21 @@ export default function Landing() {
         <div className="ref-pixel-block p-black-3" />
         <div className="ref-pixel-block p-amber-1" />
 
-        {/* Distant pixel mountains — 2-tone jagged steps, strong contrast (QA r2) */}
+        {/* Distant pixel mountains — sharp triangular peaks (diagonals render as
+            pixel stairs under crispEdges), 2-tone depth + chunky outline */}
         <div className="ref-far-mountains" aria-hidden="true">
           <svg viewBox="0 0 1200 100" preserveAspectRatio="none" shapeRendering="crispEdges">
-            {/* BACK range: lighter, shorter */}
+            {/* BACK range: lighter, peaks offset to peek between front peaks */}
             <path
-              d="M 0 100 V 62 H 40 V 50 H 90 V 62 H 150 V 42 H 220 V 54 H 290 V 38 H 370 V 56 H 440 V 44 H 520 V 58 H 600 V 40 H 680 V 54 H 760 V 46 H 840 V 60 H 920 V 42 H 1000 V 56 H 1080 V 48 H 1150 V 60 H 1200 V 100 Z"
+              d="M 0 100 V 52 L 90 28 L 180 54 L 260 34 L 350 58 L 470 24 L 590 56 L 690 40 L 790 60 L 880 30 L 980 56 L 1080 44 L 1200 58 V 100 Z"
               fill="#7AB8E6"
             />
-            {/* FRONT range: deeper blue, taller, jagged steps + outline */}
+            {/* FRONT range: deeper blue, taller sharp peaks + chunky outline */}
             <path
-              d="M 0 100 V 74 H 60 V 56 H 130 V 70 H 210 V 48 H 300 V 66 H 390 V 40 H 490 V 62 H 580 V 50 H 660 V 68 H 760 V 44 H 860 V 64 H 950 V 52 H 1040 V 70 H 1130 V 58 H 1200 V 100 Z"
+              d="M 0 100 V 72 L 80 46 L 160 74 L 250 38 L 370 70 L 490 28 L 620 68 L 720 50 L 820 72 L 910 34 L 1020 68 L 1120 52 L 1200 70 V 100 Z"
               fill="#5FA8DE"
               stroke="#3E8CC9"
-              strokeWidth="2"
+              strokeWidth="3"
             />
           </svg>
         </div>
