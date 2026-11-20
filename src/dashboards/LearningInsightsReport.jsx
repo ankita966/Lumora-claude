@@ -119,69 +119,57 @@ export const LEARNING_DOMAINS = {
 export const LEARNING_DIFFERENCES_INFO = {
   dyslexia: {
     name: 'Dyslexia',
-    subtitle: 'Reading and language-processing difference',
+    subtitle: 'Reading & language-processing difference',
     relevantDomains: ['phonological', 'reading'],
-    worldConnection: 'Sound Forest (letter-sound & blending) & Story Castle (decoding & fluency)',
-    definition: 'Dyslexia is a learning difference primarily associated with difficulties in accurate and fluent word reading, phonological processing, and decoding. It involves how the brain processes written and spoken language sounds.',
-    notIntelligence: 'Dyslexia is completely unrelated to general intelligence. Individuals with dyslexia frequently exhibit exceptional strengths in spatial reasoning, big-picture thinking, creative problem-solving, narrative storytelling, and artistic expression.',
-    gameplayDistinction: 'A lower score or repeated attempt in Lumora reading activities (such as Missing Word or Read Aloud) is NOT evidence of dyslexia. Gameplay results can be influenced by microphone input levels, reading speed preferences, device familiarity, visual fatigue, or unfamiliar vocabulary.',
+    worldConnection: 'Sound Forest & Story Castle',
+    definition: 'A natural learning difference in phonological processing, word reading accuracy, and decoding fluency.',
+    notIntelligence: 'Unrelated to intelligence. Individuals often excel in spatial reasoning, big-picture thinking, and creative storytelling.',
+    gameplayDistinction: 'Microphone volume, speech pace, and device familiarity influence scores. Low in-game scores are NOT diagnostic of dyslexia.',
     classroomSuggestions: [
-      'Provide structured, explicit, and systematic phonics instruction.',
-      'Allow extra time for reading comprehension and oral reading tasks.',
-      'Provide audiobooks or text-to-speech tools to support access to grade-level content.',
-      'Use multi-sensory techniques (visual word cards, letter tiles, tactile materials).',
+      'Provide structured, multi-sensory phonics and extra time for reading.',
+      'Offer text-to-speech tools and graphic organizers to access grade-level content.',
     ],
     homeSuggestions: [
-      'Practice short (10–15 minute) paired shared reading sessions daily without pressure.',
-      'Play oral word and rhyme games during commutes or household routines.',
+      'Practice 10–15 min shared reading daily and play fun oral rhyming games.',
       'Celebrate reading effort and stamina rather than reading speed.',
-      'Provide access to graphic novels, high-interest illustrated books, and audiobooks.',
     ],
-    studentMessage: 'Great readers take their time exploring words! Exploring stories with Phono in Sound Forest and Luna in Story Castle helps your reading muscles grow stronger every day.',
+    studentMessage: 'Exploring stories with Phono and Luna helps your reading muscles grow stronger every day!',
   },
   dysgraphia: {
     name: 'Dysgraphia',
-    subtitle: 'Written expression and motor-coordination difference',
+    subtitle: 'Written expression & motor coordination difference',
     relevantDomains: ['writing_motor'],
-    worldConnection: 'Rune Realm (letter tracing, stroke sequencing & waypoint following)',
-    definition: 'Dysgraphia is a learning difference characterized by difficulties with written expression, handwriting mechanics, and fine motor coordination related to writing. It may affect letter formation, spacing, stroke consistency, or the motor planning needed to translate thoughts into written text.',
-    notIntelligence: 'Dysgraphia has no connection to intelligence or cognitive ability. Students with dysgraphia often have rich vocabularies, deep conceptual understanding, and sophisticated verbal communication skills that far exceed what is reflected in their handwriting.',
-    gameplayDistinction: 'Tracing difficulties in Rune Realm do NOT indicate dysgraphia. Hand-tracking camera sensitivity, ambient room lighting, mouse calibration, touchscreen responsiveness, and finger fatigue significantly affect in-game tracing accuracy.',
+    worldConnection: 'Rune Realm',
+    definition: 'A learning difference affecting handwriting mechanics, stroke consistency, spacing, and fine-motor planning.',
+    notIntelligence: 'No link to intelligence. Students often possess rich vocabularies and verbal conceptual skills exceeding their handwriting neatness.',
+    gameplayDistinction: 'Hand-tracking camera sensitivity, lighting, and finger fatigue affect tracing. Tracing difficulty is NOT diagnostic of dysgraphia.',
     classroomSuggestions: [
-      'Allow keyboarding, speech-to-text, or oral explanations as alternative ways to demonstrate understanding.',
-      'Provide pre-printed notes, graphic organizers, or fill-in-the-blank outlines.',
-      'Offer ergonomic pencil grips, slanted writing surfaces, or wide-ruled paper.',
-      'Grade assignments for intellectual content and ideas separately from handwriting neatness.',
+      'Allow speech-to-text, keyboarding, or oral responses as alternatives.',
+      'Provide ergonomic pencil grips and grade intellectual ideas separately from handwriting neatness.',
     ],
     homeSuggestions: [
-      'Engage in fun fine-motor activities: clay modeling, bead threading, mazes, and origami.',
-      'Practice large letter formation in sensory materials (finger-tracing in salt trays or shaving cream).',
-      'Encourage voice recording of creative stories before writing or typing them down.',
-      'Keep handwriting practice brief and focused on positive letter shapes.',
+      'Play fine-motor games (clay modeling, bead threading, mazes).',
+      'Practice large letter shapes in sensory trays (sand/salt) without pressure.',
     ],
-    studentMessage: 'Drawing magical runes takes steady patience! In Rune Realm, you can move your hand at whatever speed feels comfortable to awaken each glowing star.',
+    studentMessage: 'Drawing runes takes patience! Move at whatever speed feels comfortable to awaken each glowing star.',
   },
   dyscalculia: {
     name: 'Dyscalculia',
-    subtitle: 'Number sense and mathematical reasoning difference',
+    subtitle: 'Number sense & mathematical reasoning difference',
     relevantDomains: ['math_number'],
-    worldConnection: 'Memory Mountains (Round 4: Follow the Pattern) & Rune Realm (Round 3: Number Tracing)',
-    definition: 'Dyscalculia is a learning difference that affects a person’s ability to understand numbers, learn mathematical facts, grasp number sense, and perform mathematical calculations and sequential quantitative reasoning.',
-    notIntelligence: 'Dyscalculia is completely separate from cognitive ability. Learners with dyscalculia often demonstrate remarkable strengths in language arts, visual arts, design, empathy, and intuitive problem-solving.',
-    gameplayDistinction: 'Making multiple attempts on Lumora pattern matching or number tracing does NOT mean a child has dyscalculia. Pattern games also test visual memory, attention span, and rapid decision-making.',
+    worldConnection: 'Memory Mountains & Rune Realm',
+    definition: 'A learning difference affecting intuitive number sense, math fact recall, and sequential calculations.',
+    notIntelligence: 'Independent of intelligence. Learners often show outstanding strengths in verbal arts, visual design, and intuitive empathy.',
+    gameplayDistinction: 'Pattern games test working memory, visual attention, and timing. Multi-attempt pattern solving does NOT indicate dyscalculia.',
     classroomSuggestions: [
-      'Use concrete manipulatives (counting cubes, ten-frames, bead strings, physical counters).',
-      'Provide visual number lines and math reference sheets during problem-solving.',
-      'Break multi-step math tasks into clear, sequential single-step instructions.',
-      'Connect abstract numbers to concrete, visual real-life scenarios (cooking, measurement).',
+      'Use concrete manipulatives (counters, ten-frames) and visual number lines.',
+      'Break multi-step math into single sequential steps with visual checklists.',
     ],
     homeSuggestions: [
-      'Play dice games, dominoes, and board games that involve counting spaces and matching patterns.',
-      'Cook together, measuring ingredients with measuring cups and spoons.',
-      'Sort household items (socks, coins, colored buttons) and talk about patterns.',
-      'Focus praise on problem-solving strategies rather than quick mental calculation.',
+      'Play dice, dominoes, and board games involving counting and patterns.',
+      'Connect numbers to everyday real-life activities (cooking, measuring).',
     ],
-    studentMessage: 'Numbers and patterns are like secret puzzles! In Memory Mountains, every pattern you solve helps you discover hidden mountain secrets.',
+    studentMessage: 'Numbers are like secret puzzles! Every pattern you solve helps you unlock hidden mountain secrets.',
   },
 };
 
@@ -576,6 +564,22 @@ export default function LearningInsightsReport({
   const overallStrengths = useMemo(() => domainSummaries.flatMap((d) => d.strengths), [domainSummaries]);
   const overallGrowthAreas = useMemo(() => domainSummaries.flatMap((d) => d.growthAreas), [domainSummaries]);
 
+  // Group growth areas by realm to eliminate repetitive cards and keep report concise
+  const growthAreasByRealm = useMemo(() => {
+    const realmMap = new Map();
+    for (const item of overallGrowthAreas) {
+      if (!realmMap.has(item.worldKey)) {
+        realmMap.set(item.worldKey, {
+          worldKey: item.worldKey,
+          worldName: item.worldName,
+          items: [],
+        });
+      }
+      realmMap.get(item.worldKey).items.push(item);
+    }
+    return [...realmMap.values()];
+  }, [overallGrowthAreas]);
+
   // Relevant learning differences: ONLY conditions whose measured domains have recorded activity!
   const relevantConditions = useMemo(() => {
     const measuredKeys = new Set(measuredDomains.map((d) => d.key));
@@ -942,48 +946,37 @@ export default function LearningInsightsReport({
           <span className="insights-badge-warning">General Educational Context · Non-Diagnostic</span>
         </div>
 
-        <div className="insights-education-callout">
+        <div className="insights-education-callout compact">
           <div className="insights-callout-header">
             <span className="insights-callout-icon" aria-hidden="true">💡</span>
-            <h4>Essential Understanding for Families and Educators</h4>
+            <h4>Brain Wiring, Not Deficits</h4>
           </div>
           <p>
-            Learning differences are <strong>variations in brain wiring</strong>, not deficits in intelligence, effort, or potential.
-            Many of history’s greatest scientists, writers, artists, and leaders navigated dyslexia, dysgraphia, or dyscalculia.
-          </p>
-          <p className="insights-callout-note">
-            <strong>Clear Distinction:</strong> The explanations below provide <em>general educational information</em> to empower collaborative conversations.
-            They are shown here <strong>only because Lumora recorded activity in the corresponding learning domain</strong>.
-            Lumora <strong>does not calculate disease probabilities, assign risk scores, rank conditions, or establish any diagnosis</strong>.
-            If learning struggles persist across multiple school and home environments, consider an evaluation by an appropriately qualified professional.
+            Learning differences reflect natural cognitive diversity. The brief summaries below provide <em>general educational context</em> because
+            activities were recorded in matching learning domains. Lumora <strong>never calculates disease probabilities or establishes clinical diagnoses</strong>.
           </p>
         </div>
 
         {relevantConditions.length > 0 ? (
           <div className="insights-conditions-grid">
             {relevantConditions.map((cond) => (
-              <div key={cond.key} className="insights-condition-card">
+              <div key={cond.key} className="insights-condition-card compact">
                 <div className="insights-cond-header">
                   <div>
                     <h4 className="insights-cond-name">{cond.name}</h4>
                     <span className="insights-cond-sub">{cond.subtitle}</span>
                   </div>
-                  <span className="insights-cond-tag">Domain: {cond.worldConnection.split('(')[0].trim()}</span>
+                  <span className="insights-cond-tag">{cond.worldConnection}</span>
                 </div>
 
-                <div className="insights-cond-body">
+                <div className="insights-cond-body compact">
                   <div className="insights-cond-block">
-                    <span className="cond-lbl">What It Is:</span>
-                    <p>{cond.definition}</p>
-                  </div>
-
-                  <div className="insights-cond-block">
-                    <span className="cond-lbl">Intelligence & Strengths:</span>
-                    <p>{cond.notIntelligence}</p>
+                    <span className="cond-lbl">Overview & Strengths:</span>
+                    <p>{cond.definition} {cond.notIntelligence}</p>
                   </div>
 
                   <div className="insights-cond-block warning">
-                    <span className="cond-lbl">How It Differs From Lumora Gameplay:</span>
+                    <span className="cond-lbl">In-Game Gameplay Distinction:</span>
                     <p>{cond.gameplayDistinction}</p>
                   </div>
 
@@ -991,7 +984,7 @@ export default function LearningInsightsReport({
                   <div className="insights-cond-suggestions">
                     {activePerspective === 'teacher' && (
                       <div className="cond-role-box">
-                        <span className="role-tag">🍎 Classroom Strategies:</span>
+                        <span className="role-tag">🍎 Classroom Accommodations:</span>
                         <ul>
                           {cond.classroomSuggestions.map((s, idx) => <li key={idx}>{s}</li>)}
                         </ul>
@@ -1007,10 +1000,10 @@ export default function LearningInsightsReport({
                     )}
                     {(activePerspective === 'specialist' || activePerspective === 'school_admin') && (
                       <div className="cond-role-box">
-                        <span className="role-tag">🔬 Collaborative & Structured Accommodations:</span>
+                        <span className="role-tag">🔬 Collaborative Accommodations:</span>
                         <ul>
-                          {cond.classroomSuggestions.slice(0, 2).map((s, idx) => <li key={idx}>Classroom: {s}</li>)}
-                          {cond.homeSuggestions.slice(0, 2).map((s, idx) => <li key={`h-${idx}`}>Home: {s}</li>)}
+                          <li>Classroom: {cond.classroomSuggestions[0]}</li>
+                          <li>Home: {cond.homeSuggestions[0]}</li>
                         </ul>
                       </div>
                     )}
@@ -1040,8 +1033,7 @@ export default function LearningInsightsReport({
           <span className="insights-badge-success">Supportive Educational Suggestions</span>
         </div>
         <p className="insights-section-sub">
-          Evidence-based suggestions grounded in the specific recorded domains where practice was logged.
-          These recommendations are <strong>educational strategies, not clinical treatment plans</strong>.
+          Practical strategies grounded in recorded activity. Educational recommendations, not clinical treatment plans.
         </p>
 
         {/* Tailored recommendations by role */}
@@ -1058,96 +1050,98 @@ export default function LearningInsightsReport({
             <div className="rec-card-body">
               <div className="rec-grid">
                 <div className="rec-col">
-                  <strong>Pacing & Micro-Steps:</strong>
-                  <p>Break complex multi-step instructions into clear, bite-sized tasks. Allow natural pauses between activities.</p>
+                  <strong>⏱️ Pacing & Micro-Steps:</strong>
+                  <p>Break multi-step instructions into clear, bite-sized tasks with natural pauses.</p>
                 </div>
                 <div className="rec-col">
-                  <strong>Effort & Process Praise:</strong>
-                  <p>Acknowledge persistence, creative strategies, and resilience rather than pure speed or instant accuracy.</p>
+                  <strong>👏 Effort Praise:</strong>
+                  <p>Acknowledge persistence, creative strategies, and resilience over pure speed.</p>
                 </div>
                 <div className="rec-col">
-                  <strong>Rest & Brain Breaks:</strong>
-                  <p>Schedule 5-minute movement breaks between focused learning blocks to refresh attention and prevent visual fatigue.</p>
+                  <strong>🧘 Brain Breaks:</strong>
+                  <p>Schedule 5-minute movement pauses between focused blocks to refresh attention.</p>
                 </div>
                 <div className="rec-col">
-                  <strong>Progress Over Time:</strong>
-                  <p>Review the student’s growth over weeks rather than judging single sessions. Celebrate small milestones together.</p>
+                  <strong>📈 Progress Over Time:</strong>
+                  <p>Review growth over weeks rather than judging single sessions. Celebrate milestones.</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Domain-Specific Next Steps based on Actual Growth Areas */}
-          {overallGrowthAreas.length > 0 ? (
+          {/* Consolidated Realm-Specific Next Steps (Grouped by Realm) */}
+          {growthAreasByRealm.length > 0 ? (
             <div className="insights-domain-recs-list">
-              <h4 className="recs-subheading">Domain-Specific Educational Strategies:</h4>
-              {overallGrowthAreas.map((item) => (
-                <div key={item.key} className="insights-rec-card targeted">
-                  <div className="rec-card-header">
-                    <span className="rec-icon" aria-hidden="true">🎯</span>
-                    <div>
-                      <h4>Targeted Practice: {item.title} ({item.worldName})</h4>
-                      <span className="rec-sub">
-                        Observed evidence: {item.totalAttempts} attempts across {item.count} round{item.count === 1 ? '' : 's'} (avg accuracy {Math.round(item.avgAccuracy * 100)}%)
-                      </span>
+              <h4 className="recs-subheading">Realm-Specific Educational Strategies:</h4>
+              {growthAreasByRealm.map((group) => {
+                const worldKey = group.worldKey;
+                return (
+                  <div key={worldKey} className="insights-rec-card targeted">
+                    <div className="rec-card-header">
+                      <span className="rec-icon" aria-hidden="true">🎯</span>
+                      <div>
+                        <h4>Targeted Support: {group.worldName}</h4>
+                        <span className="rec-sub">
+                          Activities with multi-attempt practice ({group.items.length}):{' '}
+                          {group.items.map((i) => `${i.title} (${i.totalAttempts} att, ${Math.round(i.avgAccuracy * 100)}%)`).join(' · ')}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="rec-card-body">
+                      <div className="rec-role-suggestions">
+                        {activePerspective === 'teacher' && (
+                          <div className="role-suggestion-block">
+                            <strong>🍎 Teacher Classroom Strategy:</strong>
+                            <p>
+                              {worldKey === 'soundForest' && 'Introduce structured phoneme-blending with physical counters or Elkonin sound boxes before reading tasks.'}
+                              {worldKey === 'storyCastle' && 'Pre-teach key vocabulary before passage reading. Allow paired or whisper reading with a peer buddy.'}
+                              {worldKey === 'runeRealm' && 'Offer pencil grips or raised-line tracing sheets. Allow verbal or typed alternatives to reduce handwriting strain.'}
+                              {worldKey === 'memoryMountains' && 'Provide visual checklists and graphic organizers to decrease working memory load during problem solving.'}
+                              {worldKey === 'visionValley' && 'Check lighting and screen positioning. Provide high-contrast reading guides or physical trackers.'}
+                            </p>
+                          </div>
+                        )}
+
+                        {activePerspective === 'parent' && (
+                          <div className="role-suggestion-block">
+                            <strong>👪 Parent Home Suggestion:</strong>
+                            <p>
+                              {worldKey === 'soundForest' && 'Play silly sound blending games during dinner or car rides (e.g., "Can you guess what word is /s/ /u/ /n/?").'}
+                              {worldKey === 'storyCastle' && 'Read favorite books together using echo reading: you read a sentence aloud, and your child reads it back.'}
+                              {worldKey === 'runeRealm' && 'Trace letters in salt trays, draw in sidewalk chalk, or play with modeling clay to strengthen finger muscles playfully.'}
+                              {worldKey === 'memoryMountains' && 'Play sequence memory games like "I went to the market and bought..." keeping it light and fun.'}
+                              {worldKey === 'visionValley' && 'Play "I Spy" games in picture books or spot-the-difference puzzles during quiet time.'}
+                            </p>
+                          </div>
+                        )}
+
+                        {(activePerspective === 'specialist' || activePerspective === 'school_admin') && (
+                          <div className="role-suggestion-block">
+                            <strong>🔬 Specialist / Administrator Action Plan:</strong>
+                            <p>
+                              {worldKey === 'soundForest' && 'Track phoneme manipulation accuracy over 4 weeks. Scaffold with auditory-visual synchrony before isolated decoding.'}
+                              {worldKey === 'storyCastle' && 'Differentiate sight-word recognition latency from comprehension. Allow assistive text-to-speech for grade-level content.'}
+                              {worldKey === 'runeRealm' && 'Analyze trajectory motor planning vs muscular fatigue. Provide ergonomic accommodations and speech-to-text.'}
+                              {worldKey === 'memoryMountains' && 'Differentiate sequential memory limits from pattern logic. Provide external visual memory anchors.'}
+                              {worldKey === 'visionValley' && 'Assess visual saccadic tracking in natural reading environments vs screen calibration.'}
+                            </p>
+                          </div>
+                        )}
+
+                        {activePerspective === 'student' && (
+                          <div className="role-suggestion-block student">
+                            <strong>⭐ Your Next Quest in {group.worldName}:</strong>
+                            <p>
+                              Ready for another adventure? Try a short, fun quest in {group.worldName}!
+                              Take all the time you need, and celebrate every star you earn!
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  <div className="rec-card-body">
-                    <p className="rec-rationale">
-                      <strong>Why this is suggested:</strong> The learner experienced multiple attempts on {item.title} ({item.description}).
-                      Gentle, scaffolded practice in this area can build confidence.
-                    </p>
-
-                    <div className="rec-role-suggestions">
-                      {activePerspective === 'teacher' && (
-                        <div className="role-suggestion-block">
-                          <strong>🍎 Teacher Classroom Strategy:</strong>
-                          <p>
-                            {item.worldKey === 'soundForest' && 'Introduce structured phoneme-blending with physical counters or Elkonin sound boxes before reading tasks.'}
-                            {item.worldKey === 'storyCastle' && 'Pre-teach key vocabulary before passage reading. Allow paired or whisper reading with a peer buddy.'}
-                            {item.worldKey === 'runeRealm' && 'Offer pencil grips or raised-line tracing sheets. Allow verbal or typed alternatives to reduce handwriting strain.'}
-                            {item.worldKey === 'memoryMountains' && 'Provide visual checklists and graphic organizers to decrease working memory load during problem solving.'}
-                            {item.worldKey === 'visionValley' && 'Check lighting and screen positioning. Provide high-contrast reading guides or physical trackers.'}
-                          </p>
-                        </div>
-                      )}
-
-                      {activePerspective === 'parent' && (
-                        <div className="role-suggestion-block">
-                          <strong>👪 Parent Home Suggestion:</strong>
-                          <p>
-                            {item.worldKey === 'soundForest' && 'Play silly sound blending games during dinner or car rides (e.g., "Can you guess what word is /s/ /u/ /n/?").'}
-                            {item.worldKey === 'storyCastle' && 'Read favorite books together using echo reading: you read a sentence aloud, and your child reads it back.'}
-                            {item.worldKey === 'runeRealm' && 'Trace letters in salt trays, draw in sidewalk chalk, or play with modeling clay to strengthen finger muscles playfully.'}
-                            {item.worldKey === 'memoryMountains' && 'Play sequence memory games like "I went to the market and bought..." keeping it light and fun.'}
-                            {item.worldKey === 'visionValley' && 'Play "I Spy" games in picture books or spot-the-difference puzzles during quiet time.'}
-                          </p>
-                        </div>
-                      )}
-
-                      {(activePerspective === 'specialist' || activePerspective === 'school_admin') && (
-                        <div className="role-suggestion-block">
-                          <strong>🔬 Specialist / Administrator Action Plan:</strong>
-                          <p>
-                            Record multi-session observations over 4–6 weeks. Correlate with classroom observation data.
-                            Coordinate between home and school to ensure consistent multisensory accommodations without stigmatization.
-                          </p>
-                        </div>
-                      )}
-
-                      {activePerspective === 'student' && (
-                        <div className="role-suggestion-block student">
-                          <strong>⭐ Your Next Quest:</strong>
-                          <p>
-                            Ready for another magical adventure? Try a short quest in {item.worldName}!
-                            Remember: take all the time you need, and celebrate every single step!
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="insights-rec-card targeted">
