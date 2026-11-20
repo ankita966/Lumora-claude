@@ -1741,6 +1741,671 @@
   line-height: 1.6;
 }
 
+/* =========================================================================
+   WORLD-WISE LEARNING INSIGHTS STYLES
+   ========================================================================= */
+
+/* World Navigation Tabs */
+.lumora-world-tabs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid var(--border-glow, rgba(184, 226, 250, 0.15));
+  padding-bottom: 12px;
+}
+
+.lumora-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--bg-panel, #111424);
+  color: var(--text-silver, #CBD5E1);
+  border: 1px solid var(--border-glow, rgba(184, 226, 250, 0.25));
+  border-radius: var(--chamfer, 6px);
+  box-shadow: 2px 2px 0 0 #000000;
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: transform var(--dur-fast, 140ms) var(--ease-snap, ease),
+              box-shadow var(--dur-fast, 140ms) var(--ease-snap, ease),
+              background var(--dur-fast, 140ms) var(--ease-snap, ease);
+}
+
+.lumora-tab-btn:hover {
+  background: rgba(56, 182, 255, 0.12);
+  color: var(--text-hi, #E2E8F0);
+  transform: translateY(-1px);
+}
+
+.lumora-tab-btn.active {
+  background: rgba(56, 182, 255, 0.22);
+  border-width: 2px;
+  box-shadow: 3px 3px 0 0 #000000;
+}
+
+.lumora-tab-btn:focus-visible {
+  outline: var(--focus-ring, 3px solid var(--magenta, #FF2E93));
+  outline-offset: 2px;
+}
+
+.tab-count-pill {
+  font-size: 10px;
+  padding: 1px 6px;
+  background: var(--bg-space, #090B14);
+  border-radius: 4px;
+  color: var(--text-silver, #CBD5E1);
+}
+
+/* Individual Realm View */
+.lumora-realm-card {
+  padding: 24px;
+  background: var(--bg-space-card, #111526);
+  border: 2px solid;
+  border-radius: var(--chamfer, 6px);
+  box-shadow: var(--shadow-card, 5px 5px 0 0 #000000);
+  margin-bottom: 24px;
+}
+
+.lumora-realm-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.lumora-realm-title-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.lumora-realm-big-icon {
+  font-size: 36px;
+  line-height: 1;
+}
+
+.lumora-realm-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.lumora-realm-heading {
+  margin: 0;
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 20px;
+  letter-spacing: -0.5px;
+}
+
+.lumora-suff-badge {
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.lumora-suff-badge.sufficient {
+  background: rgba(56, 182, 255, 0.2);
+  color: var(--cyan, #38B6FF);
+  border: 1px solid var(--cyan, #38B6FF);
+}
+
+.lumora-suff-badge.insufficient {
+  background: rgba(229, 168, 59, 0.2);
+  color: var(--amber, #E5A83B);
+  border: 1px solid var(--amber, #E5A83B);
+}
+
+.lumora-suff-badge.no_data {
+  background: rgba(100, 116, 139, 0.2);
+  color: var(--text-mid, #94A3B8);
+  border: 1px solid var(--text-low, #64748B);
+}
+
+.lumora-realm-constructs {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--text-silver, #CBD5E1);
+  line-height: 1.5;
+}
+
+/* Insufficient Data Banner */
+.lumora-insufficient-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  background: rgba(229, 168, 59, 0.12);
+  border: 1px dashed var(--amber, #E5A83B);
+  border-radius: var(--chamfer, 6px);
+  color: var(--text-hi, #E2E8F0);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.insufficient-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* Stat Row */
+.lumora-stat-row {
+  display: grid;
+  grid-template-columns: auto repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+  .lumora-stat-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.lumora-stat-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 14px 18px;
+  background: var(--bg-panel, #111424);
+  border: 1px solid var(--border-glow, rgba(184, 226, 250, 0.2));
+  border-radius: var(--chamfer, 6px);
+  box-shadow: var(--shadow-chip, 3px 3px 0 0 #000000);
+}
+
+.lumora-stat-cell.donut-cell {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 12px 18px;
+}
+
+.donut-sub-label {
+  font-size: 11px;
+  color: var(--text-mid, #94A3B8);
+  margin-top: 6px;
+  font-family: var(--font-pixel-heading, monospace);
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--text-mid, #94A3B8);
+  margin-bottom: 4px;
+}
+
+.stat-val {
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 22px;
+  color: var(--text-hi, #E2E8F0);
+  line-height: 1.2;
+}
+
+.stat-sub {
+  font-size: 12px;
+  color: var(--text-low, #64748B);
+  margin-top: 4px;
+}
+
+/* Donut Chart SVG Wrap */
+.lumora-donut-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lumora-donut-label {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.donut-num {
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-hi, #E2E8F0);
+}
+
+.donut-pct {
+  font-size: 10px;
+  color: var(--text-mid, #94A3B8);
+}
+
+/* Charts Grid */
+.lumora-charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+@media (max-width: 860px) {
+  .lumora-charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.lumora-chart-card {
+  padding: 16px 20px;
+  background: var(--bg-panel, #111424);
+  border: 1px solid var(--border-glow, rgba(184, 226, 250, 0.2));
+  border-radius: var(--chamfer, 6px);
+  box-shadow: 2px 2px 0 0 #000000;
+}
+
+.lumora-chart-card.empty-trend {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.lumora-chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.lumora-chart-title {
+  margin: 0;
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 13px;
+  color: var(--text-hi, #E2E8F0);
+}
+
+.lumora-chart-legend {
+  font-size: 11px;
+  color: var(--amber, #E5A83B);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-line {
+  display: inline-block;
+  width: 14px;
+  height: 2px;
+  background: var(--amber, #E5A83B);
+}
+
+.lumora-trend-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.lumora-trend-badge.single {
+  background: rgba(100, 116, 139, 0.2);
+  color: var(--text-mid, #94A3B8);
+}
+
+.lumora-trend-badge.multi {
+  background: rgba(56, 182, 255, 0.15);
+  color: var(--cyan, #38B6FF);
+}
+
+.lumora-svg-chart {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.lumora-chart-empty {
+  padding: 32px 16px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-mid, #94A3B8);
+}
+
+.lumora-empty-sub {
+  display: block;
+  font-size: 12px;
+  color: var(--text-low, #64748B);
+  margin-top: 6px;
+}
+
+/* Gemini World Interpretation Card */
+.lumora-gemini-card {
+  padding: 22px;
+  background: var(--bg-panel, #111424);
+  border: 1px solid var(--border-glow, rgba(184, 226, 250, 0.25));
+  border-left: 5px solid var(--cyan, #38B6FF);
+  border-radius: var(--chamfer, 6px);
+  box-shadow: var(--shadow-chip, 3px 3px 0 0 #000000);
+  margin-bottom: 28px;
+}
+
+.lumora-gemini-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.lumora-gemini-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lumora-gemini-title h5 {
+  margin: 0;
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 15px;
+  color: var(--text-hi, #E2E8F0);
+}
+
+.lumora-gemini-badge {
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 10px;
+  padding: 2px 8px;
+  background: rgba(56, 182, 255, 0.15);
+  color: var(--cyan, #38B6FF);
+  border-radius: 4px;
+}
+
+.lumora-gemini-summary {
+  margin: 0 0 20px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text-silver, #CBD5E1);
+}
+
+.feature-title {
+  display: block;
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 13px;
+  color: var(--text-hi, #E2E8F0);
+  margin-bottom: 6px;
+}
+
+/* Recs Row */
+.lumora-recs-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-glow, rgba(184, 226, 250, 0.15));
+}
+
+@media (max-width: 768px) {
+  .lumora-recs-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.lumora-recs-box h6 {
+  margin: 0 0 10px;
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 12px;
+  color: var(--text-hi, #E2E8F0);
+}
+
+.lumora-recs-box ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.lumora-recs-box li {
+  margin-bottom: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-silver, #CBD5E1);
+}
+
+/* Rounds Evidence Table */
+.lumora-rounds-table-wrap {
+  margin-bottom: 28px;
+}
+
+.lumora-table-heading {
+  margin: 0 0 12px;
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 14px;
+  color: var(--text-hi, #E2E8F0);
+}
+
+.lumora-evidence-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-space, #090B14);
+  border: 1px solid var(--border-glow, rgba(184, 226, 250, 0.2));
+  border-radius: var(--chamfer, 6px);
+  overflow: hidden;
+  font-size: 14px;
+}
+
+.lumora-evidence-table th {
+  background: var(--bg-panel, #111424);
+  padding: 10px 14px;
+  text-align: left;
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 11px;
+  color: var(--text-mid, #94A3B8);
+  border-bottom: 1px solid var(--border-glow, rgba(184, 226, 250, 0.2));
+}
+
+.lumora-evidence-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(184, 226, 250, 0.08);
+  color: var(--text-silver, #CBD5E1);
+  vertical-align: middle;
+}
+
+.table-construct-desc {
+  font-size: 13px;
+  color: var(--text-mid, #94A3B8);
+  max-width: 280px;
+}
+
+.unattempted-text {
+  color: var(--text-low, #64748B);
+  font-style: italic;
+  font-size: 12px;
+}
+
+.status-badge {
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.status-badge.done {
+  background: rgba(56, 182, 255, 0.15);
+  color: var(--cyan, #38B6FF);
+}
+
+.status-badge.pending {
+  background: rgba(100, 116, 139, 0.15);
+  color: var(--text-mid, #94A3B8);
+}
+
+/* Role-Specific Guidance Card */
+.lumora-perspective-guidance-card {
+  padding: 18px 22px;
+  background: rgba(72, 184, 208, 0.08);
+  border: 1px solid var(--cyan, #38B6FF);
+  border-radius: var(--chamfer, 6px);
+  margin-bottom: 24px;
+}
+
+.guidance-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.guidance-icon {
+  font-size: 20px;
+}
+
+.guidance-header h6 {
+  margin: 0;
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 13px;
+  color: var(--text-hi, #E2E8F0);
+}
+
+.guidance-list {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.guidance-list li {
+  margin-bottom: 8px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text-silver, #CBD5E1);
+}
+
+/* All Realms Matrix View */
+.lumora-matrix-section {
+  margin-bottom: 32px;
+}
+
+.lumora-matrix-title {
+  margin: 0 0 16px;
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 16px;
+  color: var(--text-hi, #E2E8F0);
+}
+
+.lumora-matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.lumora-matrix-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 16px;
+  background: var(--bg-panel, #111424);
+  border: 1px solid var(--border-glow, rgba(184, 226, 250, 0.2));
+  border-radius: var(--chamfer, 6px);
+  box-shadow: 2px 2px 0 0 #000000;
+}
+
+.matrix-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.matrix-icon {
+  font-size: 24px;
+}
+
+.matrix-name {
+  margin: 0;
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 13px;
+}
+
+.matrix-focus {
+  display: block;
+  font-size: 11px;
+  color: var(--text-mid, #94A3B8);
+}
+
+.matrix-donut-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.matrix-stats-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.matrix-stat-item {
+  display: flex;
+  gap: 6px;
+}
+
+.stat-k {
+  color: var(--text-mid, #94A3B8);
+}
+
+.stat-v {
+  font-weight: 700;
+  color: var(--text-hi, #E2E8F0);
+}
+
+.status-pill {
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.status-pill.sufficient {
+  background: rgba(56, 182, 255, 0.2);
+  color: var(--cyan, #38B6FF);
+}
+
+.status-pill.insufficient {
+  background: rgba(229, 168, 59, 0.2);
+  color: var(--amber, #E5A83B);
+}
+
+.status-pill.no_data {
+  background: rgba(100, 116, 139, 0.2);
+  color: var(--text-mid, #94A3B8);
+}
+
+.lumora-matrix-drilldown-btn {
+  width: 100%;
+  padding: 6px 10px;
+  background: var(--bg-space, #090B14);
+  border: 1px solid;
+  border-radius: var(--chamfer, 6px);
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  transition: transform var(--dur-fast, 140ms) var(--ease-snap, ease),
+              background var(--dur-fast, 140ms) var(--ease-snap, ease);
+}
+
+.lumora-matrix-drilldown-btn:hover {
+  background: rgba(184, 226, 250, 0.1);
+  transform: translateY(-1px);
+}
+
+.lumora-matrix-drilldown-btn:focus-visible {
+  outline: var(--focus-ring, 3px solid var(--magenta, #FF2E93));
+  outline-offset: 2px;
+}
+
 /* Print / PDF Stylesheet */
 @media print {
   body * {

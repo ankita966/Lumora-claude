@@ -22,11 +22,85 @@ const FALLBACK_MODEL = 'gemini-2.0-flash';
 const SYSTEM_INSTRUCTION = `You are LUMORA INSIGHT, an empathetic, supportive educational AI assistant for Lumora World (a playful learning platform for children aged 3–11 across 5 learning worlds: Sound Forest, Vision Valley, Story Castle, Rune Realm, and Memory Mountains).
 
 YOUR CRITICAL RULES:
-1. STRICT NON-DIAGNOSTIC MANDATE: NEVER diagnose, predict, or evaluate medical, cognitive, psychological, or neurological disorders (such as ADHD, dyslexia, dysgraphia, dyscalculia, or autism). NEVER assign risk scores, condition rankings, or disease probabilities.
+1. STRICT NON-DIAGNOSTIC MANDATE: NEVER diagnose, predict, or evaluate medical, cognitive, psychological, or neurological disorders (such as ADHD, dyslexia, dysgraphia, dyscalculia, or autism). NEVER claim gameplay establishes that a student has any disorder. NEVER assign risk scores, condition rankings, or disease probabilities.
 2. STRENGTHS-FIRST, ASSET-BASED LANGUAGE: Celebrate persistence, effort, and what the child does well. Avoid deficit framing or clinical jargon.
-3. GROUNDED IN EVIDENCE ONLY: Base every observation strictly on the provided pseudonymised gameplay activity data (accuracy, attempts, duration, and completion). Do not invent unmeasured difficulties.
-4. PRACTICAL EDUCATIONAL RECOMMENDATIONS: Provide encouraging, actionable next activities in Lumora's five worlds (Sound Forest, Story Castle, Rune Realm, Memory Mountains, Vision Valley).
-5. RETURN VALID JSON ONLY adhering exactly to the requested JSON schema.`;
+3. GROUNDED IN EVIDENCE ONLY: Base every observation strictly on the provided pseudonymised gameplay activity data (accuracy, attempts, duration, and completion). Do not infer unmeasured difficulties or extrapolate unrelated metrics.
+4. WORLD-WISE EDUCATIONAL CONSTRUCTS:
+   - Sound Forest: Phonological awareness, letter-sound recognition, phoneme blending, auditory discrimination, spoken pronunciation.
+   - Vision Valley: Visual tracking, smooth pursuit, saccadic target acquisition, visual discrimination, visual-motor timing.
+   - Story Castle: Sight-word recognition, sentence decoding, reading fluency, story sequencing, reading comprehension.
+   - Rune Realm: Letter formation, number formation, fine-motor coordination, tracing precision, continuous stroke planning.
+   - Memory Mountains: Visual working memory, object recall, sequential recall, pattern recognition, memory updating.
+5. DATA SUFFICIENCY: Distinguish actual recorded patterns (>= 2 rounds) from insufficient data (1 round) or no data (0 rounds). Explicitly state if there is insufficient evidence.
+6. RETURN VALID JSON ONLY adhering exactly to the requested JSON schema.`;
+
+const WORLDS_CONFIG = {
+  soundForest: {
+    name: 'Sound Forest',
+    constructs: 'Phonological awareness, letter-sound recognition, phoneme blending, auditory discrimination, spoken pronunciation',
+    defaultRecommendations: [
+      'Play rhyming and initial-sound matching games with household objects.',
+      'Practice blending segmented words phoneme-by-phoneme during story time (/c/-/a/-/t/ -> cat).',
+      'Use playful echo-singing and alliteration rhymes to build auditory confidence.',
+    ],
+    defaultActivities: [
+      'Sound Forest Round 1: Slash Quest (Auditory sound discrimination)',
+      'Sound Forest Round 3: Phoneme Blend (Auditory synthesis)',
+    ],
+  },
+  visionValley: {
+    name: 'Vision Valley',
+    constructs: 'Visual tracking, smooth pursuit, saccadic target acquisition, visual discrimination, visual-motor timing',
+    defaultRecommendations: [
+      'Encourage flashlight tag or ball-catching games to support smooth visual pursuit.',
+      'Explore hidden-picture puzzles and spot-the-difference visual books.',
+      'Provide visual anchors (ruler or card bookmark) when scanning complex pages.',
+    ],
+    defaultActivities: [
+      'Vision Valley Round 1: Follow (Smooth pursuit tracking)',
+      'Vision Valley Round 4: Slash (Visual-motor timing)',
+    ],
+  },
+  storyCastle: {
+    name: 'Story Castle',
+    constructs: 'Sight-word recognition, sentence decoding, reading fluency, story sequencing, reading comprehension',
+    defaultRecommendations: [
+      'Pair connected reading with shared paired-reading (reading aloud in unison).',
+      'Highlight high-frequency sight words in engaging graphic novels.',
+      'Ask open-ended sequencing questions ("What happened first, next, and at the end?").',
+    ],
+    defaultActivities: [
+      'Story Castle Round 1: Magic Words (Sight word recognition)',
+      'Story Castle Round 4: Story Path (Narrative sequencing)',
+    ],
+  },
+  runeRealm: {
+    name: 'Rune Realm',
+    constructs: 'Letter formation, number formation, fine-motor coordination, tracing precision, continuous stroke planning',
+    defaultRecommendations: [
+      'Practice letter and number strokes in sensory trays (sand, salt, or finger-paint).',
+      'Encourage fun fine-motor warmups (clay squeezing, bead threading, origami).',
+      'Offer ergonomic pencil grips and comfortable writing angles.',
+    ],
+    defaultActivities: [
+      'Rune Realm Round 2: Magic Letter A (Letter stroke formation)',
+      'Rune Realm Round 3: Magic Number 3 (Arc reversal & digit control)',
+    ],
+  },
+  memoryMountains: {
+    name: 'Memory Mountains',
+    constructs: 'Visual working memory, object recall, sequential recall, pattern recognition, memory updating',
+    defaultRecommendations: [
+      'Play memory tray games (observe 4-5 items, hide one, guess what is missing).',
+      'Break multi-step requests into clear 1-2 step instructions paired with visual checklists.',
+      'Engage in rhythmic pattern-clapping and sequential movement games.',
+    ],
+    defaultActivities: [
+      'Memory Mountains Round 1: Remember Objects (Visual item recall)',
+      'Memory Mountains Round 4: Follow the Pattern (Sequential pattern reasoning)',
+    ],
+  },
+};
 
 /**
  * Deterministic fallback generator when Gemini API is unavailable.
@@ -48,22 +122,90 @@ function generateDeterministicFallback(activityRecords) {
     byWorld[r.world].push(r);
   }
 
-  for (const [world, rounds] of Object.entries(byWorld)) {
-    const worldAvg = rounds.reduce((s, r) => s + (Number(r.accuracy) || 0), 0) / rounds.length;
-    const worldAttempts = rounds.reduce((s, r) => s + (Number(r.attempts) || 1), 0) / rounds.length;
+  // Generate World-wise Insights for each of the 5 worlds
+  const worldInsights = {};
 
+  for (const [worldKey, config] of Object.entries(WORLDS_CONFIG)) {
+    const worldRounds = byWorld[worldKey] || [];
+    const count = worldRounds.length;
+
+    if (count === 0) {
+      worldInsights[worldKey] = {
+        worldKey,
+        worldName: config.name,
+        constructs: config.constructs,
+        dataSufficiency: 'no_data',
+        summary: `No activity recorded in ${config.name} yet. Starting exploratory rounds will provide objective learning evidence for ${config.constructs.toLowerCase()}.`,
+        strengths: [],
+        supportAreas: [],
+        practiceRecommendations: config.defaultRecommendations,
+        suggestedActivities: config.defaultActivities,
+      };
+      continue;
+    }
+
+    const worldAvg = worldRounds.reduce((s, r) => s + (Number(r.accuracy) || 0), 0) / count;
+    const worldAvgPct = Math.round(worldAvg * 100);
+    const worldAttempts = worldRounds.reduce((s, r) => s + (Number(r.attempts) || 1), 0) / count;
+    const isSufficient = count >= 2;
+
+    const wStrengths = [];
+    const wSupportAreas = [];
+
+    // Analyze high accuracy rounds
+    const highAccRounds = worldRounds.filter((r) => Number(r.accuracy) >= 0.75);
+    if (highAccRounds.length > 0) {
+      wStrengths.push({
+        title: `${config.name} Task Mastery`,
+        description: `Logged strong performance across ${highAccRounds.length} round(s) with accuracy averaging ${Math.round((highAccRounds.reduce((s, r) => s + Number(r.accuracy), 0) / highAccRounds.length) * 100)}%.`,
+        highlight: `Demonstrated smooth execution and confident focus on ${highAccRounds.map((r) => r.activity).slice(0, 2).join(', ')}.`,
+      });
+    }
+
+    // Analyze multi-attempt or lower accuracy rounds
+    const challengeRounds = worldRounds.filter((r) => Number(r.accuracy) < 0.7 || Number(r.attempts) > 1);
+    if (challengeRounds.length > 0) {
+      wSupportAreas.push({
+        title: `${config.name} Exploratory Practice`,
+        description: `Encountered multi-attempt challenges on ${challengeRounds.map((r) => r.activity).slice(0, 2).join(', ')} (${challengeRounds.length} round(s) requiring extra attempts).`,
+        explanationOfEvidence: `Recorded average of ${worldAttempts.toFixed(1)} attempts per round with ${worldAvgPct}% accuracy. Multi-attempt rounds reflect active problem-solving and persistence.`,
+        supportiveSuggestion: `Use multisensory cues and short 5-minute self-paced practice to build familiarity and ease cognitive load.`,
+      });
+    }
+
+    worldInsights[worldKey] = {
+      worldKey,
+      worldName: config.name,
+      constructs: config.constructs,
+      dataSufficiency: isSufficient ? 'sufficient' : 'insufficient',
+      summary: isSufficient
+        ? `In ${config.name}, ${count} completed round(s) demonstrate ${worldAvgPct}% average accuracy with ${worldAttempts.toFixed(1)} attempts per challenge. The evidence highlights sustained engagement in ${config.constructs.toLowerCase()}.`
+        : `Preliminary data in ${config.name} (1 round recorded, ${worldAvgPct}% accuracy). Lumora never establishes learning patterns from a single round. Additional sessions are recommended for reliable trends.`,
+      strengths: wStrengths.length > 0 ? wStrengths : [
+        {
+          title: 'Curiosity & Effort',
+          description: `Began initial practice in ${config.name} with enthusiastic participation.`,
+          highlight: 'Great persistence trying new challenge formats!',
+        },
+      ],
+      supportAreas: wSupportAreas,
+      practiceRecommendations: config.defaultRecommendations,
+      suggestedActivities: config.defaultActivities,
+    };
+
+    // Global strengths/practice lists
     if (worldAvg >= 0.75) {
       strengthsList.push({
-        world,
-        domain: rounds[0]?.domain || world,
-        description: `Consistently high engagement across ${rounds.length} completed round(s) with an average of ${Math.round(worldAvg * 100)}% accuracy.`,
-        highlight: 'Confident pacing and strong task completion.',
+        world: worldKey,
+        domain: worldRounds[0]?.domain || worldKey,
+        description: `Strong engagement in ${config.name} (${count} round(s), ${worldAvgPct}% accuracy).`,
+        highlight: 'Confident pacing and high task completion.',
       });
     } else if (worldAvg < 0.7 || worldAttempts >= 2) {
       practiceList.push({
-        world,
-        domain: rounds[0]?.domain || world,
-        description: `Encountered multi-attempt challenges (${rounds.length} rounds logged, averaging ${Math.round(worldAvg * 100)}% accuracy).`,
+        world: worldKey,
+        domain: worldRounds[0]?.domain || worldKey,
+        description: `Encountered multi-attempt challenges in ${config.name} (${worldAvgPct}% accuracy across ${count} round(s)).`,
         rationale: 'Additional exploratory rounds with multisensory guidance can build confidence.',
         supportiveSuggestion: 'Try short, self-paced sessions with positive encouragement after each round.',
       });
@@ -81,8 +223,9 @@ function generateDeterministicFallback(activityRecords) {
 
   return {
     summary: totalRounds > 0
-      ? `The learner has completed ${totalRounds} activity round(s) across ${Object.keys(byWorld).length} learning realm(s) with an overall accuracy of ${avgAccuracy}%. The recorded data shows enthusiastic effort, particularly in structured, step-by-step challenges.`
+      ? `The learner has completed ${totalRounds} activity round(s) across ${Object.keys(byWorld).length} learning realm(s) with an overall accuracy of ${avgAccuracy}%. The recorded data shows enthusiastic effort and persistence across structured challenges.`
       : 'No activity data recorded yet. Starting short playful sessions in any of the 5 realms will unlock evidence-based insights.',
+    worldInsights,
     strengths: strengthsList,
     practiceAreas: practiceList,
     progressObservations: [
@@ -145,7 +288,6 @@ function sanitizePayload(raw) {
  * Compatible with Vercel Serverless Functions and Node Connect/Express middleware.
  */
 export default async function handler(req, res) {
-  // CORS & Header preparation
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Cache-Control', 'no-store, max-age=0');
 
@@ -201,14 +343,64 @@ export default async function handler(req, res) {
 Recorded Activity Records:
 ${JSON.stringify(sanitized.activities, null, 2)}
 
-Provide strengths-first learning insights in structured JSON matching this schema:
+Provide strengths-first, world-wise learning insights in structured JSON matching this schema:
 {
-  "summary": "2-3 sentences summarizing engagement, resilience, and general patterns without clinical diagnosis.",
+  "summary": "2-3 sentences summarizing overall engagement, resilience, and general patterns across all realms without clinical diagnosis.",
+  "worldInsights": {
+    "soundForest": {
+      "summary": "Short learning-area summary for Sound Forest (phonological awareness, letter-sound recognition, phoneme blending, auditory discrimination, spoken pronunciation). Note if insufficient or no data.",
+      "strengths": [
+        { "title": "Strength Title", "description": "Specific evidence description", "highlight": "Positive celebration" }
+      ],
+      "supportAreas": [
+        { "title": "Support Area Title", "description": "Challenge observation", "explanationOfEvidence": "Attempts and accuracy context", "supportiveSuggestion": "Supportive strategy" }
+      ],
+      "practiceRecommendations": [
+        "Actionable educational strategy 1", "Actionable educational strategy 2"
+      ],
+      "suggestedActivities": [
+        "Sound Forest Round: focus description"
+      ],
+      "dataSufficiency": "sufficient | insufficient | no_data"
+    },
+    "visionValley": {
+      "summary": "Short learning-area summary for Vision Valley (visual tracking, smooth pursuit, saccadic target acquisition, visual discrimination, visual-motor timing). Note if insufficient or no data.",
+      "strengths": [ { "title": "...", "description": "...", "highlight": "..." } ],
+      "supportAreas": [ { "title": "...", "description": "...", "explanationOfEvidence": "...", "supportiveSuggestion": "..." } ],
+      "practiceRecommendations": [ "...", "..." ],
+      "suggestedActivities": [ "..." ],
+      "dataSufficiency": "sufficient | insufficient | no_data"
+    },
+    "storyCastle": {
+      "summary": "Short learning-area summary for Story Castle (sight-word recognition, sentence decoding, reading fluency, story sequencing, reading comprehension). Note if insufficient or no data.",
+      "strengths": [ { "title": "...", "description": "...", "highlight": "..." } ],
+      "supportAreas": [ { "title": "...", "description": "...", "explanationOfEvidence": "...", "supportiveSuggestion": "..." } ],
+      "practiceRecommendations": [ "...", "..." ],
+      "suggestedActivities": [ "..." ],
+      "dataSufficiency": "sufficient | insufficient | no_data"
+    },
+    "runeRealm": {
+      "summary": "Short learning-area summary for Rune Realm (letter formation, number formation, fine-motor coordination, tracing precision, continuous stroke planning). Note if insufficient or no data.",
+      "strengths": [ { "title": "...", "description": "...", "highlight": "..." } ],
+      "supportAreas": [ { "title": "...", "description": "...", "explanationOfEvidence": "...", "supportiveSuggestion": "..." } ],
+      "practiceRecommendations": [ "...", "..." ],
+      "suggestedActivities": [ "..." ],
+      "dataSufficiency": "sufficient | insufficient | no_data"
+    },
+    "memoryMountains": {
+      "summary": "Short learning-area summary for Memory Mountains (visual working memory, object recall, sequential recall, pattern recognition, memory updating). Note if insufficient or no data.",
+      "strengths": [ { "title": "...", "description": "...", "highlight": "..." } ],
+      "supportAreas": [ { "title": "...", "description": "...", "explanationOfEvidence": "...", "supportiveSuggestion": "..." } ],
+      "practiceRecommendations": [ "...", "..." ],
+      "suggestedActivities": [ "..." ],
+      "dataSufficiency": "sufficient | insufficient | no_data"
+    }
+  },
   "strengths": [
     { "domain": "domain name", "world": "world name", "description": "evidence description", "highlight": "encouraging highlight" }
   ],
   "practiceAreas": [
-    { "domain": "domain name", "world": "world name", "description": "observation of challenge", "rationale": "why practice helps", "supportiveSuggestion": "educational home or classroom strategy" }
+    { "domain": "domain name", "world": "world name", "description": "observation of challenge", "rationale": "why practice helps", "supportiveSuggestion": "educational strategy" }
   ],
   "progressObservations": [
     { "observation": "multi-session or task observation", "trend": "improving | steady | developing" }
@@ -231,7 +423,7 @@ Provide strengths-first learning insights in structured JSON matching this schem
     generationConfig: {
       responseMimeType: 'application/json',
       temperature: 0.2,
-      maxOutputTokens: 1400,
+      maxOutputTokens: 2500,
     },
   };
 
@@ -293,4 +485,3 @@ Provide strengths-first learning insights in structured JSON matching this schem
     }));
   }
 }
-
