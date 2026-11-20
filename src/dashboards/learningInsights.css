@@ -1160,6 +1160,587 @@
   }
 }
 
+/* =========================================================================
+   LUMORA INSIGHT PANEL (Gemini-Powered Learning Insights)
+   Strict compliance with AGENTS.md retro-arcade rules & palette:
+   - Zero red, zero green, zero harsh yellow.
+   - Ink #090B14, Sky #7EC8F5/#B8E2FA, Cream #F5EFE0, Pink #FF2E93 (accents only <=10%),
+     Blue #38B6FF, Cyan #48B8D0, Amber #E5A83B, Purple #A47BE0.
+   - Stepped pixel depth (box-shadow: 5px 5px 0 0 #000000), 6px chamfer, 8px grid scale.
+   - Lexend body copy >= 16px, Silkscreen / Jersey 25 display.
+   - Reduced-motion guarded. Focus-visible with magenta outline.
+   ========================================================================= */
+
+.lumora-insight-panel {
+  margin: 32px 0 40px;
+  padding: 32px;
+  background: var(--bg-space-card, #111526);
+  border: 2px solid var(--cyan, #38B6FF);
+  border-radius: var(--chamfer, 6px);
+  box-shadow: var(--shadow-card, 5px 5px 0 0 #000000);
+  color: var(--text-hi, #E2E8F0);
+  font-family: var(--font-body, "Lexend", sans-serif);
+  position: relative;
+}
+
+.lumora-insight-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.lumora-insight-title-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.lumora-insight-sparkle-badge {
+  font-size: 32px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: rgba(56, 182, 255, 0.15);
+  border: 1px solid var(--cyan, #38B6FF);
+  border-radius: var(--chamfer, 6px);
+  box-shadow: 2px 2px 0 0 #000000;
+}
+
+.lumora-insight-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.lumora-insight-title {
+  margin: 0;
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 24px;
+  color: var(--text-hi, #E2E8F0);
+  letter-spacing: -0.5px;
+}
+
+.lumora-source-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  box-shadow: 1px 1px 0 0 #000000;
+}
+
+.lumora-source-badge.source-gemini {
+  background: rgba(56, 182, 255, 0.2);
+  color: var(--cyan, #38B6FF);
+  border: 1px solid var(--cyan, #38B6FF);
+}
+
+.lumora-source-badge.source-fallback {
+  background: rgba(229, 168, 59, 0.15);
+  color: var(--amber, #E5A83B);
+  border: 1px solid var(--amber, #E5A83B);
+}
+
+.lumora-insight-subtitle {
+  margin: 6px 0 0;
+  font-size: 15px;
+  color: var(--text-mid, #94A3B8);
+}
+
+.lumora-insight-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lumora-refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 16px;
+  background: var(--bg-panel, #111424);
+  color: var(--text-hi, #E2E8F0);
+  border: 1px solid var(--cyan, #38B6FF);
+  border-radius: var(--chamfer, 6px);
+  box-shadow: 2px 2px 0 0 #000000;
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform var(--dur-fast, 140ms) var(--ease-snap, ease),
+              box-shadow var(--dur-fast, 140ms) var(--ease-snap, ease),
+              background var(--dur-fast, 140ms) var(--ease-snap, ease);
+}
+
+.lumora-refresh-btn:hover:not(:disabled) {
+  background: rgba(56, 182, 255, 0.15);
+  transform: translateY(-1px);
+  box-shadow: 3px 3px 0 0 #000000;
+}
+
+.lumora-refresh-btn:active:not(:disabled) {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 0 #000000;
+}
+
+.lumora-refresh-btn:focus-visible {
+  outline: var(--focus-ring, 3px solid var(--magenta, #FF2E93));
+  outline-offset: 2px;
+}
+
+.lumora-refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.lumora-spin-icon {
+  display: inline-block;
+  animation: lumora-spin 1.5s steps(8) infinite;
+}
+
+@keyframes lumora-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lumora-spin-icon {
+    animation: none;
+  }
+}
+
+/* Notice Bar */
+.lumora-notice-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  border-radius: var(--chamfer, 6px);
+  font-size: 14px;
+}
+
+.lumora-notice-bar.gemini-notice {
+  background: rgba(56, 182, 255, 0.08);
+  border: 1px dashed var(--cyan, #38B6FF);
+  color: var(--cyan, #38B6FF);
+}
+
+.lumora-notice-bar.fallback-notice {
+  background: rgba(229, 168, 59, 0.1);
+  border: 1px dashed var(--amber, #E5A83B);
+  color: var(--amber, #E5A83B);
+}
+
+.lumora-notice-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.lumora-notice-text {
+  line-height: 1.5;
+  color: var(--text-hi, #E2E8F0);
+}
+
+/* Error Callout */
+.lumora-error-callout {
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  background: rgba(255, 46, 147, 0.1);
+  border: 1px solid var(--magenta, #FF2E93);
+  border-radius: var(--chamfer, 6px);
+  color: var(--text-hi, #E2E8F0);
+  font-size: 14px;
+}
+
+/* Lens Banner */
+.lumora-role-lens-banner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 10px 16px;
+  margin-bottom: 24px;
+  background: var(--bg-panel, #111424);
+  border: 1px solid var(--border-glow, rgba(184, 226, 250, 0.2));
+  border-radius: var(--chamfer, 6px);
+}
+
+.lumora-lens-tag {
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  background: rgba(184, 226, 250, 0.15);
+  color: var(--text-hi, #E2E8F0);
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.lumora-lens-text {
+  font-size: 14px;
+  color: var(--text-silver, #CBD5E1);
+}
+
+/* Loading skeleton */
+.lumora-loading-container {
+  padding: 40px 24px;
+  text-align: center;
+  background: var(--bg-panel, #111424);
+  border: 1px dashed var(--cyan, #38B6FF);
+  border-radius: var(--chamfer, 6px);
+  margin-bottom: 24px;
+}
+
+.lumora-loading-title {
+  display: block;
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 14px;
+  color: var(--cyan, #38B6FF);
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.lumora-loading-sub {
+  font-size: 15px;
+  color: var(--text-mid, #94A3B8);
+  margin: 0 0 20px;
+}
+
+.lumora-loading-progress-bar {
+  width: 240px;
+  height: 8px;
+  background: var(--bg-space, #090B14);
+  border: 1px solid var(--cyan, #38B6FF);
+  border-radius: 4px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.lumora-loading-progress-fill {
+  width: 40%;
+  height: 100%;
+  background: var(--cyan, #38B6FF);
+  animation: lumora-progress-anim 1.4s ease-in-out infinite;
+}
+
+@keyframes lumora-progress-anim {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(150%); }
+  100% { transform: translateX(300%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lumora-loading-progress-fill {
+    animation: none;
+    width: 75%;
+  }
+}
+
+/* Executive Summary Card */
+.lumora-summary-card {
+  padding: 24px;
+  background: var(--bg-panel, #111424);
+  border: 1px solid var(--border-glow, rgba(184, 226, 250, 0.25));
+  border-left: 5px solid var(--cyan, #38B6FF);
+  border-radius: var(--chamfer, 6px);
+  box-shadow: var(--shadow-chip, 3px 3px 0 0 #000000);
+  margin-bottom: 32px;
+}
+
+.lumora-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.lumora-card-icon {
+  font-size: 20px;
+}
+
+.lumora-card-heading h4 {
+  margin: 0;
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 16px;
+  color: var(--text-hi, #E2E8F0);
+  letter-spacing: -0.3px;
+}
+
+.lumora-summary-text {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-silver, #CBD5E1);
+}
+
+/* Two-column Grid */
+.lumora-two-col-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+@media (max-width: 860px) {
+  .lumora-two-col-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.lumora-col-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.lumora-col-icon {
+  font-size: 18px;
+}
+
+.lumora-col-title {
+  margin: 0;
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 15px;
+  color: var(--text-hi, #E2E8F0);
+}
+
+.lumora-card-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.lumora-feature-card {
+  padding: 18px 20px;
+  background: var(--bg-panel, #111424);
+  border: 1px solid var(--border-glow, rgba(184, 226, 250, 0.2));
+  border-radius: var(--chamfer, 6px);
+  box-shadow: 2px 2px 0 0 #000000;
+  transition: transform var(--dur-fast, 140ms) var(--ease-snap, ease);
+}
+
+.lumora-feature-card.strength {
+  border-left: 4px solid var(--cyan, #38B6FF);
+}
+
+.lumora-feature-card.practice {
+  border-left: 4px solid var(--amber, #E5A83B);
+}
+
+.lumora-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.lumora-world-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  background: rgba(9, 11, 20, 0.6);
+  border: 1px solid;
+  border-radius: 4px;
+}
+
+.lumora-domain-pill {
+  font-size: 12px;
+  color: var(--text-mid, #94A3B8);
+  font-weight: 500;
+}
+
+.lumora-card-desc {
+  margin: 0 0 12px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text-silver, #CBD5E1);
+}
+
+.lumora-card-highlight {
+  padding: 10px 14px;
+  background: rgba(56, 182, 255, 0.1);
+  border-radius: 4px;
+  font-size: 14px;
+  color: var(--cyan, #38B6FF);
+}
+
+.lumora-rationale-box {
+  padding: 8px 12px;
+  background: rgba(229, 168, 59, 0.08);
+  border-radius: 4px;
+  font-size: 14px;
+  color: var(--amber, #E5A83B);
+  margin-bottom: 8px;
+}
+
+.lumora-suggestion-box {
+  padding: 8px 12px;
+  background: rgba(184, 226, 250, 0.06);
+  border-radius: 4px;
+  font-size: 14px;
+  color: var(--text-silver, #CBD5E1);
+}
+
+.lumora-empty-msg {
+  font-size: 15px;
+  color: var(--text-mid, #94A3B8);
+  font-style: italic;
+  padding: 16px;
+  background: var(--bg-panel, #111424);
+  border-radius: var(--chamfer, 6px);
+  margin: 0;
+}
+
+/* Progress Section */
+.lumora-progress-box {
+  padding: 24px;
+  background: var(--bg-panel, #111424);
+  border: 1px solid var(--border-glow, rgba(184, 226, 250, 0.2));
+  border-radius: var(--chamfer, 6px);
+  margin-bottom: 32px;
+}
+
+.lumora-obs-chips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.lumora-obs-chip {
+  padding: 16px;
+  background: var(--bg-space, #090B14);
+  border: 1px solid var(--border-glow, rgba(184, 226, 250, 0.2));
+  border-radius: var(--chamfer, 6px);
+  box-shadow: 2px 2px 0 0 #000000;
+}
+
+.lumora-obs-chip.trend-improving {
+  border-left: 4px solid var(--cyan, #38B6FF);
+}
+
+.lumora-obs-chip.trend-steady {
+  border-left: 4px solid var(--azure, #48B8D0);
+}
+
+.lumora-obs-chip.trend-developing {
+  border-left: 4px solid var(--amber, #E5A83B);
+}
+
+.lumora-trend-tag {
+  display: inline-block;
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-hi, #E2E8F0);
+}
+
+.lumora-trend-text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text-silver, #CBD5E1);
+}
+
+/* Recommended Section */
+.lumora-recommended-section {
+  padding: 24px;
+  background: var(--bg-panel, #111424);
+  border: 1px solid var(--border-glow, rgba(184, 226, 250, 0.2));
+  border-radius: var(--chamfer, 6px);
+  margin-bottom: 32px;
+}
+
+.lumora-recommended-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.lumora-rec-card {
+  padding: 18px;
+  background: var(--bg-space, #090B14);
+  border: 1px solid var(--border-glow, rgba(184, 226, 250, 0.2));
+  border-radius: var(--chamfer, 6px);
+  box-shadow: 2px 2px 0 0 #000000;
+}
+
+.lumora-rec-badge {
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.lumora-rec-title {
+  margin: 0 0 8px;
+  font-family: var(--font-pixel-heading, "Silkscreen", monospace);
+  font-size: 14px;
+  color: var(--text-hi, #E2E8F0);
+}
+
+.lumora-rec-focus {
+  margin: 0 0 10px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text-silver, #CBD5E1);
+}
+
+.lumora-rec-note {
+  margin: 0;
+  font-size: 14px;
+  color: var(--cyan, #38B6FF);
+  font-style: italic;
+}
+
+/* Footer & Disclaimers */
+.lumora-panel-footer {
+  padding-top: 20px;
+  border-top: 1px solid var(--border-glow, rgba(184, 226, 250, 0.2));
+}
+
+.lumora-footer-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.lumora-footer-pill {
+  font-size: 12px;
+  padding: 3px 10px;
+  background: var(--bg-panel, #111424);
+  border: 1px solid var(--border-glow, rgba(184, 226, 250, 0.25));
+  border-radius: 4px;
+  color: var(--text-mid, #94A3B8);
+}
+
+.lumora-footer-disclaimer {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-low, #64748B);
+  line-height: 1.6;
+}
+
 /* Print / PDF Stylesheet */
 @media print {
   body * {

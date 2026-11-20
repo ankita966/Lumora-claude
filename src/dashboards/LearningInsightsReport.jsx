@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { WORLD_ORDER, WORLDS } from '../data/worlds';
+import LumoraInsightPanel from './LumoraInsightPanel';
 import './learningInsights.css';
 
 /**
@@ -712,6 +713,13 @@ export default function LearningInsightsReport({
           </select>
         </div>
       </div>
+
+      {/* ✨ LUMORA INSIGHT: Gemini-Powered Learning Insights */}
+      <LumoraInsightPanel
+        learner={effectiveLearner}
+        role={activePerspective}
+        selectedWorld={selectedWorld}
+      />
 
       {/* Section 1: Executive Overview & Evidence Metrics */}
       <section className="insights-section" aria-labelledby="heading-overview">
