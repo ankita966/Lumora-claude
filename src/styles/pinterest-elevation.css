@@ -1,0 +1,450 @@
+/* ============================================================
+   PINTEREST ELEVATION — Lumora World Premium Tier Upgrade
+   Vibe: Win95 chrome + chunky bevel buttons + dither sky
+   ============================================================ */
+
+/* --- Global cursor: wand IS the cursor --- */
+.ref-tamagotchi-canvas,
+.ref-tamagotchi-canvas * {
+  cursor: none !important;
+}
+
+/* --- PINTEREST ELEMENT 1: Win95 window-frame chrome on bottom section --- */
+.ref-bottom-space-section {
+  position: relative;
+  border-top: 4px solid #38B6FF;      /* cyan top rail — signature Pinterest pixel UI */
+  padding-top: 0;
+}
+.ref-bottom-space-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: repeating-linear-gradient(
+    90deg,
+    #38B6FF 0px, #38B6FF 8px,
+    #FF2E93 8px, #FF2E93 16px
+  );                                  /* pink+blue dither bar — retro-chrome signal */
+}
+
+/* --- PINTEREST ELEMENT 2: Window-chrome title bar on WHO ARE THEY --- */
+.ref-story-column {
+  position: relative;
+  padding: 28px 28px 20px 28px;
+  background: #0A0C1A;
+  border: 3px solid #0D111B;
+  border-top: 3px solid #38B6FF;       /* cyan title bar stripe */
+  border-left: 3px solid #38B6FF;
+  box-shadow: 6px 6px 0 #000;
+}
+.ref-story-column::before {
+  content: 'LUMORA.EXE — CHARACTERS';
+  display: block;
+  margin: -28px -28px 20px -28px;
+  padding: 6px 14px;
+  background: #38B6FF;
+  color: #000;
+  font-family: var(--font-pixel-heading);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  border-bottom: 3px solid #000;
+}
+
+/* --- PINTEREST ELEMENT 3: Chunky bevel hero chips (Win95 style) --- */
+.ref-heroes-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.ref-hero-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 15px;
+  background: #0A0C1A;
+  /* Chunky 3D bevel: light top-left, dark bottom-right */
+  border: 3px solid #0D111B;
+  border-top-color: #F5EFE0;
+  border-left-color: #F5EFE0;
+  border-bottom-color: #000;
+  border-right-color: #000;
+  border-radius: 6px;
+  color: #F5EFE0;
+  font-family: var(--font-pixel-heading);
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 4px 4px 0 #000;
+  transition: transform var(--dur-fast) var(--ease-snap),
+              box-shadow var(--dur-fast) var(--ease-snap);
+}
+.ref-hero-chip:hover {
+  transform: translate(-2px, -3px);
+  box-shadow: 6px 6px 0 #000;
+}
+.ref-hero-chip:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #000;
+}
+.ref-hero-chip.active {
+  background: #FF2E93;
+  border-color: #000;
+  color: #fff;
+  box-shadow: 4px 4px 0 #000;
+}
+.ref-chip-icon { flex-shrink: 0; }
+
+/* --- PINTEREST ELEMENT 4: Chunky bevel action buttons --- */
+.ref-bottom-auth-bar {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+.ref-action-btn-primary {
+  padding: 11px 22px;
+  background: #FF2E93;
+  color: #000;
+  font-family: var(--font-pixel-heading);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  border: 3px solid #0D111B;
+  border-top-color: #F5EFE0;
+  border-left-color: #F5EFE0;
+  border-bottom-color: #000;
+  border-right-color: #000;
+  border-radius: 6px;
+  box-shadow: 5px 5px 0 #000;
+  transition: transform var(--dur-fast) var(--ease-snap),
+              box-shadow var(--dur-fast) var(--ease-snap);
+}
+.ref-action-btn-primary:hover {
+  transform: translate(-2px, -3px);
+  box-shadow: 7px 7px 0 #000;
+  background: #FF5AA8;
+}
+.ref-action-btn-primary:active {
+  transform: translate(3px, 3px);
+  box-shadow: 2px 2px 0 #000;
+}
+.ref-action-btn-secondary {
+  padding: 11px 22px;
+  background: #0A0C1A;
+  color: #E2E8F0;
+  font-family: var(--font-pixel-heading);
+  font-size: 12px;
+  font-weight: 800;
+  border: 3px solid #0D111B;
+  border-top-color: #F5EFE0;
+  border-left-color: #F5EFE0;
+  border-bottom-color: #000;
+  border-right-color: #000;
+  border-radius: 6px;
+  box-shadow: 5px 5px 0 #000;
+  transition: transform var(--dur-fast) var(--ease-snap),
+              box-shadow var(--dur-fast) var(--ease-snap);
+}
+.ref-action-btn-secondary:hover {
+  transform: translate(-2px, -3px);
+  box-shadow: 7px 7px 0 #000;
+  border-top-color: #38B6FF;
+  border-left-color: #38B6FF;
+  color: #fff;
+}
+.ref-action-btn-secondary:active {
+  transform: translate(3px, 3px);
+  box-shadow: 2px 2px 0 #000;
+}
+
+/* --- PINTEREST ELEMENT 5: Framed earth globe card (not corner blob) --- */
+.ref-earth-globe-wrapper {
+  position: static;       /* un-absolute it — now inside content-layout flex */
+  width: 180px;
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 80px;       /* align with heading baseline */
+  pointer-events: none;
+  filter: none;
+}
+.ref-earth-globe-svg {
+  width: 180px;
+  height: 180px;
+  border: 3px solid #0D111B;
+  border-top-color: #38B6FF;
+  border-left-color: #38B6FF;
+  border-bottom-color: #000;
+  border-right-color: #000;
+  border-radius: 6px;
+  box-shadow: 5px 5px 0 #000;
+}
+@media (max-width: 768px) {
+  .ref-earth-globe-wrapper { display: none; }
+}
+
+/* --- PINTEREST ELEMENT 6: Content layout uses flex so earth sits inline --- */
+.ref-content-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.ref-story-column {
+  flex: 1;
+  min-width: 300px;
+}
+
+/* --- PINTEREST ELEMENT 7: Pixel dither separator above realms --- */
+.ref-realms-strip {
+  margin-bottom: 28px;
+  padding: 14px 0;
+  border-top: 3px solid #FF2E93;
+  border-bottom: 3px solid #000;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent, transparent 6px,
+    rgba(255, 46, 147, 0.05) 6px, rgba(255, 46, 147, 0.05) 12px
+  );  /* subtle diagonal hatch — pixel UI signature */
+}
+.ref-realm-card {
+  border: 2px solid #0D111B;
+  border-top: 4px solid var(--realm-color, #38B6FF);
+  border-radius: 6px;
+  box-shadow: 4px 4px 0 #000;
+  background: #0A0C1A;
+}
+.ref-realm-card:hover {
+  transform: translate(-2px, -3px);
+  box-shadow: 6px 6px 0 #000;
+}
+
+/* --- CAMERA OFFER: docked pixel panel, no circular neon portal --- */
+.magic-mirror.compact {
+  right: 24px;
+  bottom: 24px;
+  width: 248px;
+  height: 176px;
+}
+.magic-mirror .mirror-portal {
+  border-radius: 0;
+  border: 3px solid #000;
+  border-top-color: #38B6FF;
+  border-left-color: #38B6FF;
+  box-shadow: 5px 5px 0 #000;
+  animation: none;
+  background: #0A0C1A;
+}
+.magic-mirror .mirror-status,
+.magic-mirror .mirror-video {
+  border-radius: 0;
+}
+.magic-mirror .mirror-offer {
+  padding: 16px;
+  gap: 8px;
+  background: #0A0C1A;
+  color: #F5EFE0;
+}
+.magic-mirror .mirror-offer-title {
+  font-family: var(--font-pixel-heading);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: #F5EFE0;
+}
+.magic-mirror .mirror-offer-sub {
+  max-width: 190px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #CBD5E1;
+  text-align: center;
+}
+/* The camera is OFF: do not render the legacy animated glow canvas beneath copy. */
+.mirror-offer ~ .mirror-glow-canvas { display: none; }
+@media (max-width: 768px) {
+  .magic-mirror.compact { right: 12px; bottom: 12px; width: 216px; height: 158px; }
+}
+
+/* --- POLISH PASS (noticeable): hero, CTA, realm cards, editorial body --- */
+.ref-title-pixel-text { text-shadow: 4px 4px 0 #FF2E93, -2px -2px 0 #000000; letter-spacing: 0.04em; }
+.ref-amber-badge-box { padding: 14px 22px !important; line-height: 1.5 !important; box-shadow: 0 4px 0 #000, 4px 4px 0 #000 !important; }
+.ref-press-start-btn { padding: 14px 28px !important; letter-spacing: 0.08em !important; border: 2px solid #FFFFFF !important; box-shadow: 0 0 24px rgba(255,46,147,0.75), 4px 4px 0 #000 !important; }
+.ref-press-start-btn:hover { letter-spacing: 0.12em !important; }
+.ref-realm-card { min-height: 132px; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; padding: 12px 14px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 4px 4px 0 #000; border-top-width: 3px; }
+.ref-realm-focus { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ref-editorial-columns { gap: 20px !important; }
+.ref-lead-paragraph, .ref-body-paragraph, .ref-sub-col p { color: #FFFFFF !important; font-size: 16px !important; line-height: 1.7 !important; }
+.ref-pink-highlight, .ref-pink-tag { padding: 2px 6px !important; border-radius: 3px !important; display: inline-block; }
+.ref-action-btn-primary, .ref-action-btn-secondary { min-width: 200px !important; justify-content: center !important; display: flex !important; align-items: center !important; }
+
+/* --- GUTTER RAILS: editorial side margins on wide screens (>=1400px) --- */
+@media (min-width: 1400px) {
+  .ref-gutter-rail {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    z-index: 3;
+    pointer-events: none;
+  }
+  .ref-gutter-rail--left  { left: 0;  border-right: 3px solid #000000; }
+  .ref-gutter-rail--right { right: 0; border-left: 3px solid #000000; }
+  /* checkerboard dither strip along the extreme edge */
+  .ref-gutter-rail::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 8px;
+    background-image:
+      linear-gradient(45deg, #0D111B 25%, transparent 25%, transparent 75%, #0D111B 75%),
+      linear-gradient(45deg, #0D111B 25%, #1A2233 25%, #1A2233 75%, #0D111B 75%);
+    background-size: 8px 8px;
+    background-position: 0 0, 4px 4px;
+  }
+  .ref-gutter-rail--left::before  { left: 0; }
+  .ref-gutter-rail--right::before { right: 0; }
+  /* rotated micro-label */
+  .ref-gutter-label {
+    position: absolute;
+    top: 50%;
+    font-family: var(--font-pixel-heading);
+    font-size: 11px;
+    letter-spacing: 0.35em;
+    color: #5A6B8C;
+    white-space: nowrap;
+  }
+  .ref-gutter-rail--left .ref-gutter-label {
+    left: 18px;
+    transform: translateY(-50%) rotate(180deg);
+    writing-mode: vertical-rl;
+  }
+  .ref-gutter-rail--right .ref-gutter-label {
+    right: 18px;
+    transform: translateY(-50%);
+    writing-mode: vertical-rl;
+  }
+  .ref-gutter-label b { color: #FF2E93; font-weight: normal; }
+  /* scattered pixel stars inside the gutter */
+  .ref-gutter-star {
+    position: absolute;
+    left: 22px;
+    width: 6px;
+    height: 6px;
+    background: #38B6FF;
+    box-shadow: 0 0 0 2px #000000;
+  }
+  .ref-gutter-star--pink  { background: #FF2E93; }
+  .ref-gutter-star--amber { background: var(--amber-soft, #FFB84D); }
+}
+@media (max-width: 1399.98px) {
+  .ref-gutter-rail { display: none; }
+}
+
+/* --- WORLD BACKDROP: giant low-opacity globe fills the side negative space --- */
+.ref-world-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.ref-world-svg {
+  position: absolute;
+}
+.ref-world-svg--primary {
+  width: 640px;
+  height: 640px;
+  left: -190px;
+  bottom: -170px;
+  opacity: 0.19;
+}
+.ref-world-svg--echo {
+  width: 420px;
+  right: -140px;
+  top: 14%;
+  opacity: 0.13;
+}
+.ref-world-crosshair {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  opacity: 0.3;
+}
+.ref-world-crosshair::before,
+.ref-world-crosshair::after {
+  content: '';
+  position: absolute;
+  background: #38B6FF;
+}
+.ref-world-crosshair::before { left: 50%; top: 0; bottom: 0; width: 2px; margin-left: -1px; }
+.ref-world-crosshair::after  { top: 50%; left: 0; right: 0; height: 2px; margin-top: -1px; }
+.ref-world-crosshair--1 { left: 7%;  top: 22%; }
+.ref-world-crosshair--2 { right: 9%; bottom: 18%; }
+.ref-world-crosshair--3 { left: 16%; top: 58%; opacity: 0.18; }
+@media (max-width: 1200px) {
+  .ref-world-svg--primary { width: 440px; left: -150px; bottom: -130px; }
+  .ref-world-svg--echo { display: none; }
+  .ref-world-crosshair--3 { display: none; }
+}
+@media (max-width: 768px) {
+  .ref-world-svg--primary { width: 320px; left: -120px; bottom: -110px; opacity: 0.10; }
+}
+
+/* --- MY SUGGESTIONS: blueprint crosshair HUD, palette scrollbar, pink selection --- */
+/* 1. Custom scrollbar in palette (default gray clashes with the dark stage) */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #0A0F1E; }
+::-webkit-scrollbar-thumb {
+  background: #1A2233;
+  border: 2px solid #38B6FF;
+  box-shadow: inset 0 0 0 1px #000;
+}
+::-webkit-scrollbar-thumb:hover { background: #25314a; }
+/* 2. Hot-pink text selection (was default browser blue) */
+::selection { background: #FF2E93; color: #FFFFFF; }
+/* 3. Focus rings: cyan bevel instead of browser default */
+.ref-tamagotchi-canvas button:focus-visible,
+.ref-tamagotchi-canvas a:focus-visible {
+  outline: 2px solid #38B6FF;
+  outline-offset: 2px;
+}
+
+
+/* --- ASCII SCENERY: terminal dioramas dressing game-screen side gutters --- */
+.ascii-scenery {
+  position: fixed;
+  top: 140px;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.85;
+}
+.ascii-scenery--left  { left: 18px; }
+.ascii-scenery--right { right: 18px; text-align: right; }
+.ascii-art {
+  font-family: var(--font-mono, 'Courier New', monospace);
+  font-size: 11px;
+  line-height: 1.15;
+  color: #3A4A6B;
+  margin: 0;
+  text-shadow: 1px 1px 0 #000;
+  white-space: pre;
+}
+.ascii-scenery--right .ascii-art { color: #35507A; }
+.ascii-tw {
+  color: #38B6FF;
+  animation: ascii-twinkle 2.4s steps(2) infinite;
+}
+.ascii-tw:nth-child(2n) { animation-delay: -1.2s; color: #FF2E93; }
+@keyframes ascii-twinkle { 50% { opacity: 0.25; } }
+.ascii-caption {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--font-pixel-heading);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: #2E3D5C;
+}
+@media (max-width: 1280px) { .ascii-scenery { display: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .ascii-tw { animation: none; }
+}
