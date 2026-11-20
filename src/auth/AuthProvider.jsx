@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
-import { clearDemoSession, createDemoAccount, signInDemoAccount } from './demoAuth';
 
 const AuthContext = createContext(null);
 
@@ -37,10 +36,15 @@ async function loadIdentity(user, onProfileLoaded = () => {}) {
 }
 
 export function AuthProvider({ children }) {
-  const [state, setState] = useState({ loading: isSupabaseConfigured, roleLoading: false, session: null, profile: null, roles: [], identityStatus: 'unauthenticated', error: null });
-  // Demo accounts may be used only after an explicit fallback signup/login.
-  // A stale browser record must never bypass the production login screen.
-  const [demoAccount, setDemoAccount] = useState(null);
+  const [state, setState] = useState({
+    loading: isSupabaseConfigured,
+    roleLoading: false,
+    session: null,
+    profile: null,
+    roles: [],
+    identityStatus: 'unauthenticated',
+    error: null,
+  });
   const requestIdRef = useRef(0);
 
   const loadSessionIdentity = async (session, isCurrent = () => true) => {
@@ -76,39 +80,16 @@ export function AuthProvider({ children }) {
     return () => { mounted = false; subscription.subscription.unsubscribe(); };
   }, []);
 
-  const activeDemo = !state.session && demoAccount;
-  const demoUser = activeDemo ? { id: activeDemo.id, email: activeDemo.email, user_metadata: { display_name: activeDemo.displayName } } : null;
   const value = useMemo(() => ({
     ...state,
-    session: activeDemo ? { user: demoUser, demo: true } : state.session,
-    profile: activeDemo ? { id: activeDemo.id, display_name: activeDemo.displayName } : state.profile,
-    roles: activeDemo ? [activeDemo.role] : state.roles,
-    identityStatus: activeDemo ? 'ready' : state.identityStatus,
-    loading: activeDemo ? false : state.loading,
-    roleLoading: activeDemo ? false : state.roleLoading,
-    isDemo: Boolean(activeDemo),
     configured: isSupabaseConfigured,
-    authLoading: activeDemo ? false : state.loading,
-    profileLoading: !activeDemo && state.roleLoading && state.identityStatus === 'profile_loading',
-    ready: !state.loading && (!state.roleLoading || Boolean(activeDemo)) && (activeDemo || state.identityStatus === 'ready'),
-    user: demoUser ?? state.session?.user ?? null,
-    // profiles.display_name is canonical once the migration is installed.
-    // Auth metadata preserves the signup name until that profile can be read.
-    displayName: activeDemo?.displayName || state.profile?.display_name?.trim() || state.session?.user?.user_metadata?.display_name?.trim() || 'Learner',
+    authLoading: state.loading,
+    profileLoading: state.roleLoading && state.identityStatus === 'profile_loading',
+    ready: !state.loading && !state.roleLoading && state.identityStatus === 'ready',
+    user: state.session?.user ?? null,
+    displayName: state.profile?.display_name?.trim() || state.session?.user?.user_metadata?.display_name?.trim() || 'Learner',
     signOut: async () => {
-      clearDemoSession();
-      setDemoAccount(null);
       if (state.session) await supabase?.auth.signOut();
-    },
-    createDemoAccount: async (details) => {
-      const account = await createDemoAccount(details);
-      setDemoAccount(account);
-      return account;
-    },
-    signInDemoAccount: async (details) => {
-      const account = await signInDemoAccount(details);
-      setDemoAccount(account);
-      return account;
     },
     // The session from signInWithPassword lets this complete without waiting
     // for the asynchronous auth-state callback.
@@ -116,7 +97,8 @@ export function AuthProvider({ children }) {
       const requestId = ++requestIdRef.current;
       await loadSessionIdentity(session, () => requestId === requestIdRef.current);
     },
-  }), [activeDemo, demoAccount, demoUser, state]);
+  }), [state]);
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

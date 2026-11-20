@@ -174,96 +174,10 @@ export const LEARNING_DIFFERENCES_INFO = {
 };
 
 /**
- * Rich realistic sample learners for demonstration and evaluation
- * when running offline or without an active Supabase connection.
+ * Sample learners list (retained empty for compatibility).
+ * Authenticated and connected learner data is used exclusively.
  */
-export const SAMPLE_LEARNERS = [
-  {
-    id: 'sample-alex',
-    displayName: 'Alex Rivera',
-    grade: 'Grade 3',
-    xp: 18450,
-    sessionsCompleted: 6,
-    totalTimeMs: 1000 * 60 * 54, // 54 mins
-    worldsCompleted: { soundForest: true, visionValley: true, storyCastle: true, runeRealm: true, memoryMountains: true },
-    sessionLog: [
-      { id: 'sess-1', world: 'soundForest', startedAt: Date.now() - 86400000 * 5, completedAt: Date.now() - 86400000 * 5 + 600000 },
-      { id: 'sess-2', world: 'storyCastle', startedAt: Date.now() - 86400000 * 4, completedAt: Date.now() - 86400000 * 4 + 720000 },
-      { id: 'sess-3', world: 'runeRealm', startedAt: Date.now() - 86400000 * 3, completedAt: Date.now() - 86400000 * 3 + 550000 },
-      { id: 'sess-4', world: 'memoryMountains', startedAt: Date.now() - 86400000 * 2, completedAt: Date.now() - 86400000 * 2 + 650000 },
-      { id: 'sess-5', world: 'visionValley', startedAt: Date.now() - 86400000 * 1, completedAt: Date.now() - 86400000 * 1 + 500000 },
-      { id: 'sess-6', world: 'storyCastle', startedAt: Date.now() - 14400000, completedAt: Date.now() - 13800000 },
-    ],
-    activityLog: [
-      // Sound Forest (phonological)
-      { world: 'soundForest', round: 1, skill: 'sound', accuracy: 0.95, attempts: 1, timeMs: 14200, sessionId: 'sess-1', ts: Date.now() - 86400000 * 5 },
-      { world: 'soundForest', round: 2, skill: 'sound', accuracy: 0.90, attempts: 1, timeMs: 16500, sessionId: 'sess-1', ts: Date.now() - 86400000 * 5 + 30000 },
-      { world: 'soundForest', round: 3, skill: 'sound', accuracy: 0.85, attempts: 2, timeMs: 22000, sessionId: 'sess-1', ts: Date.now() - 86400000 * 5 + 65000 },
-      { world: 'soundForest', round: 4, skill: 'sound', accuracy: 0.80, attempts: 2, timeMs: 19500, sessionId: 'sess-1', ts: Date.now() - 86400000 * 5 + 95000 },
-      { world: 'soundForest', round: 5, skill: 'sound', accuracy: 0.90, attempts: 1, timeMs: 15000, sessionId: 'sess-1', ts: Date.now() - 86400000 * 5 + 130000 },
-
-      // Story Castle session 1 (reading)
-      { world: 'storyCastle', round: 1, skill: 'reading', accuracy: 0.85, attempts: 1, timeMs: 18000, sessionId: 'sess-2', ts: Date.now() - 86400000 * 4 },
-      { world: 'storyCastle', round: 2, skill: 'reading', accuracy: 0.60, attempts: 3, timeMs: 34000, sessionId: 'sess-2', ts: Date.now() - 86400000 * 4 + 40000 },
-      { world: 'storyCastle', round: 3, skill: 'reading', accuracy: 0.55, attempts: 3, timeMs: 38000, sessionId: 'sess-2', ts: Date.now() - 86400000 * 4 + 85000 },
-      { world: 'storyCastle', round: 4, skill: 'reading', accuracy: 0.80, attempts: 1, timeMs: 21000, sessionId: 'sess-2', ts: Date.now() - 86400000 * 4 + 130000 },
-      { world: 'storyCastle', round: 5, skill: 'reading', accuracy: 0.75, attempts: 2, timeMs: 26000, sessionId: 'sess-2', ts: Date.now() - 86400000 * 4 + 165000 },
-
-      // Rune Realm (writing_motor)
-      { world: 'runeRealm', round: 1, skill: 'motor', accuracy: 0.90, attempts: 1, timeMs: 14000, sessionId: 'sess-3', ts: Date.now() - 86400000 * 3 },
-      { world: 'runeRealm', round: 2, skill: 'motor', accuracy: 0.62, attempts: 3, timeMs: 31000, sessionId: 'sess-3', ts: Date.now() - 86400000 * 3 + 35000 },
-      { world: 'runeRealm', round: 3, skill: 'motor', accuracy: 0.70, attempts: 2, timeMs: 28000, sessionId: 'sess-3', ts: Date.now() - 86400000 * 3 + 70000 },
-      { world: 'runeRealm', round: 4, skill: 'motor', accuracy: 0.85, attempts: 1, timeMs: 22000, sessionId: 'sess-3', ts: Date.now() - 86400000 * 3 + 105000 },
-      { world: 'runeRealm', round: 5, skill: 'motor', accuracy: 0.80, attempts: 2, timeMs: 26000, sessionId: 'sess-3', ts: Date.now() - 86400000 * 3 + 140000 },
-
-      // Memory Mountains (memory & numberSense)
-      { world: 'memoryMountains', round: 1, skill: 'memory', accuracy: 0.92, attempts: 1, timeMs: 16000, sessionId: 'sess-4', ts: Date.now() - 86400000 * 2 },
-      { world: 'memoryMountains', round: 2, skill: 'memory', accuracy: 0.88, attempts: 1, timeMs: 17500, sessionId: 'sess-4', ts: Date.now() - 86400000 * 2 + 30000 },
-      { world: 'memoryMountains', round: 3, skill: 'memory', accuracy: 0.85, attempts: 1, timeMs: 21000, sessionId: 'sess-4', ts: Date.now() - 86400000 * 2 + 65000 },
-      { world: 'memoryMountains', round: 4, skill: 'numberSense', accuracy: 0.64, attempts: 3, timeMs: 35000, sessionId: 'sess-4', ts: Date.now() - 86400000 * 2 + 100000 },
-      { world: 'memoryMountains', round: 5, skill: 'memory', accuracy: 0.80, attempts: 2, timeMs: 29000, sessionId: 'sess-4', ts: Date.now() - 86400000 * 2 + 145000 },
-
-      // Vision Valley (vision)
-      { world: 'visionValley', round: 1, skill: 'vision', accuracy: 0.94, attempts: 1, timeMs: 13000, sessionId: 'sess-5', ts: Date.now() - 86400000 * 1 },
-      { world: 'visionValley', round: 2, skill: 'vision', accuracy: 0.90, attempts: 1, timeMs: 14500, sessionId: 'sess-5', ts: Date.now() - 86400000 * 1 + 25000 },
-      { world: 'visionValley', round: 3, skill: 'vision', accuracy: 0.88, attempts: 1, timeMs: 16000, sessionId: 'sess-5', ts: Date.now() - 86400000 * 1 + 55000 },
-      { world: 'visionValley', round: 4, skill: 'vision', accuracy: 0.92, attempts: 1, timeMs: 15500, sessionId: 'sess-5', ts: Date.now() - 86400000 * 1 + 80000 },
-      { world: 'visionValley', round: 5, skill: 'vision', accuracy: 0.86, attempts: 2, timeMs: 21000, sessionId: 'sess-5', ts: Date.now() - 86400000 * 1 + 110000 },
-
-      // Story Castle session 2 (reading progress)
-      { world: 'storyCastle', round: 1, skill: 'reading', accuracy: 0.92, attempts: 1, timeMs: 16000, sessionId: 'sess-6', ts: Date.now() - 14400000 },
-      { world: 'storyCastle', round: 2, skill: 'reading', accuracy: 0.72, attempts: 2, timeMs: 27000, sessionId: 'sess-6', ts: Date.now() - 14400000 + 35000 },
-      { world: 'storyCastle', round: 3, skill: 'reading', accuracy: 0.68, attempts: 2, timeMs: 31000, sessionId: 'sess-6', ts: Date.now() - 14400000 + 75000 },
-      { world: 'storyCastle', round: 4, skill: 'reading', accuracy: 0.88, attempts: 1, timeMs: 18000, sessionId: 'sess-6', ts: Date.now() - 14400000 + 115000 },
-      { world: 'storyCastle', round: 5, skill: 'reading', accuracy: 0.85, attempts: 1, timeMs: 22000, sessionId: 'sess-6', ts: Date.now() - 14400000 + 150000 },
-    ],
-  },
-  {
-    id: 'sample-maya',
-    displayName: 'Maya Chen',
-    grade: 'Grade 2',
-    xp: 14200,
-    sessionsCompleted: 4,
-    totalTimeMs: 1000 * 60 * 36,
-    worldsCompleted: { soundForest: true, storyCastle: true, runeRealm: true },
-    sessionLog: [
-      { id: 'sess-m1', world: 'soundForest', startedAt: Date.now() - 86400000 * 3, completedAt: Date.now() - 86400000 * 3 + 550000 },
-      { id: 'sess-m2', world: 'storyCastle', startedAt: Date.now() - 86400000 * 2, completedAt: Date.now() - 86400000 * 2 + 600000 },
-      { id: 'sess-m3', world: 'runeRealm', startedAt: Date.now() - 86400000 * 1, completedAt: Date.now() - 86400000 * 1 + 500000 },
-    ],
-    activityLog: [
-      { world: 'soundForest', round: 1, skill: 'sound', accuracy: 0.90, attempts: 1, timeMs: 15000, sessionId: 'sess-m1', ts: Date.now() - 86400000 * 3 },
-      { world: 'soundForest', round: 2, skill: 'sound', accuracy: 0.85, attempts: 1, timeMs: 17000, sessionId: 'sess-m1', ts: Date.now() - 86400000 * 3 + 30000 },
-      { world: 'soundForest', round: 3, skill: 'sound', accuracy: 0.60, attempts: 3, timeMs: 29000, sessionId: 'sess-m1', ts: Date.now() - 86400000 * 3 + 60000 },
-      { world: 'soundForest', round: 4, skill: 'sound', accuracy: 0.65, attempts: 2, timeMs: 24000, sessionId: 'sess-m1', ts: Date.now() - 86400000 * 3 + 90000 },
-      { world: 'soundForest', round: 5, skill: 'sound', accuracy: 0.75, attempts: 2, timeMs: 21000, sessionId: 'sess-m1', ts: Date.now() - 86400000 * 3 + 120000 },
-      { world: 'storyCastle', round: 1, skill: 'reading', accuracy: 0.80, attempts: 1, timeMs: 18000, sessionId: 'sess-m2', ts: Date.now() - 86400000 * 2 },
-      { world: 'storyCastle', round: 2, skill: 'reading', accuracy: 0.58, attempts: 3, timeMs: 36000, sessionId: 'sess-m2', ts: Date.now() - 86400000 * 2 + 40000 },
-      { world: 'runeRealm', round: 1, skill: 'motor', accuracy: 0.88, attempts: 1, timeMs: 15000, sessionId: 'sess-m3', ts: Date.now() - 86400000 * 1 },
-      { world: 'runeRealm', round: 2, skill: 'motor', accuracy: 0.82, attempts: 1, timeMs: 18000, sessionId: 'sess-m3', ts: Date.now() - 86400000 * 1 + 35000 },
-    ],
-  },
-];
+export const SAMPLE_LEARNERS = [];
 
 function dateLabel(timestamp, options = { dateStyle: 'medium' }) {
   if (!Number.isFinite(timestamp)) return 'Date not recorded';
@@ -359,16 +273,16 @@ function analyzeDomainEvidence(activityLog) {
     }
 
     const roundBreakdown = [...byRound.entries()].map(([key, items]) => {
-      const sample = items[0];
-      const worldDef = WORLD_ROUNDS[sample.world]?.find((r) => r.round === sample.round);
+      const representativeItem = items[0];
+      const worldDef = WORLD_ROUNDS[representativeItem.world]?.find((r) => r.round === representativeItem.round);
       const rAvgAcc = items.reduce((s, i) => s + i.accuracy, 0) / items.length;
       const rTotalAttempts = items.reduce((s, i) => s + (i.attempts || 1), 0);
       return {
         key,
-        worldKey: sample.world,
-        worldName: WORLDS[sample.world]?.name ?? sample.world,
-        round: sample.round,
-        title: worldDef?.title || `Round ${sample.round}`,
+        worldKey: representativeItem.world,
+        worldName: WORLDS[representativeItem.world]?.name ?? representativeItem.world,
+        round: representativeItem.round,
+        title: worldDef?.title || `Round ${representativeItem.round}`,
         description: worldDef?.description || '',
         count: items.length,
         avgAccuracy: rAvgAcc,
@@ -529,15 +443,24 @@ export default function LearningInsightsReport({
   role = 'teacher',
   onRefresh,
   refreshing = false,
-  onSelectSampleLearner,
 }) {
   const [selectedWorld, setSelectedWorld] = useState('all');
   const [activePerspective, setActivePerspective] = useState(role);
-  const [sampleLearnerIndex, setSampleLearnerIndex] = useState(0);
 
-  // If no learner is passed (e.g., demo/unconfigured environment), use sample learner for rich evaluation
-  const effectiveLearner = learner || SAMPLE_LEARNERS[sampleLearnerIndex];
-  const isSamplePreview = !learner;
+  if (!learner) {
+    return (
+      <section id="learning-insights-report" className="panel-card learning-insights" aria-labelledby="learning-insights-empty-title">
+        <div style={{ textAlign: 'center', padding: '40px 24px' }}>
+          <div style={{ fontSize: 40, marginBottom: 14 }}>📊</div>
+          <h2 id="learning-insights-empty-title" style={{ fontSize: 18, color: 'var(--text-hi)', margin: '0 0 10px', fontWeight: 800 }}>
+            No learners linked yet. Generate or enter a student linking code to connect a learner.
+          </h2>
+        </div>
+      </section>
+    );
+  }
+
+  const effectiveLearner = learner;
 
   const allActivity = effectiveLearner?.activityLog ?? [];
   const activityLog = useMemo(
@@ -615,26 +538,6 @@ export default function LearningInsightsReport({
 
   return (
     <section id="learning-insights-report" className="panel-card learning-insights" aria-labelledby="learning-insights-title">
-      {/* Sample learner banner if in evaluation/preview mode */}
-      {isSamplePreview && (
-        <div className="insights-sample-banner" role="status">
-          <span className="insights-sample-badge">DEMO / PREVIEW MODE</span>
-          <span>Showing authentic sample student data ({effectiveLearner.displayName}). Switch sample learner: </span>
-          <div className="insights-sample-toggle">
-            {SAMPLE_LEARNERS.map((sample, idx) => (
-              <button
-                key={sample.id}
-                type="button"
-                className={`insights-chip-btn ${sampleLearnerIndex === idx ? 'active' : ''}`}
-                onClick={() => setSampleLearnerIndex(idx)}
-              >
-                {sample.displayName}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Main Header */}
       <header className="insights-heading">
         <div className="insights-header-main">

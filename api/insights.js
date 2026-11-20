@@ -12,8 +12,90 @@
  */
 
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
-const DEFAULT_MODEL = 'gemini-2.5-flash';
-const FALLBACK_MODEL = 'gemini-2.0-flash';
+const DEFAULT_MODEL = 'gemini-3.8-flash';
+const FALLBACK_MODEL = 'gemini-3.5-flash-lite';
+
+const MAX_BODY_BYTES = 50 * 1024; // 50 KB request-size limit
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute window
+const MAX_REQUESTS_PER_WINDOW = 30; // Max 30 requests per minute per IP
+
+// In-memory sliding rate-limit map: ip -> { count, resetTime }
+const rateLimitMap = new Map();
+
+// Periodic cleanup of stale rate-limit entries every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, entry] of rateLimitMap.entries()) {
+    if (now > entry.resetTime) {
+      rateLimitMap.delete(ip);
+    }
+  }
+}, 5 * 60 * 1000).unref();
+
+/**
+ * RATE LIMITING & CLIENT IP ARCHITECTURE NOTE (Google Cloud Run):
+ *
+ * 1. Distributed Autoscaling Limitation:
+ *    The in-memory rate limiter (rateLimitMap) is local to each Node.js process /
+ *    Cloud Run container instance. When Cloud Run horizontally autoscales across
+ *    multiple instances, memory is NOT shared between instances. Consequently:
+ *    - In-memory rate limiting functions strictly as an effective per-instance burst-protection
+ *      guard (preventing a single container instance from being overwhelmed by rapid bursts).
+ *    - For global, distributed rate limiting across autoscaled instances in high-traffic
+ *      production, Google Cloud Armor (edge DDoS protection / rate limiting) or a centralized
+ *      cache (Google Cloud Memorystore for Redis) must be deployed in front of Cloud Run.
+ *
+ * 2. Proxy Behaviour & X-Forwarded-For Trust Boundary:
+ *    In Google Cloud Run, incoming HTTP requests traverse Google Front End (GFE) proxies.
+ *    If an external client includes an 'X-Forwarded-For' header in their request, GFE
+ *    appends the true connecting IP to the end of the chain (e.g. "client_sent_ip, real_client_ip").
+ *    Crucially:
+ *    - Regex validation (/^[0-9a-fA-F:.]+$/) is purely syntactic hygiene to prevent header
+ *      injection and control characters. It DOES NOT prove or guarantee that an IP is authentic
+ *      or trusted.
+ *    - Without Google Cloud Armor or an API gateway stripping unverified client-supplied headers,
+ *      an untrusted caller can prepend arbitrary IP addresses to X-Forwarded-For to evade
+ *      per-IP rate limits that inspect only the leftmost entry.
+ *    - Therefore, this in-memory rate limiter is strictly an application-layer defense-in-depth
+ *      burst guard, not a zero-trust network boundary or cryptographic identity mechanism.
+ */
+function getClientIp(req) {
+  const headers = req.headers || {};
+  const forwarded = headers['x-forwarded-for'] || headers['x-real-ip'];
+
+  if (typeof forwarded === 'string' && forwarded.length > 0) {
+    const candidate = forwarded.split(',')[0].trim();
+    // Syntactic sanity check only: prevents header injection; does not imply cryptographic trust
+    if (/^[0-9a-fA-F:.]+$/.test(candidate) && candidate.length <= 45) {
+      return candidate;
+    }
+  }
+
+  const remote = req.socket?.remoteAddress;
+  if (typeof remote === 'string' && /^[0-9a-fA-F:.]+$/.test(remote) && remote.length <= 45) {
+    return remote;
+  }
+
+  return '127.0.0.1';
+}
+
+function checkRateLimit(clientIp) {
+  const now = Date.now();
+  const entry = rateLimitMap.get(clientIp);
+
+  if (!entry || now > entry.resetTime) {
+    rateLimitMap.set(clientIp, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    return { allowed: true, remaining: MAX_REQUESTS_PER_WINDOW - 1, resetInSeconds: 60 };
+  }
+
+  if (entry.count >= MAX_REQUESTS_PER_WINDOW) {
+    const resetInSeconds = Math.max(1, Math.ceil((entry.resetTime - now) / 1000));
+    return { allowed: false, remaining: 0, resetInSeconds };
+  }
+
+  entry.count += 1;
+  return { allowed: true, remaining: MAX_REQUESTS_PER_WINDOW - entry.count, resetInSeconds: Math.ceil((entry.resetTime - now) / 1000) };
+}
 
 /**
  * System instruction enforcing strengths-first educational insights
@@ -255,30 +337,237 @@ function generateDeterministicFallback(activityRecords) {
   };
 }
 
+const ALLOWED_WORLDS = new Set([
+  'soundForest',
+  'visionValley',
+  'storyCastle',
+  'runeRealm',
+  'memoryMountains',
+]);
+
+const ALLOWED_DOMAINS = new Set([
+  'phonological',
+  'reading',
+  'writing_motor',
+  'math_number',
+  'memory',
+  'vision',
+  'sound',
+  'motor',
+  'numbersense',
+  'general',
+]);
+
+const ALLOWED_AGE_BANDS = new Set([
+  'Early Years (Ages 3–5)',
+  'Primary (Ages 5–8)',
+  'Intermediate (Ages 8–11)',
+  'Primary (Ages 5–11)',
+  'Not provided',
+]);
+
+const ALLOWED_PERSPECTIVE_ROLES = new Set([
+  'student',
+  'parent',
+  'teacher',
+  'specialist',
+]);
+
+function sanitizePerspectiveRole(rawRole) {
+  if (typeof rawRole !== 'string' || !rawRole.trim()) {
+    return 'teacher';
+  }
+  const normalized = rawRole.trim().toLowerCase();
+  return ALLOWED_PERSPECTIVE_ROLES.has(normalized) ? normalized : 'teacher';
+}
+
+// Canonical round activities per world for strict matching
+const APPROVED_ROUND_TITLES = {
+  soundForest: [
+    'Slash Quest',
+    'Sound Match',
+    'Phoneme Blend',
+    'Pronounce It',
+    'Word Recognition',
+  ],
+  visionValley: [
+    'Follow',
+    'Catch',
+    'Select',
+    'Slash',
+    'Mixed Magic',
+  ],
+  storyCastle: [
+    'Magic Words',
+    'Missing Word',
+    'Read Aloud',
+    'Story Path',
+    'Story Question',
+  ],
+  runeRealm: [
+    'Magic Circle',
+    'Magic Letter (A)',
+    'Magic Number (3)',
+    'Magic Star',
+    'Ancient Rune',
+  ],
+  memoryMountains: [
+    'Remember Objects',
+    "What's Missing?",
+    'Remember the Order',
+    'Follow the Pattern',
+    'Memory Master Challenge',
+  ],
+};
+
+function sanitizeActivityName(rawActivity, worldKey, roundNum) {
+  const round = Math.max(1, Math.min(20, roundNum));
+  const fallback = `Round ${round}`;
+  if (typeof rawActivity !== 'string' || !rawActivity.trim()) {
+    return fallback;
+  }
+
+  const cleaned = rawActivity.trim();
+
+  // Match against approved round titles for this world (case-insensitive)
+  const approvedList = APPROVED_ROUND_TITLES[worldKey] || [];
+  for (const approved of approvedList) {
+    if (cleaned.toLowerCase() === approved.toLowerCase()) {
+      return approved;
+    }
+  }
+
+  // Allow standard safe "Round X" format
+  if (/^round\s+\d+$/i.test(cleaned)) {
+    return `Round ${round}`;
+  }
+
+  // If passed an approved domain/skill name, map to canonical round title if in range
+  if (ALLOWED_DOMAINS.has(cleaned.toLowerCase())) {
+    if (round >= 1 && round <= approvedList.length) {
+      return approvedList[round - 1];
+    }
+    return fallback;
+  }
+
+  // Any unapproved free-text / arbitrary string is strictly normalized to "Round X"
+  // to ensure zero identifying information or PII can enter the prompt payload.
+  return fallback;
+}
+
+function sanitizeDomain(rawDomain) {
+  if (typeof rawDomain !== 'string' || !rawDomain.trim()) {
+    return 'general';
+  }
+  const normalized = rawDomain.trim().toLowerCase();
+  return ALLOWED_DOMAINS.has(normalized) ? normalized : 'general';
+}
+
+function sanitizePseudonym(rawPseudonym) {
+  if (typeof rawPseudonym !== 'string' || !rawPseudonym.trim()) {
+    return 'learner_anon';
+  }
+  const trimmed = rawPseudonym.trim();
+  if (trimmed === 'learner_anon') {
+    return 'learner_anon';
+  }
+  // Must match strict pseudonym token pattern: learner_[4-16 hex chars]
+  if (/^learner_[a-f0-9]{4,16}$/i.test(trimmed)) {
+    return trimmed.toLowerCase();
+  }
+  // Arbitrary names, emails, student IDs, or free-text are rejected
+  return 'learner_anon';
+}
+
+function sanitizeAgeBand(rawAgeBand) {
+  if (typeof rawAgeBand !== 'string' || !rawAgeBand.trim()) {
+    return 'Not provided';
+  }
+  const trimmed = rawAgeBand.trim();
+  // Never invent a default age band; only accept explicit approved values
+  return ALLOWED_AGE_BANDS.has(trimmed) ? trimmed : 'Not provided';
+}
+
 /**
  * Strips any potential identifying user info from payload.
+ * Enforces strict allowlists for worlds, domains, age bands, and pseudonyms.
+ * Discards records with invalid worlds (never silently defaults to soundForest).
  */
 function sanitizePayload(raw) {
-  if (!raw || typeof raw !== 'object') return { pseudonym: 'learner_anon', activities: [] };
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    return { pseudonym: 'learner_anon', ageBand: 'Not provided', perspectiveRole: 'teacher', activities: [] };
+  }
 
-  const activities = (Array.isArray(raw.activities) ? raw.activities : [])
-    .slice(0, 50)
-    .map((item, idx) => ({
-      index: idx + 1,
-      world: String(item.world || 'unknown').slice(0, 32),
-      round: Number(item.round) || 1,
-      activity: String(item.activity || item.title || `Round ${item.round || 1}`).slice(0, 64),
-      domain: String(item.domain || item.skill || 'general').slice(0, 48),
-      accuracy: Math.max(0, Math.min(1, Number(item.accuracy) || 0)),
-      attempts: Math.max(1, Math.min(20, Number(item.attempts) || 1)),
-      duration_seconds: Math.max(1, Math.min(3600, Math.round((Number(item.timeMs) || Number(item.durationMs) || 10000) / 1000))),
-      hints: Math.max(0, Math.min(10, Number(item.hints) || 0)),
-      completion_status: item.completion_status === 'completed' || item.completed !== false ? 'completed' : 'in-progress',
-    }));
+  const pseudonym = sanitizePseudonym(raw.pseudonym);
+  const ageBand = sanitizeAgeBand(raw.ageBand);
+  const perspectiveRole = sanitizePerspectiveRole(raw.perspectiveRole);
+
+  const rawActivities = Array.isArray(raw.activities) ? raw.activities : [];
+  const activities = [];
+
+  for (let idx = 0; idx < Math.min(rawActivities.length, 50); idx++) {
+    const item = rawActivities[idx];
+    if (!item || typeof item !== 'object' || Array.isArray(item)) {
+      continue;
+    }
+
+    const rawWorld = typeof item.world === 'string' ? item.world.trim() : '';
+    // Explicit world validation: must be in ALLOWED_WORLDS. Discard invalid worlds!
+    if (!ALLOWED_WORLDS.has(rawWorld)) {
+      continue;
+    }
+    const world = rawWorld;
+
+    const rawRound = Math.floor(Number(item.round));
+    const round = Number.isFinite(rawRound) ? Math.max(1, Math.min(20, rawRound)) : 1;
+
+    const activity = sanitizeActivityName(item.activity || item.title, world, round);
+    const domain = sanitizeDomain(item.domain || item.skill);
+
+    const rawAcc = Number(item.accuracy);
+    const accuracy = Number.isFinite(rawAcc) ? Math.max(0, Math.min(1, rawAcc)) : 0;
+
+    const rawAttempts = Math.floor(Number(item.attempts));
+    const attempts = Number.isFinite(rawAttempts) ? Math.max(1, Math.min(20, rawAttempts)) : 1;
+
+    const rawDuration = Number(item.duration_seconds ?? ((Number(item.timeMs) || Number(item.durationMs) || 10000) / 1000));
+    const duration_seconds = Number.isFinite(rawDuration) ? Math.max(1, Math.min(3600, Math.round(rawDuration))) : 10;
+
+    const rawHints = Math.floor(Number(item.hints));
+    const hints = Number.isFinite(rawHints) ? Math.max(0, Math.min(10, rawHints)) : 0;
+
+    // Completion status validation:
+    // 1. Explicit 'in-progress' must NEVER become 'completed' regardless of item.completed.
+    // 2. Explicit item.completed === false must always yield 'in-progress'.
+    // 3. Only explicit 'completed' or item.completed === true yields 'completed'.
+    // 4. Default if unspecified is 'in-progress'.
+    let completion_status = 'in-progress';
+    if (item.completion_status === 'in-progress' || item.completed === false) {
+      completion_status = 'in-progress';
+    } else if (item.completion_status === 'completed' || item.completed === true) {
+      completion_status = 'completed';
+    } else {
+      completion_status = 'in-progress';
+    }
+
+    activities.push({
+      index: activities.length + 1,
+      world,
+      round,
+      activity,
+      domain,
+      accuracy,
+      attempts,
+      duration_seconds,
+      hints,
+      completion_status,
+    });
+  }
 
   return {
-    pseudonym: `learner_${String(raw.pseudonym || 'explorer').slice(0, 16).replace(/[^a-zA-Z0-9_]/g, '')}`,
-    ageBand: String(raw.ageBand || 'Primary (Ages 5-11)').slice(0, 32),
+    pseudonym,
+    ageBand,
+    perspectiveRole,
     activities,
   };
 }
@@ -305,17 +594,56 @@ export default async function handler(req, res) {
     return;
   }
 
-  // Parse incoming body if needed
+  // 1. In-memory Rate Limiting per IP with trusted client-IP extraction
+  const clientIp = getClientIp(req);
+  const rateLimit = checkRateLimit(clientIp);
+  res.setHeader('X-RateLimit-Limit', String(MAX_REQUESTS_PER_WINDOW));
+  res.setHeader('X-RateLimit-Remaining', String(rateLimit.remaining));
+  if (!rateLimit.allowed) {
+    res.setHeader('Retry-After', String(rateLimit.resetInSeconds));
+    res.statusCode = 429;
+    res.end(JSON.stringify({ error: 'Too many requests. Please try again later.' }));
+    return;
+  }
+
+  // 2. Request Size Validation (Header Check)
+  const contentLength = req.headers ? Number(req.headers['content-length']) : null;
+  if (Number.isFinite(contentLength) && contentLength > MAX_BODY_BYTES) {
+    res.statusCode = 413;
+    res.end(JSON.stringify({ error: 'Payload Too Large. Maximum allowed request size is 50KB.' }));
+    return;
+  }
+
+  // 3. Parse incoming body with size limit while streaming
   let body = req.body;
-  if (!body && typeof req.on === 'function') {
+  if (!body) {
     try {
       const chunks = [];
-      for await (const chunk of req) chunks.push(chunk);
+      let totalBytes = 0;
+      for await (const chunk of req) {
+        const buf = typeof chunk === 'string' ? Buffer.from(chunk) : chunk;
+        totalBytes += buf.length;
+        if (totalBytes > MAX_BODY_BYTES) {
+          res.statusCode = 413;
+          res.end(JSON.stringify({ error: 'Payload Too Large. Maximum allowed request size is 50KB.' }));
+          return;
+        }
+        chunks.push(buf);
+      }
       const text = Buffer.concat(chunks).toString('utf8');
-      body = text ? JSON.parse(text) : {};
+      body = JSON.parse(text);
     } catch {
-      body = {};
+      res.statusCode = 400;
+      res.end(JSON.stringify({ error: 'Invalid JSON payload in request body.' }));
+      return;
     }
+  }
+
+  // 4. Strict input structure validation
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    res.statusCode = 400;
+    res.end(JSON.stringify({ error: 'Invalid payload structure. Expected JSON object.' }));
+    return;
   }
 
   const sanitized = sanitizePayload(body);
@@ -338,7 +666,7 @@ export default async function handler(req, res) {
   }
 
   // Gemini API Request payload
-  const promptText = `Analyze the following pseudonymised gameplay activities recorded in Lumora World for ${sanitized.pseudonym} (${sanitized.ageBand}).
+  const promptText = `Analyze the following pseudonymised gameplay activities recorded in Lumora World for ${sanitized.pseudonym} (${sanitized.ageBand}) from the educational perspective of a ${sanitized.perspectiveRole}.
 
 Recorded Activity Records:
 ${JSON.stringify(sanitized.activities, null, 2)}
@@ -448,8 +776,7 @@ Provide strengths-first, world-wise learning insights in structured JSON matchin
     }
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.warn(`[Gemini API] Request failed with HTTP ${response.status}: ${errorText.slice(0, 200)}`);
+      console.warn(`[Gemini API] Request returned HTTP status ${response.status}`);
       throw new Error(`Gemini API returned status ${response.status}`);
     }
 
@@ -485,3 +812,20 @@ Provide strengths-first, world-wise learning insights in structured JSON matchin
     }));
   }
 }
+
+export {
+  sanitizePayload,
+  sanitizePseudonym,
+  sanitizeAgeBand,
+  sanitizePerspectiveRole,
+  sanitizeDomain,
+  sanitizeActivityName,
+  getClientIp,
+  checkRateLimit,
+  generateDeterministicFallback,
+  ALLOWED_WORLDS,
+  ALLOWED_DOMAINS,
+  ALLOWED_AGE_BANDS,
+  ALLOWED_PERSPECTIVE_ROLES,
+  APPROVED_ROUND_TITLES,
+};

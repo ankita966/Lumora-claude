@@ -153,7 +153,7 @@ export default function SchoolAdminDashboard() {
             onChange={(e) => setInspectStudentId(e.target.value)}
             style={{ minHeight: 38, padding: '6px 12px', background: 'var(--bg-panel, #111424)', color: 'var(--text-hi, #E2E8F0)', border: '1px solid var(--border-glow, rgba(184, 226, 250, 0.25))', borderRadius: 4 }}
           >
-            <option value="">All enrolled students (or sample preview)</option>
+            <option value="">Select an enrolled student</option>
             {studentUsers.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.display_name || s.email || 'Learner'}
@@ -161,7 +161,7 @@ export default function SchoolAdminDashboard() {
             ))}
           </select>
         </label>
-        <LearningInsightsEntryPoint learner={inspectStudent || { displayName: 'Learner' }} />
+        <LearningInsightsEntryPoint learner={inspectStudent} />
       </div>
     </div>
 

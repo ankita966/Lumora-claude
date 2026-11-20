@@ -2,7 +2,7 @@
 -- Relationship rows are written only by narrowly scoped SECURITY DEFINER RPCs;
 -- browser clients receive no direct INSERT policy on either relationship table.
 
-create table public.student_link_codes (
+create table if not exists public.student_link_codes (
   student_id uuid primary key references public.profiles(id) on delete cascade,
   code_hash text not null unique,
   expires_at timestamptz not null,
@@ -19,7 +19,8 @@ set search_path = public
 as $$
 declare
   v_student_id uuid := auth.uid();
-  v_code text := replace(gen_random_uuid()::text, '-', '');
+  v_raw text := upper(substring(replace(gen_random_uuid()::text, '-', '') from 1 for 6));
+  v_code text := 'LUMORA-' || v_raw;
   v_expiration timestamptz := now() + interval '30 minutes';
 begin
   if v_student_id is null or not public.has_role('student') then
@@ -30,7 +31,7 @@ begin
   where codes.student_id = v_student_id or codes.expires_at <= now();
 
   insert into public.student_link_codes (student_id, code_hash, expires_at)
-  values (v_student_id, md5(lower(v_code)), v_expiration);
+  values (v_student_id, md5(lower(v_raw)), v_expiration);
 
   return query select v_code, v_expiration;
 end;
@@ -45,18 +46,33 @@ as $$
 declare
   v_student_id uuid;
   v_display_name text;
-  v_code text := regexp_replace(lower(coalesce(p_link_code, '')), '[^a-f0-9]', '', 'g');
+  v_caller_id uuid := auth.uid();
+  v_code text := regexp_replace(lower(coalesce(p_link_code, '')), '[^a-z0-9]', '', 'g');
+  v_raw text := regexp_replace(v_code, '^lumora', '');
+  v_is_parent boolean;
+  v_is_teacher boolean;
+  v_is_specialist boolean;
 begin
-  if auth.uid() is null or not public.has_role('parent') then
-    raise exception 'An authenticated parent account is required.' using errcode = '42501';
+  if v_caller_id is null then
+    raise exception 'An authenticated account is required.' using errcode = '42501';
   end if;
-  if length(v_code) <> 32 then
-    raise exception 'Enter the 32-character family link code from the student account.' using errcode = '22023';
+
+  v_is_parent := public.has_role('parent');
+  v_is_teacher := public.has_role('teacher');
+  v_is_specialist := public.has_role('specialist');
+
+  if not (v_is_parent or v_is_teacher or v_is_specialist) then
+    raise exception 'An authorized parent, teacher, or specialist account is required.' using errcode = '42501';
+  end if;
+
+  if length(v_code) = 0 then
+    raise exception 'Enter the link code from the student account.' using errcode = '22023';
   end if;
 
   select codes.student_id into v_student_id
   from public.student_link_codes as codes
-  where codes.code_hash = md5(v_code) and codes.expires_at > now()
+  where (codes.code_hash = md5(v_code) or codes.code_hash = md5(v_raw))
+    and codes.expires_at > now()
   for update;
 
   if v_student_id is null then
@@ -69,9 +85,19 @@ begin
     raise exception 'The account for this code is not a student account.' using errcode = '22023';
   end if;
 
-  insert into public.student_guardians (student_id, parent_id)
-  values (v_student_id, auth.uid())
-  on conflict (student_id, parent_id) do nothing;
+  if v_is_teacher then
+    insert into public.student_access_grants (student_id, grantee_id, role)
+    values (v_student_id, v_caller_id, 'teacher')
+    on conflict (student_id, grantee_id, role) do nothing;
+  elsif v_is_specialist then
+    insert into public.student_access_grants (student_id, grantee_id, role)
+    values (v_student_id, v_caller_id, 'specialist')
+    on conflict (student_id, grantee_id, role) do nothing;
+  elsif v_is_parent then
+    insert into public.student_guardians (student_id, parent_id)
+    values (v_student_id, v_caller_id)
+    on conflict (student_id, parent_id) do nothing;
+  end if;
 
   delete from public.student_link_codes as codes where codes.student_id = v_student_id;
   select profiles.display_name into v_display_name

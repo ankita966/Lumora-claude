@@ -29,10 +29,10 @@ const WORLD_COMPONENTS = {
 };
 
 function StudentProgressHydrator() {
-  const { user, roles, configured, isDemo } = useAuth();
+  const { user, roles, configured } = useAuth();
   const hydrateProgress = useGameStore((s) => s.hydrateProgress);
   useEffect(() => {
-    if (!configured || isDemo || !user || !roles.includes('student')) return undefined;
+    if (!configured || !user || !roles.includes('student')) return undefined;
     let active = true;
     loadStudentProgress(user.id)
       .then((progress) => {
@@ -44,7 +44,7 @@ function StudentProgressHydrator() {
     return () => {
       active = false;
     };
-  }, [configured, hydrateProgress, isDemo, user, roles]);
+  }, [configured, hydrateProgress, user, roles]);
   return null;
 }
 

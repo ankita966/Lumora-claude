@@ -23,8 +23,12 @@ export default function ParentDashboard() {
 
   useEffect(() => {
     let active = true;
+    if (!user) {
+      setStatus('ready');
+      return undefined;
+    }
     setStatus('loading');
-    loadLinkedStudents(user?.id || 'parent-viewer', 'parent')
+    loadLinkedStudents(user.id, 'parent')
       .then((linkedStudents) => {
         if (!active) return;
         setStudents(linkedStudents);
@@ -36,6 +40,7 @@ export default function ParentDashboard() {
   }, [user, reloadVersion]);
 
   const selected = students.find((student) => student.id === selectedId) ?? null;
+
   const submitLinkCode = async (event) => {
     event.preventDefault();
     if (!linkCode.trim()) return;
@@ -57,43 +62,83 @@ export default function ParentDashboard() {
         <h2 style={{ color: 'var(--text-hi)', fontWeight: 800 }}>👪 {selected ? `${selected.displayName}'s Progress` : `${displayName}'s Parent Portal`}</h2>
         <p style={{ color: 'var(--text-mid)', fontSize: 13 }}>A gentle look at how your child is practicing — not a diagnosis, just progress.</p>
       </div>
-      <LearningInsightsEntryPoint learner={selected || { displayName: 'Learner' }} />
-
-      {status === 'loading' && <div className="panel-card" style={{ maxWidth: 620, margin: '0 auto 24px', textAlign: 'center' }}>Loading linked child progress…</div>}
-      {status === 'error' && <div className="panel-card" style={{ maxWidth: 620, margin: '0 auto 24px', textAlign: 'center' }}>Unable to load linked child progress. Please try again.</div>}
-      {status === 'ready' && !students.length && <div className="panel-card" style={{ maxWidth: 620, margin: '0 auto 24px', textAlign: 'center' }}>No child is linked to this parent account yet. Ask the learner to create a family link code on their Student Portal, then enter it below.</div>}
-      {students.length > 1 && <div className="mode-row" style={{ marginBottom: 22 }}>{students.map((student) => <button key={student.id} className={`mode-chip ${student.id === selectedId ? 'active' : ''}`} onClick={() => setSelectedId(student.id)}>{student.displayName}</button>)}</div>}
+      <LearningInsightsEntryPoint learner={selected} />
 
       <section className="panel-card" style={{ maxWidth: 620, margin: '0 auto 24px' }} aria-labelledby="link-child-title">
         <h3 id="link-child-title" style={{ marginTop: 0 }}>Link a child</h3>
-        <p>On the child’s signed-in Student Portal, create a family link code and enter it here. The code expires after 30 minutes and links the child’s existing profile and progress.</p>
+        <p style={{ color: 'var(--text-mid)', fontSize: 13, margin: '0 0 12px' }}>
+          On the child’s signed-in Student Portal, generate a student linking code (e.g. <code>LUMORA-XXXXXX</code>) and enter it here. The code expires after 30 minutes and securely connects the learner to your account.
+        </p>
         <form onSubmit={submitLinkCode} style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-          <label style={{ display: 'grid', flex: '1 1 240px', gap: 6, color: 'var(--text-mid)' }}>Family link code
-            <input value={linkCode} onChange={(event) => setLinkCode(event.target.value)} autoComplete="off" inputMode="text" maxLength={40} placeholder="Enter the code from the Student Portal" />
+          <label style={{ display: 'grid', flex: '1 1 240px', gap: 6, color: 'var(--text-mid)', fontSize: 13 }}>
+            Family link code
+            <input
+              value={linkCode}
+              onChange={(event) => setLinkCode(event.target.value)}
+              autoComplete="off"
+              inputMode="text"
+              maxLength={40}
+              placeholder="e.g. LUMORA-XXXXXX"
+              style={{ fontFamily: 'var(--font-mono, monospace)', fontWeight: 700 }}
+            />
           </label>
-          <button type="submit" className="ref-action-btn-primary" disabled={linkState.status === 'loading' || !linkCode.trim()} style={{ alignSelf: 'end' }}>{linkState.status === 'loading' ? 'Linking…' : 'Link child'}</button>
+          <button
+            type="submit"
+            className="ref-action-btn-primary"
+            disabled={linkState.status === 'loading' || !linkCode.trim()}
+            style={{ alignSelf: 'end' }}
+          >
+            {linkState.status === 'loading' ? 'Linking…' : 'Link child'}
+          </button>
         </form>
-        {linkState.message && <p role={linkState.status === 'error' ? 'alert' : 'status'} className={linkState.status === 'error' ? 'auth-error' : ''}>{linkState.message}</p>}
+        {linkState.message && (
+          <p
+            role={linkState.status === 'error' ? 'alert' : 'status'}
+            className={linkState.status === 'error' ? 'auth-error' : ''}
+            style={{ marginTop: 10, fontSize: 13, color: linkState.status === 'success' ? 'var(--cyan)' : undefined }}
+          >
+            {linkState.message}
+          </p>
+        )}
       </section>
 
-      <div className="dash-grid" style={{ marginBottom: 24 }}>
-        <div className="panel-card">
-          <div className="dash-label">Sessions completed</div>
-          <div className="dash-stat">{selected?.sessionsCompleted ?? '—'}</div>
+      {status === 'loading' && <div className="panel-card" style={{ maxWidth: 620, margin: '0 auto 24px', textAlign: 'center' }}>Loading linked child progress…</div>}
+      {status === 'error' && <div className="panel-card" style={{ maxWidth: 620, margin: '0 auto 24px', textAlign: 'center' }}>Unable to load linked child progress. Please try again.</div>}
+      {status === 'ready' && !students.length && (
+        <div className="panel-card" style={{ maxWidth: 620, margin: '0 auto 24px', textAlign: 'center' }}>
+          <p style={{ margin: 0, fontWeight: 700 }}>No learners linked yet. Generate or enter a student linking code to connect a learner.</p>
         </div>
-        <div className="panel-card">
-          <div className="dash-label">Time spent learning</div>
-          <div className="dash-stat">{selected ? formatTime(selected.totalTimeMs) : '—'}</div>
+      )}
+      {students.length > 1 && (
+        <div className="mode-row" style={{ marginBottom: 22 }}>
+          {students.map((student) => (
+            <button key={student.id} className={`mode-chip ${student.id === selectedId ? 'active' : ''}`} onClick={() => setSelectedId(student.id)}>
+              {student.displayName}
+            </button>
+          ))}
         </div>
-        <div className="panel-card">
-          <div className="dash-label">Worlds completed</div>
-          <div className="dash-stat">{selected ? `${Object.keys(selected.worldsCompleted).length}/5` : '—'}</div>
+      )}
+
+      {selected && (
+        <div className="dash-grid" style={{ marginBottom: 24 }}>
+          <div className="panel-card">
+            <div className="dash-label">Sessions completed</div>
+            <div className="dash-stat">{selected?.sessionsCompleted ?? '—'}</div>
+          </div>
+          <div className="panel-card">
+            <div className="dash-label">Time spent learning</div>
+            <div className="dash-stat">{formatTime(selected.totalTimeMs)}</div>
+          </div>
+          <div className="panel-card">
+            <div className="dash-label">Worlds completed</div>
+            <div className="dash-stat">{`${Object.keys(selected.worldsCompleted || {}).length}/5`}</div>
+          </div>
+          <div className="panel-card">
+            <div className="dash-label">Total attempts logged</div>
+            <div className="dash-stat">{selected?.activityLog?.length ?? '—'}</div>
+          </div>
         </div>
-        <div className="panel-card">
-          <div className="dash-label">Total attempts logged</div>
-          <div className="dash-stat">{selected?.activityLog.length ?? '—'}</div>
-        </div>
-      </div>
+      )}
 
       <LearningInsightsReport learner={selected} role="parent" onRefresh={() => setReloadVersion((version) => version + 1)} />
 

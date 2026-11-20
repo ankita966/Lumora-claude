@@ -193,3 +193,35 @@ This logbook records all architectural decisions, security audits, database migr
 * **Zero Regressions:** All existing learning worlds, MediaPipe camera interactions, authentication flows, routing, and existing six report sections preserved intact.
 * **Build Verification:** `npm run build` succeeds with 0 errors.
 
+---
+
+### [2026-11-21] — Session 12: Production Critical Fix — Real Student Linking & Complete Demo Mode Eradication
+* **Status:** ✅ Complete, Tested & Verified (Build passes with 0 errors)
+* **Author:** Principal Full-Stack & Security Systems Engineer
+
+#### 1. Complete Demo Mode Removal
+* **Eradicated Sample Learners:** Completely removed "Alex Rivera" and "Maya Chen" hardcoded sample learner records and preview controls.
+* **Eliminated Demo Auth Fallbacks:** Stripped out demo account creation (`createDemoAccount`, `signInDemoAccount`, `demoAccount` state, `enterDemoPortal`) from `AuthScreen.jsx` and `AuthProvider.jsx`. Removed `isDemo` flag across `App.jsx` and `AuthProvider.jsx`.
+* **Clean Empty States:** Standardized all viewer dashboards (`ParentDashboard`, `TeacherDashboard`, `SpecialistDashboard`, `SchoolAdminDashboard`, and `LearningInsightsReport`) to display the clean empty state when no learner is linked:
+  > "No learners linked yet. Generate or enter a student linking code to connect a learner."
+* **Removed Demo Banners & CSS:** Removed all `.insights-sample-banner`, `.insights-sample-badge`, `.insights-sample-toggle`, and `.demo-badge` classes.
+
+#### 2. Real Supabase-Backed Student Linking Workflow
+* **Server-Side Code Generation:** `createStudentLinkCode` calls the secure database RPC `public.create_student_link_code()`, generating 6-character codes (`LUMORA-XXXXXX`) with 30-minute expiration enforced in Postgres.
+* **Role-Based Claiming (`claimStudentLinkCode`):**
+  * Caller identity and role verified through `public.claim_student_link_code(p_link_code)` RPC.
+  * Teachers and Specialists are persisted to `student_access_grants` table (`role = 'teacher' | 'specialist'`).
+  * Parents are persisted to `student_guardians` table (`parent_id = auth.uid()`).
+  * Single-use consumption: Claimed codes are immediately deleted from `student_link_codes` to prevent replay.
+* **Strict Row Level Security (RLS):**
+  * Read access to `profiles`, `student_world_progress`, `round_attempts`, and `game_sessions` is granted strictly through Postgres RLS policies using `public.can_access_student(student_id)`.
+  * Unlinked viewers have zero access to unauthorized student records.
+* **Zero LocalStorage Simulation:** Completely eliminated localStorage mock registries (`lumora-active-link-codes`, `lumora-parent-linked-students`) and in-memory mock linking.
+* **Student Sharing Component (`StudentLinkCode.jsx`):** Refocused to a single, secure action for students to generate, display, and copy their link code with clear expiration indicators.
+
+#### 3. Verification & Test Audit
+* All 21/21 API validation tests passed (`scratch/phase2-validation.test.mjs`).
+* All 12/12 production linking and demo eradication audit checks passed (`scratch/test-student-linking-production.mjs`).
+* All 8/8 Supabase linking simulation flow checks passed (`scratch/test-supabase-linking-flow.mjs`).
+* Production build `npm run build` succeeds with 0 errors.
+
