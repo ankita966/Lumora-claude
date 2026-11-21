@@ -12,8 +12,8 @@
  */
 
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
-const DEFAULT_MODEL = 'gemini-3.8-flash';
-const FALLBACK_MODEL = 'gemini-3.5-flash-lite';
+const DEFAULT_MODEL = 'gemini-2.5-flash';
+const FALLBACK_MODEL = 'gemini-2.5-flash-lite';
 
 const MAX_BODY_BYTES = 50 * 1024; // 50 KB request-size limit
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute window

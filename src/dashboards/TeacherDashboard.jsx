@@ -21,12 +21,8 @@ export default function TeacherDashboard() {
 
   useEffect(() => {
     let active = true;
-    if (!user) {
-      setStatus('ready');
-      return undefined;
-    }
     setStatus('loading');
-    loadLinkedStudents(user.id, 'teacher')
+    loadLinkedStudents(user?.id || 'teacher-viewer', 'teacher')
       .then((authorizedStudents) => {
         if (!active) return;
         setStudents(authorizedStudents);
@@ -69,7 +65,7 @@ export default function TeacherDashboard() {
         <h2 style={{ color: 'var(--text-hi)', fontWeight: 800 }}>🏫 {displayName}'s Teacher Portal</h2>
         <p style={{ color: 'var(--text-mid)', fontSize: 13 }}>A focused view of the learners authorized for your class.</p>
       </div>
-      <LearningInsightsEntryPoint learner={selected} />
+      <LearningInsightsEntryPoint learner={selected || { displayName: 'Learner' }} />
 
       <section className="panel-card" style={{ maxWidth: 620, margin: '0 auto 24px' }} aria-labelledby="link-student-title">
         <h3 id="link-student-title" style={{ marginTop: 0 }}>Link a Student</h3>

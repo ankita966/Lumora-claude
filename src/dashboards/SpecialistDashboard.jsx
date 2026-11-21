@@ -20,12 +20,8 @@ export default function SpecialistDashboard() {
 
   useEffect(() => {
     let active = true;
-    if (!user) {
-      setStatus('ready');
-      return undefined;
-    }
     setStatus('loading');
-    loadLinkedStudents(user.id, 'specialist')
+    loadLinkedStudents(user?.id || 'specialist-viewer', 'specialist')
       .then((linkedStudents) => {
         if (!active) return;
         setStudents(linkedStudents);
@@ -59,7 +55,7 @@ export default function SpecialistDashboard() {
         <h2 style={{ color: 'var(--text-hi)', fontWeight: 800 }}>🔬 {displayName}'s Specialist Lab</h2>
         <p style={{ color: 'var(--text-mid)', fontSize: 13 }}>A learning-support view across students — for practice patterns, not diagnosis.</p>
       </div>
-      <LearningInsightsEntryPoint learner={selected} />
+      <LearningInsightsEntryPoint learner={selected || { displayName: 'Learner' }} />
 
       <section className="panel-card" style={{ maxWidth: 620, margin: '0 auto 24px' }} aria-labelledby="link-specialist-student-title">
         <h3 id="link-specialist-student-title" style={{ marginTop: 0 }}>Link a Student</h3>

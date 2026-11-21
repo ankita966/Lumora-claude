@@ -171,9 +171,7 @@ function ActivityBarChart({ roundsData, color = '#38B6FF' }) {
 
           return (
             <g key={item.round || idx} className="lumora-bar-group">
-              <title>
-                {item.title}: {hasPlayed ? `${Math.round(acc * 100)}% accuracy (${item.attempts || 1} attempt${(item.attempts || 1) === 1 ? '' : 's'})` : 'Not yet attempted'}
-              </title>
+              <title>{`${item.title}: ${hasPlayed ? `${Math.round(acc * 100)}% accuracy (${item.attempts || 1} attempt${(item.attempts || 1) === 1 ? '' : 's'})` : 'Not yet attempted'}`}</title>
               {/* Background slot */}
               <rect
                 x={x}
@@ -333,9 +331,7 @@ function SessionLineChart({ sessionPoints, color = '#38B6FF' }) {
               stroke="var(--bg-space, #090B14)"
               strokeWidth="2"
             />
-            <title>
-              Session {idx + 1}: {Math.round(p.pt.accuracy * 100)}% ({new Date(p.pt.ts).toLocaleDateString()})
-            </title>
+            <title>{`Session ${idx + 1}: ${Math.round(p.pt.accuracy * 100)}% (${new Date(p.pt.ts).toLocaleDateString()})`}</title>
             <text
               x={p.x}
               y={p.y - 10}

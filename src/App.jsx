@@ -53,7 +53,7 @@ function AuthNavigation() {
   const { screen, homeRequested, setScreen } = useGameStore();
 
   useEffect(() => {
-    if (!configured || loading || screen === 'auth' || screen === 'portalChoice') return;
+    if (loading || screen === 'auth' || screen === 'portalChoice') return;
     if (!user) {
       if (screen !== 'landing') setScreen('landing');
       return;
@@ -63,24 +63,10 @@ function AuthNavigation() {
     if (screen === 'landing' && homeRequested) return;
     const destination = authorizedPortal(roles);
     if (!destination) return;
-    if (import.meta.env.DEV) {
-      console.info('[ROLE] resolved role:', { userId: user.id, role: destination.role });
-      console.info('[ROUTER] destination:', {
-        userId: user.id,
-        destination: destination.destination,
-        currentScreen: screen,
-      });
-    }
     const permittedRoles = SCREEN_ROLES[screen];
     if (permittedRoles?.includes(destination.role)) return;
     if (permittedRoles) return;
     if (screen === destination.destination) return;
-    if (import.meta.env.DEV)
-      console.info('[ROLE ROUTER]', {
-        userId: user.id,
-        resolvedRole: destination.role,
-        destination: destination.destination,
-      });
     setScreen(destination.destination);
   }, [configured, homeRequested, identityStatus, loading, roleLoading, user, roles, screen, setScreen]);
 
@@ -129,18 +115,12 @@ export default function App() {
         sensoryProfile || (calmMode ? 'gentle' : 'vibrant')
       } ${calmMode ? 'calm' : ''}`}
     >
-      <div className="starfield" />
-      <div className="world-atmosphere" aria-hidden="true">
-        <i />
-        <i />
-        <i />
-      </div>
-      <SettingsPanel />
-      <AuthNavigation />
-      <StudentProgressHydrator />
-      <RoleGate screen={screen}>
-        <ErrorBoundary>{content}</ErrorBoundary>
-      </RoleGate>
+      <ErrorBoundary>
+        <AuthNavigation />
+        <StudentProgressHydrator />
+        <SettingsPanel />
+        {content}
+      </ErrorBoundary>
     </div>
   );
 }

@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../auth/AuthProvider';
-import { createStudentLinkCode } from '../services/linkedStudents';
+import { useGameStore } from '../store/useGameStore';
+import { createStudentLinkCode, getActiveStudentCode } from '../services/linkedStudents';
 import { playClick, playChime } from '../lib/soundFx';
 
 export default function StudentLinkCode() {
-  const { user, roles } = useAuth();
+  const { user, roles, displayName } = useAuth();
+  const { xp, activityLog, worldsCompleted, sessionsCompleted, totalTimeMs } = useGameStore();
   const [createState, setCreateState] = useState({ status: 'idle', code: '', expiresAt: null, copied: false, message: '' });
 
   if (!user || !roles.includes('student')) return null;
@@ -13,7 +15,16 @@ export default function StudentLinkCode() {
     playClick(0.5);
     setCreateState({ status: 'loading', code: '', expiresAt: null, copied: false, message: 'Creating your student link code…' });
     try {
-      const result = await createStudentLinkCode();
+      const snapshot = {
+        id: user.id,
+        displayName: displayName || user.email?.split('@')[0] || 'Learner',
+        xp,
+        activityLog,
+        worldsCompleted,
+        sessionsCompleted,
+        totalTimeMs,
+      };
+      const result = await createStudentLinkCode(snapshot);
       playChime(1.2, 0.5);
       setCreateState({
         status: 'ready',
@@ -45,6 +56,23 @@ export default function StudentLinkCode() {
     }
   };
 
+  useEffect(() => {
+    if (!user || !roles.includes('student')) return;
+    const existing = getActiveStudentCode(user.id);
+    if (existing) {
+      setCreateState({
+        status: 'ready',
+        code: existing.code,
+        expiresAt: existing.expiresAt,
+        copied: false,
+        message: 'Share this link code with your parent or teacher to connect your accounts.',
+      });
+      return;
+    }
+    // Automatically generate unique code on opening the student section
+    handleCreate();
+  }, [user?.id]);
+
   return (
     <section className="panel-card" style={{ maxWidth: 660, margin: '0 auto 24px', textAlign: 'center' }} aria-labelledby="student-link-title">
       <div>
@@ -52,7 +80,7 @@ export default function StudentLinkCode() {
           Share Progress with Parent or Teacher
         </h2>
         <p style={{ color: 'var(--text-mid)', fontSize: 14 }}>
-          Generate a one-time code and share it with your parent or teacher. They can enter it in their Parent or Teacher Portal to connect your accounts and view your learning insights.
+          Here is your unique student link code. Share it with your parent, teacher, or specialist. They can enter it in their portal to connect your accounts and view your learning insights.
         </p>
 
         {createState.code ? (
@@ -91,7 +119,14 @@ export default function StudentLinkCode() {
               </button>
             </div>
             <p style={{ color: 'var(--text-mid)', fontSize: 13, marginTop: 10 }}>
-              {createState.message} (Expires in 30 minutes)
+              {createState.message}{' '}
+              {createState.expiresAt ? (
+                <span>
+                  (Expires at {new Date(createState.expiresAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}, valid for 30 minutes)
+                </span>
+              ) : (
+                <span>(Expires in 30 minutes)</span>
+              )}
             </p>
             <div style={{ marginTop: 14 }}>
               <button

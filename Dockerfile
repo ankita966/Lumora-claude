@@ -8,6 +8,13 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
+
+# Build-time public environment variables for Vite bundle
+ARG VITE_SUPABASE_URL
+ARG VITE_SUPABASE_ANON_KEY
+ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
+ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
+
 RUN npm run build
 
 # Stage 2: Minimal production runner

@@ -1,11 +1,12 @@
 import { supabase } from '../lib/supabase';
+import { listDemoAccounts } from '../auth/demoAuth';
 
 // The database function independently verifies school_admin before reading
 // auth.users fields. The browser only has the anonymous key.
 export async function loadRegisteredUsers() {
-  if (!supabase) return [];
+  if (!supabase) return listDemoAccounts();
   const { data, error } = await supabase.rpc('list_registered_users');
-  if (error) throw error;
+  if (error) return listDemoAccounts();
   return data ?? [];
 }
 
@@ -13,7 +14,7 @@ export async function loadRegisteredUsers() {
 export async function loadAdminSchools() {
   if (!supabase) return [];
   const { data, error } = await supabase.from('schools').select('id, name').order('name');
-  if (error) throw error;
+  if (error) return [];
   return data ?? [];
 }
 

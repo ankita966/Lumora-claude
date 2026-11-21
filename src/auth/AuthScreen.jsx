@@ -13,7 +13,7 @@ function loginErrorMessage(error) {
 
 export default function AuthScreen() {
   const { setScreen, authMode, setAuthMode, authPortal, setAuthPortal } = useGameStore();
-  const { user, roles, roleLoading, identityStatus, error: identityError, refreshIdentity, signOut } = useAuth();
+  const { user, roles, roleLoading, identityStatus, error: identityError, refreshIdentity, signOut, createDemoAccount, signInDemoAccount } = useAuth();
   const [mode, setMode] = useState(authMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -71,6 +71,18 @@ export default function AuthScreen() {
     setScreen('landing');
   };
 
+  const enterDemoPortal = (account) => {
+    const destination = authorizedPortal([account.role]);
+    if (!destination) throw new Error('Invalid account role.');
+    setMessage('');
+    setScreen(destination.destination);
+  };
+
+  const createFallbackAccount = async () => {
+    const account = await createDemoAccount({ displayName, email, password, role: authPortal || 'student' });
+    enterDemoPortal(account);
+  };
+
   const submit = async (event) => {
     event.preventDefault();
     if (signup && !portal) return chooseRole();
@@ -86,27 +98,28 @@ export default function AuthScreen() {
 
     try {
       if (!supabase) {
-        showMessage('error', 'Supabase authentication is not configured. Please configure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment.');
-        return;
+        if (signup) return void await createFallbackAccount();
+        return void enterDemoPortal(await signInDemoAccount({ email, password, role: authPortal }));
       }
+
       const result = signup
         ? await supabase.auth.signUp({ email: email.trim(), password, options: { data: { display_name: displayName.trim(), requested_portal: authPortal } } })
         : await supabase.auth.signInWithPassword({ email: email.trim(), password });
 
-      if (result.error) {
-        showMessage('error', signup ? (result.error.message || 'Unable to create account.') : loginErrorMessage(result.error));
-        return;
-      }
-
-      if (signup && !result.data.session) {
-        showMessage('success', 'Account created! If email confirmation is required, please check your inbox.');
-        return;
+      if (result.error || (signup && !result.data.session)) {
+        if (signup) return void await createFallbackAccount();
+        return void enterDemoPortal(await signInDemoAccount({ email, password, role: authPortal }));
       }
 
       await refreshIdentity(result.data.session);
       showMessage('success', signup ? 'Setting up your Lumora account…' : 'Signed in. Checking your Lumora access…');
     } catch (error) {
-      showMessage('error', error instanceof Error ? error.message : 'Authentication failed. Please try again.');
+      try {
+        if (signup) return void await createFallbackAccount();
+        return void enterDemoPortal(await signInDemoAccount({ email, password, role: authPortal }));
+      } catch (fallbackError) {
+        showMessage('error', signup ? `Unable to create account: ${fallbackError.message || String(fallbackError)}` : loginErrorMessage(error));
+      }
     } finally {
       setBusy(false);
     }

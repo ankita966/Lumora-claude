@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
+import { clearDemoSession, createDemoAccount, getDemoSession, signInDemoAccount } from './demoAuth';
 
 const AuthContext = createContext(null);
 
@@ -45,6 +46,9 @@ export function AuthProvider({ children }) {
     identityStatus: 'unauthenticated',
     error: null,
   });
+
+  // Fallback account active for local/offline sessions when Supabase is not configured or fails
+  const [demoAccount, setDemoAccount] = useState(() => getDemoSession());
   const requestIdRef = useRef(0);
 
   const loadSessionIdentity = async (session, isCurrent = () => true) => {
@@ -80,16 +84,37 @@ export function AuthProvider({ children }) {
     return () => { mounted = false; subscription.subscription.unsubscribe(); };
   }, []);
 
+  const activeDemo = !state.session && demoAccount;
+  const demoUser = activeDemo ? { id: activeDemo.id, email: activeDemo.email, user_metadata: { display_name: activeDemo.displayName } } : null;
+
   const value = useMemo(() => ({
     ...state,
+    session: activeDemo ? { user: demoUser } : state.session,
+    profile: activeDemo ? { id: activeDemo.id, display_name: activeDemo.displayName } : state.profile,
+    roles: activeDemo ? [activeDemo.role] : state.roles,
+    identityStatus: activeDemo ? 'ready' : state.identityStatus,
+    loading: activeDemo ? false : state.loading,
+    roleLoading: activeDemo ? false : state.roleLoading,
     configured: isSupabaseConfigured,
-    authLoading: state.loading,
-    profileLoading: state.roleLoading && state.identityStatus === 'profile_loading',
-    ready: !state.loading && !state.roleLoading && state.identityStatus === 'ready',
-    user: state.session?.user ?? null,
-    displayName: state.profile?.display_name?.trim() || state.session?.user?.user_metadata?.display_name?.trim() || 'Learner',
+    authLoading: activeDemo ? false : state.loading,
+    profileLoading: !activeDemo && state.roleLoading && state.identityStatus === 'profile_loading',
+    ready: !state.loading && (!state.roleLoading || Boolean(activeDemo)) && (Boolean(activeDemo) || state.identityStatus === 'ready'),
+    user: demoUser ?? state.session?.user ?? null,
+    displayName: activeDemo?.displayName || state.profile?.display_name?.trim() || state.session?.user?.user_metadata?.display_name?.trim() || 'Learner',
     signOut: async () => {
+      clearDemoSession();
+      setDemoAccount(null);
       if (state.session) await supabase?.auth.signOut();
+    },
+    createDemoAccount: async (details) => {
+      const account = await createDemoAccount(details);
+      setDemoAccount(account);
+      return account;
+    },
+    signInDemoAccount: async (details) => {
+      const account = await signInDemoAccount(details);
+      setDemoAccount(account);
+      return account;
     },
     // The session from signInWithPassword lets this complete without waiting
     // for the asynchronous auth-state callback.
@@ -97,7 +122,7 @@ export function AuthProvider({ children }) {
       const requestId = ++requestIdRef.current;
       await loadSessionIdentity(session, () => requestId === requestIdRef.current);
     },
-  }), [state]);
+  }), [activeDemo, demoAccount, demoUser, state]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

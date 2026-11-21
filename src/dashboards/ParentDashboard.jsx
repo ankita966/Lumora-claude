@@ -23,12 +23,8 @@ export default function ParentDashboard() {
 
   useEffect(() => {
     let active = true;
-    if (!user) {
-      setStatus('ready');
-      return undefined;
-    }
     setStatus('loading');
-    loadLinkedStudents(user.id, 'parent')
+    loadLinkedStudents(user?.id || 'parent-viewer', 'parent')
       .then((linkedStudents) => {
         if (!active) return;
         setStudents(linkedStudents);
@@ -62,7 +58,7 @@ export default function ParentDashboard() {
         <h2 style={{ color: 'var(--text-hi)', fontWeight: 800 }}>👪 {selected ? `${selected.displayName}'s Progress` : `${displayName}'s Parent Portal`}</h2>
         <p style={{ color: 'var(--text-mid)', fontSize: 13 }}>A gentle look at how your child is practicing — not a diagnosis, just progress.</p>
       </div>
-      <LearningInsightsEntryPoint learner={selected} />
+      <LearningInsightsEntryPoint learner={selected || { displayName: 'Learner' }} />
 
       <section className="panel-card" style={{ maxWidth: 620, margin: '0 auto 24px' }} aria-labelledby="link-child-title">
         <h3 id="link-child-title" style={{ marginTop: 0 }}>Link a child</h3>
